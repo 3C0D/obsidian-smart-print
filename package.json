@@ -1,7 +1,7 @@
 {
-  "name": "obsidian-sample-plugin-modif",
+  "name": "obsidian-smart-print",
   "version": "1.0.2",
-  "description": "Template Obsidian plugin modifié avec scripts intégrés",
+  "description": "Print Obsidian notes directly in browser with advanced options and preview",
   "type": "module",
   "main": "src/index.ts",
   "license": "MIT",
@@ -9,11 +9,10 @@
     "obsidian",
     "obsidian-plugin",
     "typescript",
-    "injection",
-    "autonomous",
-    "cli",
-    "development-tools",
-    "plugin-utilities"
+    "print",
+    "browser-print",
+    "smart-print",
+    "preview"
   ],
   "scripts": {
     "start": "yarn install && yarn dev",
@@ -49,7 +48,8 @@
     "@typescript-eslint/parser": "latest",
     "eslint": "latest",
     "eslint-import-resolver-typescript": "latest",
-    "jiti": "latest"
+    "jiti": "latest",
+    "printd": "^1.6.0"
   },
   "dependencies": {
     "@types/lodash": "^4.17.17",

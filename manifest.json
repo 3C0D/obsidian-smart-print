@@ -1,9 +1,9 @@
 {
-	"id": "sample-plugin-modif",
-	"name": "Sample Plugin Modif",
+	"id": "obsidian-smart-print",
+	"name": "Smart Print",
 	"version": "1.0.2",
 	"minAppVersion": "1.8.9",
-	"description": "A sample plugin modified",
+	"description": "Print Obsidian notes directly in browser with advanced options and preview",
 	"author": "3C0D",
 	"authorUrl": "https://github.com/3C0D",
 	"isDesktopOnly": false

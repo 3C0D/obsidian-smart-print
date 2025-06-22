@@ -1,1 +1,287 @@
-/* ccc */ 
+/* Print-specific styles */
+@media print {
+    .markdown-preview-sizer {
+        min-height: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+@media screen {
+    .obsidian-smart-print {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+}
+
+/* Hide UI elements */
+.obsidian-smart-print .collapse-indicator,
+.obsidian-smart-print .clickable-icon,
+.obsidian-smart-print .fold-indicator,
+.obsidian-smart-print .mod-collapse-icon,
+.obsidian-smart-print button,
+.obsidian-smart-print .copy-code-button,
+.obsidian-smart-print .metadata-container {
+    display: none !important;
+}
+
+/* Base styles for both preview and print */
+.obsidian-smart-print {
+    font-family: var(--print-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    line-height: 1.5;
+    background-color: white;
+}
+
+/* Force text color for non-headings */
+.obsidian-smart-print *:not(h1, h2, h3, h4, h5, h6) {
+    color: black !important;
+}
+
+/* Inline title if Print title enabled */
+.obsidian-smart-print .inline-title {
+    font-weight: 900;
+    text-align: center;
+    margin-top: 16px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 8px;
+}
+
+/* Headings */
+.obsidian-smart-print h1,
+.obsidian-smart-print h2,
+.obsidian-smart-print h3,
+.obsidian-smart-print h4,
+.obsidian-smart-print h5,
+.obsidian-smart-print h6 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+}
+
+/* Links */
+.obsidian-smart-print a {
+    text-decoration: none;
+}
+
+/* Code blocks */
+.obsidian-smart-print pre,
+.obsidian-smart-print code {
+    background-color: #ffffff !important;
+    border: 1px solid #e1e4e8;
+    border-radius: 3px;
+    padding: 0.2em 0.4em;
+    font-family: var(--print-code-font, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace);
+    color: #24292e;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+/* Add support for code block language display */
+.obsidian-smart-print pre {
+    position: relative;
+    margin-top: 1.5em !important;
+}
+
+.obsidian-smart-print pre[class*="language-"]::before {
+    content: attr(class);
+    content: attr(class);
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    font-size: 0.8em;
+    color: #666666be;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: #f5f5f5ad;
+    padding: 0.1em 0.5em;
+    border: 1px solid #e1e4e8;
+    border-radius: 3px;
+}
+
+/* Clean up language class name display */
+.obsidian-smart-print pre[class*="language-"]::before {
+    content: attr(class);
+    content: attr(class);
+    text-transform: none;
+}
+
+.obsidian-smart-print pre[class^="language-"]::before {
+    content: attr(class);
+    content: attr(class);
+    text-transform: none;
+}
+
+/* Format specific language displays */
+.obsidian-smart-print pre.language-javascript::before {
+    content: "JavaScript";
+}
+
+.obsidian-smart-print pre.language-js::before {
+    content: "JavaScript";
+}
+
+.obsidian-smart-print pre.language-typescript::before {
+    content: "TypeScript";
+}
+
+.obsidian-smart-print pre.language-ts::before {
+    content: "TypeScript";
+}
+
+.obsidian-smart-print pre.language-python::before {
+    content: "Python";
+}
+
+.obsidian-smart-print pre.language-java::before {
+    content: "Java";
+}
+
+.obsidian-smart-print pre.language-c::before {
+    content: "C";
+}
+
+.obsidian-smart-print pre.language-cpp::before {
+    content: "C++";
+}
+
+.obsidian-smart-print pre.language-csharp::before,
+.obsidian-smart-print pre.language-cs::before {
+    content: "C#";
+}
+
+.obsidian-smart-print pre.language-html::before {
+    content: "HTML";
+}
+
+.obsidian-smart-print pre.language-css::before {
+    content: "CSS";
+}
+
+.obsidian-smart-print pre.language-bash::before,
+.obsidian-smart-print pre.language-sh::before {
+    content: "Shell";
+}
+
+.obsidian-smart-print pre.language-yaml::before,
+.obsidian-smart-print pre.language-yml::before {
+    content: "YAML";
+}
+
+.obsidian-smart-print pre.language-json::before {
+    content: "JSON";
+}
+
+.obsidian-smart-print pre.language-markdown::before,
+.obsidian-smart-print pre.language-md::before {
+    content: "Markdown";
+}
+
+.obsidian-smart-print pre.language-sql::before {
+    content: "SQL";
+}
+
+.obsidian-smart-print pre.language-mermaid::before {
+    content: "Mermaid";
+}
+
+.obsidian-smart-print pre.language-dataview::before {
+    content: "Dataview";
+}
+
+.obsidian-smart-print pre code {
+    border: none;
+    padding: 0;
+}
+
+/* Custom metadata styles */
+.obsidian-smart-print .custom-metadata-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.obsidian-smart-print .custom-metadata-line {
+    margin: 5px 0;
+    font-family: var(--print-font-family);
+    color: #666;
+}
+
+/* Callouts */
+.obsidian-smart-print .callout {
+    border-radius: 4px;
+    padding: 0;
+    overflow: hidden;
+    margin: 1em 0;
+    background-color: #ffffff;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.obsidian-smart-print .callout-title {
+    padding: 0.5em;
+    display: flex;
+    gap: 8px;
+    font-size: inherit;
+}
+
+.obsidian-smart-print .callout-content {
+    padding: 0.25em 1em;
+}
+
+/* Tables */
+.obsidian-smart-print table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    page-break-inside: avoid;
+}
+
+.obsidian-smart-print th,
+.obsidian-smart-print td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.obsidian-smart-print th {
+    background-color: #ffffff;
+    font-weight: bold;
+}
+
+/* Lists */
+.obsidian-smart-print ul,
+.obsidian-smart-print ol {
+    padding-left: 2em;
+    margin: 0.5em 0;
+    list-style-position: outside;
+}
+
+.obsidian-smart-print ul>li {
+    list-style-type: disc !important;
+}
+
+.obsidian-smart-print ul>li>ul>li {
+    list-style-type: circle !important;
+}
+
+.obsidian-smart-print ul>li>ul>li>ul>li {
+    list-style-type: square !important;
+}
+
+/* Task lists */
+.obsidian-smart-print .task-list-item {
+    list-style-type: none;
+}
+
+.obsidian-smart-print .task-list-item-checkbox {
+    margin-right: 0.5em;
+}
+
+/* Images */
+.obsidian-smart-print img {
+    max-width: 100%;
+    page-break-inside: avoid;
+}

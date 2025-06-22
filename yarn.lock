@@ -2658,6 +2658,11 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
+printd@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/printd/-/printd-1.6.0.tgz#0abc44583740ca106b51b3b1f38589d6f152882e"
+  integrity sha512-/w99P870SbE4MjVXJbWBvrK/HtVOcTEcmzUXcPYzfIaxgyPUGw8lmbhM3JHYbiZ18BCj+qwVEVshf2MLRoAh0Q==
+
 progress@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"

@@ -1,62 +1,61 @@
-# Obsidian Sample Plugin (Modified)
+# Obsidian Print Plugin
 
-Plugin Obsidian autonome avec scripts intégrés et système de mise à jour.
+Enhanced printing capabilities for Obsidian notes with multiple printing modes.
 
-## Installation
+## Features
 
-```bash
-git clone https://github.com/3C0D/obsidian-sample-plugin-modif.git
-cd obsidian-sample-plugin-modif
-yarn install
-```
+### Three Printing Modes
 
-## Configuration
+1. **Basic Mode**
+   - Direct printing within Obsidian
+   - Simple rendering of notes
+   - Lightweight and fast
 
-Créer un fichier `.env` avec vos chemins de vaults :
+2. **Standard Mode**
+   - Browser-based printing with enhanced options
+   - Access to all standard browser printing capabilities
+   - Same rendering quality as Basic mode
 
-```env
-TEST_VAULT=C:\chemin\vers\vault\test
-REAL_VAULT=C:\chemin\vers\vault\reel
-```
+3. **Advanced Mode**
+   - Enhanced rendering for complex elements
+   - Full support for Mermaid diagrams, callouts, and icons
+   - MathJax formulas not supported
+   - Best visual fidelity (slightly slower)
 
-## Commandes
+### Print Options Modal
 
-```bash
-yarn start      # Développement avec hot reload
-yarn build      # Build production
-yarn real       # Build + installation vault réel
-yarn acp        # Add-commit-push Git
-yarn bacp       # Build + add-commit-push
-yarn v          # Mise à jour version
-yarn h          # Aide
-```
+![Print Modal](assets/modal.png)
 
-## Mise à jour via obsidian-plugin-config
+The print modal provides quick access to common settings:
+- Choose between Basic, Standard, and Advanced printing modes
+- Toggle page breaks at horizontal rules
+- Include or exclude the note title
+- Show or hide metadata
 
-Ce plugin peut être mis à jour automatiquement :
+### Preview Functionality
 
-```bash
-# Installation globale (une seule fois)
-npm install -g obsidian-plugin-config
+- Preview your document before printing in all modes
+- Full-window preview in browser modes (visible after canceling the print dialog)
+- Press Ctrl+P in the preview window to reopen the print dialog if needed
 
-# Mise à jour du plugin
-cd votre-plugin
-obsidian-inject
-```
+### Additional Features
 
-Cela met à jour :
+- Print selection from notes
+- Print all notes in a folder
+- Customizable header sizes and colors
+- Metadata display in all printing modes
 
-- Scripts locaux (esbuild, acp, etc.)
-- Configuration package.json
-- Dépendances requises
+## Usage
 
-## Architecture
+- Use the ribbon icon or command palette to print the current note
+- Right-click on a file or folder to access printing options
+- Right-click in the editor to print the current note or selected text
 
-Plugin **autonome** avec scripts locaux dans `./scripts/` :
+## Settings
 
-- `esbuild.config.ts` - Configuration build
-- `acp.ts` - Automation Git
-- `update-version.ts` - Gestion versions
-- `utils.ts` - Fonctions utilitaires
-
-Aucune dépendance externe requise pour fonctionner.
+- Adjust font sizes for all elements including headers
+- Customize header colors to match your preferences
+- Use the "get theme colors" button to automatically import colors from your current theme (light mode colors)
+- Enable/disable page breaks at horizontal rules
+- Toggle metadata display
+- Create custom CSS for advanced styling (use ".obsidian-smart-print" prefix for all selectors)

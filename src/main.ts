@@ -1,130 +1,186 @@
-import {
-  App,
-  Plugin,
-  PluginSettingTab,
-  Setting,
-  Notice
-} from "obsidian";
-import { GenericConfirmModal } from "./common/generic-confirm-modal.js";
-// Import from centralized configuration (simulated for demo)
-import { showCentralizedModal } from "./common/centralized-modal.js";
-// Import centralized tools - COMMENTED FOR AUTONOMOUS VERSION
-// import { showTestMessage, getRandomEmoji } from "obsidian-plugin-config/tools";
+import { Plugin, TFile, TFolder, MarkdownView } from 'obsidian';
+import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from './types.ts';
+import { printFolder } from './folderPrint.ts';
+import { printContent } from './basicPrint/basicPrint.ts';
+import { advancedPrint } from './advancedPrint/advancedPrint.ts';
+import { PrintModeModal } from './PrintModeModal.ts';
+import { contentToHTML } from './normalCapturePreview.ts';
+import { initializeThemeColors, initializeFontSizes, PrintSettingTab } from './settings.ts';
+import { openPrintModal } from './basicPrint/basicPrintPreview.ts';
+import { generatePrintStyles } from './getStyles/generatePrintStyles.ts';
 
-// Remember to rename these classes and interfaces
+export default class SmartPrintPlugin extends Plugin {
+    settings: SmartPrintPluginSettings;
 
-interface MyPluginSettings {
-  mySetting: string;
-}
+    async onload(): Promise<void> {
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-  mySetting: "default"
-};
-
-export default class MyPlugin extends Plugin {
-  settings: MyPluginSettings;
-
-  async onload(): Promise<void> {
-    console.log("loading plugin");
-    await this.loadSettings();
-
-    // Ajouter une commande pour tester le modal de confirmation local
-    this.addCommand({
-      id: 'show-confirmation-modal',
-      name: 'Show Confirmation Modal (Local)',
-      callback: () => this.showConfirmationModal()
-    });
-
-    // Ajouter une commande pour tester le modal de confirmation centralisé
-    this.addCommand({
-      id: 'show-centralized-modal',
-      name: 'Show Confirmation Modal (Centralized)',
-      callback: () => this.showCentralizedModal()
-    });
-
-    // Test centralized tools - COMMENTED FOR AUTONOMOUS VERSION
-    /*
-    this.addCommand({
-      id: 'test-centralized-tools',
-      name: 'Test Centralized Tools',
-      callback: () => {
-        const message = showTestMessage();
-        const emoji = getRandomEmoji();
-        new Notice(`${emoji} ${message}`);
-      }
-    });
-    */
-
-    this.addSettingTab(new SampleSettingTab(this.app, this));
-  }
-
-  /**
-   * Affiche un modal de confirmation pour tester la fonctionnalité
-   */
-  private showConfirmationModal(): void {
-    const modal = new GenericConfirmModal(
-      this.app,
-      "Confirmation requise",
-      [
-        "Êtes-vous sûr de vouloir effectuer cette action ?",
-        "Cette action ne peut pas être annulée."
-      ],
-      "Confirmer",
-      "Annuler",
-      (confirmed: boolean) => {
-        if (confirmed) {
-          new Notice("Action confirmée !");
-          console.log("Action confirmée par l'utilisateur");
-        } else {
-          new Notice("Action annulée.");
-          console.log("Action annulée par l'utilisateur");
+        // Initialize header colors and font sizes if not done before
+        if (!this.settings.hasInitializedColors) {
+            await initializeThemeColors(this.app, this);
         }
-      }
-    );
+        // Initialize header colors and font sizes if not done before
+        if (!this.settings.hasInitializedSizes) {
+            await initializeFontSizes(this);
+        }
 
-    modal.open();
-  }
+        this.addCommand({
+            id: 'advanced-print',
+            name: 'Current note (Advanced print in browser)',
+            callback: async () => {
+                await advancedPrint(this.app, this.manifest, this.settings);
+            }
+        });
 
-  /**
-   * Affiche un modal de confirmation depuis la configuration centralisée
-   */
-  private showCentralizedModal(): void {
-    showCentralizedModal(this.app, {
-      title: "Centralized Modal Test",
-      message: "This modal comes from the centralized configuration! Pretty cool, right?",
-      confirmText: "Awesome!",
-      cancelText: "Not bad",
-      onConfirm: () => {
-        new Notice("Centralized modal confirmed! 🎉");
-      },
-      onCancel: () => {
-        new Notice("Centralized modal cancelled 😢");
-      }
-    });
-  }
+        this.addCommand({
+            id: 'standard-print',
+            name: 'Current note (Standard print in browser)',
+            callback: async () => await this.standardPrint(),
+        });
 
-  async loadSettings(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-  }
+        // basic print method using Obsidian's native functionality
+        this.addCommand({
+            id: 'print-note',
+            name: 'Current note (Basic print)',
+            callback: async () => await this.basicPrint(),
+        });
 
-  async saveSettings(): Promise<void> {
-    await this.saveData(this.settings);
-  }
-}
+        this.addCommand({
+            id: 'print-selection',
+            name: 'Selection',
+            callback: async () => await this.handlePrint(false, true),
+        });
 
-class SampleSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+        this.addCommand({
+            id: 'print-folder-notes',
+            name: 'All notes in current folder',
+            callback: async () => await printFolder(this),
+        });
 
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+        this.addSettingTab(new PrintSettingTab(this.app, this));
 
-  display(): void {
-    const { containerEl } = this;
+        // Add debounce to prevent double triggering from ribbon
+        let isProcessing = false;
+        this.addRibbonIcon('printer', 'Print note', async () => {
+            if (isProcessing) return;
+            isProcessing = true;
+            await this.handlePrint();
+            // Reset after a short delay
+            setTimeout(() => {
+                isProcessing = false;
+            }, 500);
+        });
 
-    containerEl.empty();
+        this.registerEvent(
+            this.app.workspace.on('file-menu', (menu, file) => {
+                if (file instanceof TFile) {
+                    menu.addItem((item) => {
+                        item
+                            .setTitle('Print note')
+                            .setIcon('printer')
+                            .onClick(async () => await this.handlePrint(true, false, file));
+                    });
+                } else {
+                    menu.addItem((item) => {
+                        item
+                            .setTitle('Print all notes in folder')
+                            .setIcon('printer')
+                            .onClick(async () => await printFolder(this, file as TFolder));
+                    });
+                }
+            })
+        );
 
-    new Setting(containerEl);
-  }
+        this.registerEvent(
+            this.app.workspace.on('editor-menu', (menu) => {
+                menu.addItem((item) => {
+                    item
+                        .setTitle('Print note')
+                        .setIcon('printer')
+                        .onClick(async () => await this.handlePrint());
+                });
+                menu.addItem((item) => {
+                    item
+                        .setTitle('Print selection')
+                        .setIcon('printer')
+                        .onClick(async () => await this.handlePrint(false, true));
+                });
+            })
+        );
+    }
+
+    /**
+     * Prints the current note or a specified file
+     * @param isSelection Whether to print only the selected text (default: false)
+     * @param file Optional file to print, defaults to active file
+     */
+    async standardPrint(isSelection = false, file?: TFile): Promise<void> {
+        const content = await contentToHTML(this.app, this.settings, isSelection, file);
+        if (!content) {
+            return;
+        }
+        await printContent(content, this.app, this.manifest, this.settings);
+    }
+
+    /**
+     * Handles the print logic (standard/advanced) with modal option
+     * @param useAdvancedPrint Whether to use advanced print mode (default: true)
+     * @param isSelection Whether to print only the selected text (default: false)
+     */
+    public async handlePrint(useAdvancedPrint = true, isSelection = false, file?: TFile): Promise<void> {
+        if (this.settings.useModal) {
+            new PrintModeModal(
+                this.app,
+                this.settings,
+                useAdvancedPrint,
+                async (state) => {
+                    if (useAdvancedPrint && state === 'advanced') {
+                        await advancedPrint(this.app, this.manifest, this.settings, isSelection);
+                    } else if (state === 'standard') {
+                        await this.standardPrint(isSelection, file);
+                    } else {
+                        await this.basicPrint(isSelection, file);
+                    }
+                },
+                async () => await this.saveSettings()
+            ).open();
+        } else {
+            if (this.settings.useBrowserPrint) {
+                await this.standardPrint(isSelection, file);
+            } else {
+                await this.basicPrint(isSelection, file);
+            }
+        }
+    }
+
+    /**
+     * Save the active file before printing, so we can retrieve the most recent content.
+     */
+    async saveActiveFile(): Promise<TFile | null> {
+        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+
+        if (activeView) {
+            await activeView.save();
+        }
+
+        return this.app.workspace.getActiveFile();
+    }
+    /**
+     * Prints the current note or a specified file
+     * @param isSelection Whether to print only the selected text (default: false)
+     * @param file Optional file to print, defaults to active file
+     */
+    async basicPrint(isSelection = false, file?: TFile): Promise<void> {
+        const content = await contentToHTML(this.app, this.settings, isSelection, file);
+        if (!content) {
+            return;
+        }
+
+        const globalCSS = await generatePrintStyles(this.app, this.manifest, this.settings);
+        await openPrintModal(content, this.settings, globalCSS);
+    }
+
+    async saveSettings(): Promise<void> {
+        await this.saveData(this.settings);
+    }
 }
