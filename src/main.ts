@@ -9,6 +9,9 @@ import { initializeThemeColors, initializeFontSizes, PrintSettingTab } from './s
 import { openPrintModal } from './basicPrint/basicPrintPreview.ts';
 import { generatePrintStyles } from './getStyles/generatePrintStyles.ts';
 
+
+// print selection in advanced mode?? many tries unsuccessful
+
 export default class SmartPrintPlugin extends Plugin {
     settings: SmartPrintPluginSettings;
 
@@ -25,24 +28,9 @@ export default class SmartPrintPlugin extends Plugin {
         }
 
         this.addCommand({
-            id: 'advanced-print',
-            name: 'Current note (Advanced print in browser)',
-            callback: async () => {
-                await advancedPrint(this.app, this.manifest, this.settings);
-            }
-        });
-
-        this.addCommand({
-            id: 'standard-print',
-            name: 'Current note (Standard print in browser)',
-            callback: async () => await this.standardPrint(),
-        });
-
-        // basic print method using Obsidian's native functionality
-        this.addCommand({
             id: 'print-note',
-            name: 'Current note (Basic print)',
-            callback: async () => await this.basicPrint(),
+            name: 'Current note',
+            callback: async () => await this.handlePrint(),
         });
 
         this.addCommand({
@@ -130,6 +118,7 @@ export default class SmartPrintPlugin extends Plugin {
     public async handlePrint(useAdvancedPrint = true, isSelection = false, file?: TFile): Promise<void> {
         if (this.settings.useModal) {
             new PrintModeModal(
+                this,
                 this.app,
                 this.settings,
                 useAdvancedPrint,

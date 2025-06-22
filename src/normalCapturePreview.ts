@@ -185,7 +185,7 @@ export async function generatePreviewContent(
             new Component()
         );
 
-        content.addClass('obsidian-smart-print-note');
+        content.addClass('obsidian-print-note');
         return content;
 
     } catch (error) {

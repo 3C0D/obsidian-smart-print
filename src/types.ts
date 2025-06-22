@@ -24,6 +24,8 @@ export interface SmartPrintPluginSettings {
     debugMode: boolean;
     usePreview: boolean;
     useBrowserPrint: boolean;
+    printFontFamily: string;
+    autoSyncHeadingSizes: boolean;
 }
 
 export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
@@ -52,4 +54,6 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
     debugMode: false,
     usePreview: true,
     useBrowserPrint: true,
+    printFontFamily: 'var(--print-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif)',
+    autoSyncHeadingSizes: true
 };

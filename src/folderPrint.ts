@@ -51,7 +51,7 @@ export async function printFolder(plugin: SmartPrintPlugin, folder?: TFolder): P
             continue;
         }
         if (!plugin.settings.combineFolderNotes) {
-            content.addClass('obsidian-smart-print-page-break');
+            content.addClass('obsidian-print-page-break');
         }
         folderContent.append(content);
     }

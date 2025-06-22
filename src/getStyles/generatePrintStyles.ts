@@ -1,6 +1,7 @@
 import { App, Notice, type PluginManifest } from 'obsidian';
 import path from 'path';
 import type { SmartPrintPluginSettings } from '../types.ts';
+import { FONT_OPTIONS } from './fontOptions.ts';
 
 /**
  * Generates CSS styles for printing, combining plugin styles, user snippets, and some styles settings
@@ -33,37 +34,38 @@ export async function generatePrintStyles(
 
     // Generate CSS for headings with sizes and colors from settings
     const titleCSS = settings.printTitle ? `
-.obsidian-smart-print .inline-title {
+.obsidian-print .inline-title {
     display: block !important;
     font-size: ${settings.inlineTitleSize} !important;
     color: ${settings.inlineTitleColor} !important;
 }` : `
-.obsidian-smart-print .inline-title {
+.obsidian-print .inline-title {
     display: none !important;
 }`;
 
     const headingsCSS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
         .map((tag) => {
             const sizeKey = `${tag}Size` as keyof SmartPrintPluginSettings;
-    const colorKey = `${tag}Color` as keyof SmartPrintPluginSettings;
-            return `.obsidian-smart-print ${tag} { font-size: ${settings[sizeKey]}; color: ${settings[colorKey]}; }`;
+            const colorKey = `${tag}Color` as keyof SmartPrintPluginSettings;
+            return `.obsidian-print ${tag} { font-size: ${settings[sizeKey]}; color: ${settings[colorKey]}; }`;
         })
         .join('\n');
 
+        
     // MathJax styles extraction not working - keeping for reference
     // const mathJaxStyles = document.querySelector('style[data-id="MJX-CHTML-styles"]')?.innerHTML || '';
     // const mathJaxSpecificStyles = `
-    //     .obsidian-smart-print .math-block {
+    //     .obsidian-print .math-block {
     //         display: block !important;
     //         margin: 1em 0;
     //     }
-    //     .obsidian-smart-print .math-inline {
+    //     .obsidian-print .math-inline {
     //         display: inline-block !important;
     //     }
-    //     .obsidian-smart-print mjx-container {
+    //     .obsidian-print mjx-container {
     //         display: inline-block !important;
     //     }
-    //     .obsidian-smart-print mjx-container[jax="CHTML"][display="true"] {
+    //     .obsidian-print mjx-container[jax="CHTML"][display="true"] {
     //         display: block !important;
     //         margin: 1em 0;
     //     }
@@ -71,14 +73,19 @@ export async function generatePrintStyles(
 
     // Final combined CSS, including hr page breaks
     return `
-        .obsidian-smart-print { font-size: ${settings.fontSize}; }
+        .obsidian-print { font-size: ${settings.fontSize}; font-family: ${getFontFamily(settings.printFontFamily)}; }
         ${titleCSS}
         ${headingsCSS}
-        ${settings.hrPageBreaks ? '.obsidian-smart-print hr { page-break-before: always; border: none; }' : ''}
-        ${!settings.showMetadata ? '.obsidian-smart-print .metadata-container { display: none !important; }' : ''}
+        ${settings.hrPageBreaks ? '.obsidian-print hr { page-break-before: always; border: none; }' : ''}
+        ${!settings.showMetadata ? '.obsidian-print .metadata-container { display: none !important; }' : ''}
         ${pluginStyle}
         ${userStyle}
     `;
+}
+
+export function getFontFamily(fontKey?: string): string {
+    const fontOption = FONT_OPTIONS.find(font => font.value === fontKey);
+    return fontOption?.css || FONT_OPTIONS[0].css;
 }
 
 function getPrintSnippetValue(app: App): string | undefined {

@@ -128,6 +128,7 @@ async function waitForStableContent(app: App, element: HTMLElement): Promise<voi
     return new Promise((resolve) => {
         // Initial delay before starting observation
         setTimeout(() => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             let mutationCount = 0;
             let lastMutationTime = Date.now();
 

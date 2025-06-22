@@ -10,25 +10,25 @@ import type { SmartPrintPluginSettings } from '../types.ts';
 export async function openPrintModal(content: HTMLElement, settings: SmartPrintPluginSettings, cssString: string): Promise<void> {
     const styleManager = new PrintStyleManager(settings);
     const printContent = styleManager.prepareForPrint(content);
-    
+
     // Create proper HTML structure
     const htmlElement = document.createElement('html');
     const headElement = document.createElement('head');
     const bodyElement = document.createElement('body');
-    
+
     // Setup head
     const styleElement = document.createElement('style');
     styleElement.textContent = cssString;
     headElement.appendChild(styleElement);
-    
+
     // Setup body
-    bodyElement.className = 'obsidian-smart-print';
+    bodyElement.className = 'obsidian-print';
     bodyElement.appendChild(printContent);
-    
+
     // Assemble HTML
     htmlElement.appendChild(headElement);
     htmlElement.appendChild(bodyElement);
-    
+
     const preview = new PrintPreview();
     preview.createPreview(htmlElement, cssString, {
         width: '90%',
@@ -171,7 +171,7 @@ class PrintPreview {
  * Manages the styling of content for printing
  */
 export class PrintStyleManager {
-    constructor(private settings: SmartPrintPluginSettings) {}
+    constructor(private settings: SmartPrintPluginSettings) { }
 
     /**
      * Prepares the content for printing by adding necessary print classes
@@ -180,7 +180,7 @@ export class PrintStyleManager {
      */
     prepareForPrint(content: HTMLElement): HTMLElement {
         const printContent = content.cloneNode(true) as HTMLElement;
-        printContent.classList.add('obsidian-smart-print');
+        printContent.classList.add('obsidian-print');
 
         const mathElements = printContent.querySelectorAll('.math, .math-block');
         mathElements.forEach(elem => {

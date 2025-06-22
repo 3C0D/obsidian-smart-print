@@ -2,6 +2,7 @@ import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import SmartPrintPlugin from './main.ts';
 import { getPrintSnippet, isPrintSnippetEnabled } from './getStyles/generatePrintStyles.ts';
 import { getHeaderColors, getInlineTitleColor } from './getStyles/importThemeHeaders.ts';
+import { FONT_OPTIONS } from './getStyles/fontOptions.ts';
 
 export class PrintSettingTab extends PluginSettingTab {
     plugin: SmartPrintPlugin;
@@ -9,26 +10,6 @@ export class PrintSettingTab extends PluginSettingTab {
     constructor(app: App, plugin: SmartPrintPlugin) {
         super(app, plugin);
         this.plugin = plugin;
-    }
-
-    private validateFontSize(value: string, defaultSize: string): string {
-        // Clean the input and convert to lowercase
-        value = value.trim().toLowerCase();
-
-        // Check if the value contains anything other than numbers and optionally 'px'
-        if (!/^\d+(?:px)?$/.test(value)) {
-            new Notice('Please enter a valid positive number');
-            return defaultSize;
-        }
-
-        // Remove 'px' if present and convert to number
-        const numValue = parseFloat(value.replace('px', ''));
-        if (numValue <= 0) {
-            new Notice('Please enter a positive number');
-            return defaultSize;
-        }
-
-        return `${numValue}px`;
     }
 
     display(): void {
@@ -45,23 +26,40 @@ export class PrintSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        new Setting(containerEl)
-            .setName('Font size')
-            .setDesc('Set the font size for the printed note (in pixels).')
-            .addText(text => text
-                .setPlaceholder('12')
-                .setValue(this.plugin.settings.fontSize.replace('px', ''))
-                .onChange(async (value) => {
-                    this.plugin.settings.fontSize = this.validateFontSize(value, '12px');
-                    await this.plugin.saveSettings();
-                }))
-            .addButton(button => button
-                .setButtonText('Set all sizes')
-                .setTooltip('Automatically set all heading sizes based on the base font size')
-                .onClick(async () => {
-                    await initializeFontSizes(this.plugin);
-                    this.display();
-                }));
+        // Font family setting
+        createFontFamilyDropdownSetting(
+            containerEl,
+            'Font family',
+            'Choose the font family for the printed note.',
+            FONT_OPTIONS,
+            this.plugin.settings.printFontFamily,
+            async (value) => {
+                this.plugin.settings.printFontFamily = value;
+                await this.plugin.saveSettings();
+            }
+        );
+
+        // Font size setting avec auto-sync
+        createFontSizeSettingWithAutoSync(
+            containerEl,
+            'Font size',
+            'Set the font size for the printed note (in pixels).',
+            this.plugin.settings.fontSize,
+            this.plugin.settings.autoSyncHeadingSizes,
+            this.plugin,
+            async (value) => {
+                this.plugin.settings.fontSize = value;
+                await this.plugin.saveSettings();
+            },
+            async (enabled) => {
+                this.plugin.settings.autoSyncHeadingSizes = enabled;
+                await this.plugin.saveSettings();
+            },
+            async () => {
+                await initializeFontSizes(this.plugin);
+                this.display(); // refresh pour voir les changements
+            }
+        );
 
         // Headers in ascending size order
         const hSizes = ['h6Size', 'h5Size', 'h4Size', 'h3Size', 'h2Size', 'h1Size'] as const;
@@ -75,7 +73,7 @@ export class PrintSettingTab extends PluginSettingTab {
                     .setPlaceholder(`${12 + (level * 2)}`)
                     .setValue(this.plugin.settings[hSize].replace('px', ''))
                     .onChange(async (value) => {
-                        this.plugin.settings[hSize] = this.validateFontSize(value, defaultSize);
+                        this.plugin.settings[hSize] = validateFontSize(value, defaultSize);
                         await this.plugin.saveSettings();
                     }));
         });
@@ -87,7 +85,7 @@ export class PrintSettingTab extends PluginSettingTab {
                 .setPlaceholder('26')
                 .setValue(this.plugin.settings.inlineTitleSize.replace('px', ''))
                 .onChange(async (value) => {
-                    this.plugin.settings.inlineTitleSize = this.validateFontSize(value, '26px');
+                    this.plugin.settings.inlineTitleSize = validateFontSize(value, '26px');
                     await this.plugin.saveSettings();
                 }));
 
@@ -158,7 +156,7 @@ export class PrintSettingTab extends PluginSettingTab {
 
         const customCSSSetting = new Setting(containerEl)
             .setName('Custom CSS')
-            .setDesc(`Click the folder icon to create a "print.css" file in snippets. A toggle will appear here once the file exists to enable/disable your custom styles. Use ".obsidian-smart-print" as prefix for your selectors. e.g: ".obsidian-smart-print a {...}".`)
+            .setDesc(`Click the folder icon to create a "print.css" file in snippets. A toggle will appear here once the file exists to enable/disable your custom styles. Use ".obsidian-print" as prefix for your selectors. e.g: ".obsidian-print a {...}".`)
             .addButton(button => button
                 .setIcon('folder')
                 .setTooltip('Open snippets folder')
@@ -216,6 +214,7 @@ export async function initializeThemeColors(app: App, plugin: SmartPrintPlugin):
     plugin.settings.hasInitializedColors = true;
     await plugin.saveSettings();
 }
+
 export async function initializeFontSizes(plugin: SmartPrintPlugin): Promise<void> {
     const baseSize = parseInt(plugin.settings.fontSize);
     if (isNaN(baseSize)) return;
@@ -226,9 +225,101 @@ export async function initializeFontSizes(plugin: SmartPrintPlugin): Promise<voi
     plugin.settings.h4Size = `${Math.round(baseSize * 1.3 * 10) / 10}px`;
     plugin.settings.h3Size = `${Math.round(baseSize * 1.5 * 10) / 10}px`;
     plugin.settings.h2Size = `${Math.round(baseSize * 1.7 * 10) / 10}px`;
-    plugin.settings.h1Size = `${Math.round(baseSize * 2.0 * 10) / 10}px`;
-    plugin.settings.inlineTitleSize = `${Math.round(baseSize * 2.2 * 10) / 10}px`;
+    plugin.settings.h1Size = `${Math.round(baseSize * 1.9 * 10) / 10}px`;
+    plugin.settings.inlineTitleSize = `${Math.round(baseSize * 2 * 10) / 10}px`;
 
     plugin.settings.hasInitializedSizes = true;
     await plugin.saveSettings();
+}
+
+export function validateFontSize(value: string, defaultSize: string): string {
+    value = value.trim().toLowerCase();
+
+    if (!/^\d+(?:px)?$/.test(value)) {
+        new Notice('Please enter a valid positive number');
+        return defaultSize;
+    }
+
+    const numValue = parseFloat(value.replace('px', ''));
+    if (numValue <= 0) {
+        new Notice('Please enter a positive number');
+        return defaultSize;
+    }
+
+    return `${numValue}px`;
+}
+
+// This function creates a dropdown setting for font family selection
+function createFontFamilyDropdownSetting(
+    containerEl: HTMLElement,
+    name: string,
+    desc: string,
+    options: { value: string; label: string }[],
+    currentValue: string,
+    onChange: (value: string) => Promise<void>
+): Setting {
+    return new Setting(containerEl)
+        .setName(name)
+        .setDesc(desc)
+        .addDropdown(dropdown => {
+            options.forEach(opt => {
+                dropdown.addOption(opt.value, opt.label);
+            });
+
+            dropdown.setValue(currentValue || options[0].value);
+            dropdown.onChange(async (value) => {
+                await onChange(value);
+            });
+        });
+}
+
+// This function creates a text input setting for font size with auto-sync
+function createFontSizeSettingWithAutoSync(
+    containerEl: HTMLElement,
+    name: string,
+    desc: string,
+    currentValue: string,
+    autoSyncEnabled: boolean,
+    plugin: any, // votre plugin
+    onChange: (value: string) => Promise<void>,
+    onToggleAutoSync: (enabled: boolean) => Promise<void>,
+    onManualSync: () => Promise<void>
+): Setting {
+    const setting = new Setting(containerEl)
+        .setName(name)
+        .setDesc(desc)
+        .addText(text => {
+            text.setPlaceholder('12')
+                .setValue(currentValue.replace('px', ''))
+                .onChange(async (value) => {
+                    const validatedValue = validateFontSize(value, '12px');
+                    await onChange(validatedValue);
+                });
+
+            // Ajouter l'événement blur correctement
+            text.inputEl.addEventListener('blur', async () => {
+                if (plugin.settings.autoSyncHeadingSizes) {
+                    await onManualSync();
+                }
+            });
+
+            return text;
+        });
+
+    // Add toggle for auto-sync headings sizes
+    const label = document.createElement('span');
+    label.textContent = 'Auto-sync headings sizes';
+    label.style.marginLeft = '5px';
+    setting.controlEl.appendChild(label);
+
+    setting.addToggle(toggle => toggle
+        .setTooltip('Auto-sync heading sizes when font size changes')
+        .setValue(autoSyncEnabled)
+        .onChange(async (enabled) => {
+            await onToggleAutoSync(enabled);
+            if (enabled) {
+                await onManualSync();
+            }
+        }));
+    return setting;
 }

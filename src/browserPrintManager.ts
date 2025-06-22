@@ -35,7 +35,7 @@ export class PrintManager {
         </script>
     </head>
     <body>
-        <div class="obsidian-smart-print markdown-preview-view">
+        <div class="obsidian-print markdown-preview-view">
             ${content.outerHTML}
         </div>
     </body>
@@ -48,7 +48,7 @@ export class PrintManager {
      */
     public async browserPrint(html: string): Promise<void> {
         try {
-            const fileName = `obsidian-smart-print-${Date.now()}.html`;
+            const fileName = `obsidian-print-${Date.now()}.html`;
             const savePath = path.join(tmpdir(), fileName);
 
             writeFileSync(savePath, html);
