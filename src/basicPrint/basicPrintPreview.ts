@@ -55,7 +55,7 @@ class PrintPreview {
         this.printd = new Printd();
     }
 
-    createPreview(element: HTMLElement, globalCss: string, options: PrintPreviewOptions = {}) {
+    createPreview(element: HTMLElement, globalCss: string, options: PrintPreviewOptions = {}): void {
         this.wasInDarkMode = document.body.classList.contains('theme-dark');
         if (this.wasInDarkMode) {
             document.body.classList.replace('theme-dark', 'theme-light');
@@ -126,14 +126,14 @@ class PrintPreview {
 
         const printButton = document.createElement('button');
         printButton.textContent = 'Print';
-        printButton.onclick = () => {
+        printButton.onclick = (): void => {
             this.printd.print(element, [globalCss]);
             this.close();
         };
 
         const closeButton = document.createElement('button');
         closeButton.textContent = 'Close';
-        closeButton.onclick = () => this.close();
+        closeButton.onclick = (): void => this.close();
 
         controls.append(printButton, closeButton);
 
@@ -158,7 +158,7 @@ class PrintPreview {
         }
     }
 
-    close() {
+    close(): void {
         if (this.wasInDarkMode) {
             document.body.classList.replace('theme-light', 'theme-dark');
         }
