@@ -1,1 +1,1 @@
-font family and font size in modal and settings and much more little improvements
+typos fix
