@@ -1,6 +1,6 @@
 {
-	"name": "obsidian-print",
-	"version": "1.1.0",
+	"name": "obsidian-smart-print",
+	"version": "1.1.1",
 	"description": "Print Obsidian notes directly in browser with advanced options and preview",
 	"type": "module",
 	"main": "src/index.ts",

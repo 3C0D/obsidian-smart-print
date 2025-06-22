@@ -1,7 +1,7 @@
 {
-	"id": "obsidian-print",
+	"id": "obsidian-smart-print",
 	"name": "Smart Print",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"minAppVersion": "1.8.9",
 	"description": "Print Obsidian notes directly in browser with advanced options and preview",
 	"author": "3C0D",
