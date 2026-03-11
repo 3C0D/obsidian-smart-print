@@ -1,17 +1,30 @@
 import { Modal, App } from "obsidian";
 import type { SmartPrintPluginSettings } from "./types.ts";
-import { validateFontSize, initializeFontSizes } from "./settings.ts";
+import {
+	validateFontSize,
+	initializeFontSizes,
+} from "./settings.ts";
 import type SmartPrintPlugin from "./main.ts";
 import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
-import { isMobile } from "./utils/platform.ts";
 
+/**
+ * Modal dialog for choosing print mode and quick options.
+ * Only shown on desktop — mobile routes bypass the modal.
+ *
+ * Displays:
+ * - Quick options: Print Title, Show Metadata, Page Breaks
+ * - Font settings: Font family, font size, auto-sync toggle
+ * - Mode buttons: Basic, Standard (browser), Advanced (browser)
+ */
 export class PrintModeModal extends Modal {
 	constructor(
 		private plugin: SmartPrintPlugin,
 		app: App,
 		private settings: SmartPrintPluginSettings,
 		private useAdvancedPrint: boolean,
-		private onSubmit: (printMode: string | null) => void,
+		private onSubmit: (
+			printMode: string | null,
+		) => void,
 		private saveSettings: () => Promise<void>,
 	) {
 		super(app);
@@ -27,131 +40,190 @@ export class PrintModeModal extends Modal {
 		contentEl.empty();
 		contentEl.createEl("h2", { text: "Print Options" });
 
-		// Create first options row
-		const optionsContainer = contentEl.createDiv();
-		optionsContainer.style.display = "flex";
-		optionsContainer.style.justifyContent = "center";
-		optionsContainer.style.gap = "20px";
-		optionsContainer.style.marginBottom = "15px";
+		this.renderOptionsRow(contentEl);
+		this.renderFontRow(contentEl);
+		this.renderButtons(contentEl);
+	}
+
+	/**
+	 * Renders the first row: checkboxes for quick options
+	 */
+	private renderOptionsRow(
+		contentEl: HTMLElement,
+	): void {
+		const container = contentEl.createDiv();
+		container.style.display = "flex";
+		container.style.justifyContent = "center";
+		container.style.gap = "20px";
+		container.style.marginBottom = "15px";
 
 		// Print title checkbox
-		const titleLabel = optionsContainer.createEl("label");
-		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
-		titleCheck.checked = this.settings.printTitle;
-		titleLabel.appendText(" Print Title");
-		titleCheck.addEventListener("change", async () => {
-			this.settings.printTitle = titleCheck.checked;
-			await this.saveSettings();
-		});
-
-		// Metadata checkbox
-		const metadataLabel = optionsContainer.createEl("label");
-		const metadataCheck = metadataLabel.createEl("input", {
+		const titleLabel = container.createEl("label");
+		const titleCheck = titleLabel.createEl("input", {
 			type: "checkbox",
 		});
-		metadataCheck.checked = this.settings.showMetadata;
-		metadataLabel.appendText(" Show Metadata");
-		metadataCheck.addEventListener("change", async () => {
-			this.settings.showMetadata = metadataCheck.checked;
-			await this.saveSettings();
+		titleCheck.checked = this.settings.printTitle;
+		titleLabel.appendText(" Print Title");
+		titleCheck.addEventListener(
+			"change",
+			async () => {
+				this.settings.printTitle =
+					titleCheck.checked;
+				await this.saveSettings();
+			},
+		);
+
+		// Metadata checkbox
+		const metaLabel = container.createEl("label");
+		const metaCheck = metaLabel.createEl("input", {
+			type: "checkbox",
 		});
+		metaCheck.checked = this.settings.showMetadata;
+		metaLabel.appendText(" Show Metadata");
+		metaCheck.addEventListener(
+			"change",
+			async () => {
+				this.settings.showMetadata =
+					metaCheck.checked;
+				await this.saveSettings();
+			},
+		);
 
 		// Page breaks checkbox
-		const breaksLabel = optionsContainer.createEl("label");
-		const breaksCheck = breaksLabel.createEl("input", { type: "checkbox" });
+		const breaksLabel = container.createEl("label");
+		const breaksCheck = breaksLabel.createEl("input", {
+			type: "checkbox",
+		});
 		breaksCheck.checked = this.settings.hrPageBreaks;
 		breaksLabel.appendText(" Page Breaks at HR");
-		breaksCheck.addEventListener("change", async () => {
-			this.settings.hrPageBreaks = breaksCheck.checked;
-			await this.saveSettings();
-		});
+		breaksCheck.addEventListener(
+			"change",
+			async () => {
+				this.settings.hrPageBreaks =
+					breaksCheck.checked;
+				await this.saveSettings();
+			},
+		);
+	}
 
-		// Create second options row for font settings
-		const fontContainer = contentEl.createDiv();
-		fontContainer.style.display = "flex";
-		fontContainer.style.justifyContent = "center";
-		fontContainer.style.alignItems = "center";
-		fontContainer.style.gap = "15px";
-		fontContainer.style.marginBottom = "20px";
+	/**
+	 * Renders the font settings row: family, size, auto-sync
+	 */
+	private renderFontRow(contentEl: HTMLElement): void {
+		const container = contentEl.createDiv();
+		container.style.display = "flex";
+		container.style.justifyContent = "center";
+		container.style.alignItems = "center";
+		container.style.gap = "15px";
+		container.style.marginBottom = "20px";
 
 		// Font family dropdown
-		const fontFamilyLabel = fontContainer.createEl("label");
-		fontFamilyLabel.style.display = "flex";
-		fontFamilyLabel.style.alignItems = "center";
-		fontFamilyLabel.style.gap = "5px";
-		fontFamilyLabel.appendText("Font:");
+		const fontLabel = container.createEl("label");
+		fontLabel.style.display = "flex";
+		fontLabel.style.alignItems = "center";
+		fontLabel.style.gap = "5px";
+		fontLabel.appendText("Font:");
 
-		const fontSelect = fontFamilyLabel.createEl("select");
+		const fontSelect = fontLabel.createEl("select");
 		fontSelect.style.minWidth = "120px";
 
 		FONT_OPTIONS.forEach((option) => {
-			const optionEl = fontSelect.createEl("option");
-			optionEl.value = option.value;
-			optionEl.textContent = option.label;
+			const optEl = fontSelect.createEl("option");
+			optEl.value = option.value;
+			optEl.textContent = option.label;
 		});
 
-		fontSelect.value = this.settings.printFontFamily;
-		fontSelect.addEventListener("change", async () => {
-			this.settings.printFontFamily = fontSelect.value;
-			await this.saveSettings();
-		});
+		fontSelect.value =
+			this.settings.printFontFamily;
+		fontSelect.addEventListener(
+			"change",
+			async () => {
+				this.settings.printFontFamily =
+					fontSelect.value;
+				await this.saveSettings();
+			},
+		);
 
 		// Font size input
-		const fontSizeLabel = fontContainer.createEl("label");
-		fontSizeLabel.style.display = "flex";
-		fontSizeLabel.style.alignItems = "center";
-		fontSizeLabel.style.gap = "5px";
-		fontSizeLabel.appendText("Size:");
+		const sizeLabel = container.createEl("label");
+		sizeLabel.style.display = "flex";
+		sizeLabel.style.alignItems = "center";
+		sizeLabel.style.gap = "5px";
+		sizeLabel.appendText("Size:");
 
-		const fontSizeInput = fontSizeLabel.createEl("input");
-		fontSizeInput.type = "number";
-		fontSizeInput.style.width = "60px";
-		fontSizeInput.min = "8";
-		fontSizeInput.max = "72";
-		fontSizeInput.value = this.settings.fontSize.replace("px", "");
-		fontSizeInput.addEventListener("change", async () => {
-			const value = validateFontSize(fontSizeInput.value, "12px");
-			this.settings.fontSize = value;
+		const sizeInput = sizeLabel.createEl("input");
+		sizeInput.type = "number";
+		sizeInput.style.width = "60px";
+		sizeInput.min = "8";
+		sizeInput.max = "72";
+		sizeInput.value = this.settings.fontSize.replace(
+			"px",
+			"",
+		);
+		sizeInput.addEventListener(
+			"change",
+			async () => {
+				const value = validateFontSize(
+					sizeInput.value,
+					"12px",
+				);
+				this.settings.fontSize = value;
 
-			// Auto-sync heading sizes if enabled
-			if (this.settings.autoSyncHeadingSizes) {
-				await initializeFontSizes(this.plugin);
-			}
-
-			await this.saveSettings();
-		});
+				if (
+					this.settings.autoSyncHeadingSizes
+				) {
+					await initializeFontSizes(
+						this.plugin,
+					);
+				}
+				await this.saveSettings();
+			},
+		);
 
 		// Auto-sync toggle
-		const autoSyncLabel = fontContainer.createEl("label");
-		autoSyncLabel.style.display = "flex";
-		autoSyncLabel.style.alignItems = "center";
-		autoSyncLabel.style.gap = "5px";
-		autoSyncLabel.style.fontSize = "12px";
+		const syncLabel = container.createEl("label");
+		syncLabel.style.display = "flex";
+		syncLabel.style.alignItems = "center";
+		syncLabel.style.gap = "5px";
+		syncLabel.style.fontSize = "12px";
 
-		const autoSyncCheck = autoSyncLabel.createEl("input", {
+		const syncCheck = syncLabel.createEl("input", {
 			type: "checkbox",
 		});
-		autoSyncCheck.checked = this.settings.autoSyncHeadingSizes;
-		autoSyncLabel.appendText("Auto-sync headings size");
-		autoSyncCheck.addEventListener("change", async () => {
-			this.settings.autoSyncHeadingSizes = autoSyncCheck.checked;
-			if (autoSyncCheck.checked) {
-				await initializeFontSizes(this.plugin);
-			}
-			await this.saveSettings();
-		});
+		syncCheck.checked =
+			this.settings.autoSyncHeadingSizes;
+		syncLabel.appendText("Auto-sync headings size");
+		syncCheck.addEventListener(
+			"change",
+			async () => {
+				this.settings.autoSyncHeadingSizes =
+					syncCheck.checked;
+				if (syncCheck.checked) {
+					await initializeFontSizes(
+						this.plugin,
+					);
+				}
+				await this.saveSettings();
+			},
+		);
+	}
 
-		// Create button container
-		const buttonContainer = contentEl.createDiv();
-		buttonContainer.style.display = "flex";
-		buttonContainer.style.justifyContent = "center";
-		buttonContainer.style.gap = "10px";
-		buttonContainer.style.marginTop = "20px";
+	/**
+	 * Renders the print mode buttons.
+	 * All modes are available on desktop:
+	 * - Basic: Electron/Printd in-app print
+	 * - Standard: Opens browser with print dialog
+	 * - Advanced: Full DOM capture → browser print
+	 */
+	private renderButtons(contentEl: HTMLElement): void {
+		const container = contentEl.createDiv();
+		container.style.display = "flex";
+		container.style.justifyContent = "center";
+		container.style.gap = "10px";
+		container.style.marginTop = "20px";
 
-		const mobile = isMobile();
-
-		// Basic Print button (Obsidian native)
-		const basicBtn = buttonContainer.createEl("button");
+		// Basic Print button (Obsidian/Electron native)
+		const basicBtn = container.createEl("button");
 		basicBtn.style.width = "150px";
 		basicBtn.style.color = "var(--text-accent)";
 		basicBtn.setText("Basic");
@@ -160,25 +232,30 @@ export class PrintModeModal extends Modal {
 			this.onSubmit("basic");
 		});
 
-		// Standard Print button (in browser) - Desktop only
-		if (!mobile && this.settings.useBrowserPrint) {
-			const standardBtn = buttonContainer.createEl("button");
-			standardBtn.style.width = "150px";
-			standardBtn.style.color = "var(--text-accent)";
-			standardBtn.setText("Standard (browser)");
-			standardBtn.addEventListener("click", () => {
+		// Standard Print button (in browser)
+		if (this.settings.useBrowserPrint) {
+			const stdBtn =
+				container.createEl("button");
+			stdBtn.style.width = "150px";
+			stdBtn.style.color = "var(--text-accent)";
+			stdBtn.setText("Standard (browser)");
+			stdBtn.addEventListener("click", () => {
 				this.close();
 				this.onSubmit("standard");
 			});
 		}
 
-		// Advanced Print button (in browser) - Desktop only
-		if (!mobile && this.useAdvancedPrint && this.settings.useBrowserPrint) {
-			const advancedBtn = buttonContainer.createEl("button");
-			advancedBtn.style.width = "150px";
-			advancedBtn.style.color = "var(--text-accent)";
-			advancedBtn.setText("Advanced (browser)");
-			advancedBtn.addEventListener("click", () => {
+		// Advanced Print button (in browser)
+		if (
+			this.useAdvancedPrint &&
+			this.settings.useBrowserPrint
+		) {
+			const advBtn =
+				container.createEl("button");
+			advBtn.style.width = "150px";
+			advBtn.style.color = "var(--text-accent)";
+			advBtn.setText("Advanced (browser)");
+			advBtn.addEventListener("click", () => {
 				this.close();
 				this.onSubmit("advanced");
 			});
@@ -190,3 +267,4 @@ export class PrintModeModal extends Modal {
 		contentEl.empty();
 	}
 }
+

@@ -1,8 +1,13 @@
 import { Plugin, TFile, TFolder } from "obsidian";
-import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from "./types.ts";
+import {
+	DEFAULT_SETTINGS,
+	type SmartPrintPluginSettings,
+} from "./types.ts";
 import { printFolder } from "./folderPrint.ts";
 import { printContent } from "./basicPrint/basicPrint.ts";
-import { advancedPrint } from "./advancedPrint/advancedPrint.ts";
+import {
+	advancedPrint,
+} from "./advancedPrint/advancedPrint.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
 import { contentToHTML } from "./normalCapturePreview.ts";
 import {
@@ -10,8 +15,13 @@ import {
 	initializeFontSizes,
 	PrintSettingTab,
 } from "./settings.ts";
-import { openPrintModal } from "./basicPrint/basicPrintPreview.ts";
-import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
+import {
+	openPrintModal,
+} from "./basicPrint/basicPrintPreview.ts";
+import {
+	generatePrintStyles,
+} from "./getStyles/generatePrintStyles.ts";
+import { isMobile } from "./utils/platform.ts";
 
 export default class SmartPrintPlugin extends Plugin {
 	settings: SmartPrintPluginSettings;
@@ -32,6 +42,17 @@ export default class SmartPrintPlugin extends Plugin {
 			await initializeFontSizes(this);
 		}
 
+		this.registerCommands();
+		this.registerMenus();
+		this.addSettingTab(new PrintSettingTab(this.app, this));
+	}
+
+	// ─── Commands ──────────────────────────────────────────
+
+	/**
+	 * Registers all plugin commands in the command palette.
+	 */
+	private registerCommands(): void {
 		this.addCommand({
 			id: "print-note",
 			name: "Current note",
@@ -47,7 +68,8 @@ export default class SmartPrintPlugin extends Plugin {
 		this.addCommand({
 			id: "print-selection",
 			name: "Selection",
-			callback: async () => await this.handlePrint(false, true),
+			callback: async () =>
+				await this.handlePrint(false, true),
 		});
 
 		this.addCommand({
@@ -56,90 +78,137 @@ export default class SmartPrintPlugin extends Plugin {
 			callback: async () => await printFolder(this),
 		});
 
-		this.addSettingTab(new PrintSettingTab(this.app, this));
-
-		// Add debounce to prevent double triggering from ribbon
+		// Add debounce to prevent double triggering
 		let isProcessing = false;
-		this.addRibbonIcon("printer", "Print note", async () => {
-			if (isProcessing) return;
-			isProcessing = true;
-			await this.handlePrint();
-			// Reset after a short delay
-			setTimeout(() => {
-				isProcessing = false;
-			}, 500);
-		});
+		this.addRibbonIcon(
+			"printer",
+			"Print note",
+			async () => {
+				if (isProcessing) return;
+				isProcessing = true;
+				await this.handlePrint();
+				setTimeout(() => {
+					isProcessing = false;
+				}, 500);
+			},
+		);
+	}
 
+	// ─── Context Menus ─────────────────────────────────────
+
+	/**
+	 * Registers context menu items for files, folders,
+	 * and the editor.
+	 */
+	private registerMenus(): void {
+		// File explorer context menu
 		this.registerEvent(
-			this.app.workspace.on("file-menu", (menu, file) => {
-				if (file instanceof TFile) {
-					menu.addItem((item) => {
-						item.setTitle("Print note")
-							.setIcon("printer")
-							.onClick(
-								async () =>
-									await this.handlePrint(true, false, file),
-							);
-					});
-				} else {
-					menu.addItem((item) => {
-						item.setTitle("Print all notes in folder")
-							.setIcon("printer")
-							.onClick(
-								async () =>
-									await printFolder(this, file as TFolder),
-							);
-					});
-				}
-			}),
+			this.app.workspace.on(
+				"file-menu",
+				(menu, file) => {
+					if (file instanceof TFile) {
+						menu.addItem((item) => {
+							item.setTitle("Print note")
+								.setIcon("printer")
+								.onClick(
+									async () =>
+										await this.handlePrint(
+											true,
+											false,
+											file,
+										),
+								);
+						});
+					} else {
+						menu.addItem((item) => {
+							item.setTitle(
+								"Print all notes in folder",
+							)
+								.setIcon("printer")
+								.onClick(
+									async () =>
+										await printFolder(
+											this,
+											file as TFolder,
+										),
+								);
+						});
+					}
+				},
+			),
 		);
 
+		// Editor right-click context menu
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu) => {
 				menu.addItem((item) => {
 					item.setTitle("Print note")
 						.setIcon("printer")
-						.onClick(async () => await this.handlePrint());
+						.onClick(
+							async () =>
+								await this.handlePrint(),
+						);
 				});
 				menu.addItem((item) => {
 					item.setTitle("Print selection")
 						.setIcon("printer")
 						.onClick(
-							async () => await this.handlePrint(false, true),
+							async () =>
+								await this.handlePrint(
+									false,
+									true,
+								),
 						);
 				});
 			}),
 		);
 	}
 
+	// ─── Print Logic ───────────────────────────────────────
+
 	/**
-	 * Prints the current note or a specified file
-	 * @param isSelection Whether to print only the selected text (default: false)
-	 * @param file Optional file to print, defaults to active file
+	 * Prepares HTML content from the active note or file.
+	 * Shows a Notice if no content is available.
+	 *
+	 * @param isSelection - Print selected text only
+	 * @param file - Specific file to print
+	 * @returns Rendered HTML element, or null
 	 */
-	async standardPrint(isSelection = false, file?: TFile): Promise<void> {
-		const content = await contentToHTML(
+	private async preparePrintContent(
+		isSelection: boolean,
+		file?: TFile,
+	): Promise<HTMLElement | null> {
+		return await contentToHTML(
 			this.app,
 			this.settings,
 			isSelection,
 			file,
 		);
-		if (!content) {
-			return;
-		}
-		await printContent(content, this.app, this.manifest, this.settings);
 	}
 
 	/**
-	 * Handles the print logic (standard/advanced) with modal option
-	 * @param useAdvancedPrint Whether to use advanced print mode (default: true)
-	 * @param isSelection Whether to print only the selected text (default: false)
+	 * Main print entry point. Routes to the correct mode:
+	 * - Mobile: always uses basicPrint (no modal)
+	 * - Desktop with modal: shows PrintModeModal
+	 * - Desktop without modal: uses settings to decide
+	 *
+	 * @param useAdvancedPrint - Allow advanced mode option
+	 * @param isSelection - Print selected text only
+	 * @param file - Specific file to print
 	 */
 	public async handlePrint(
 		useAdvancedPrint = true,
 		isSelection = false,
 		file?: TFile,
 	): Promise<void> {
+		// Mobile: always go directly to basic print
+		// No modal needed — only one print engine available
+		if (isMobile()) {
+			await this.basicPrint(isSelection, file);
+			return;
+		}
+
+		// Desktop: show modal or use settings-based routing
 		if (this.settings.useModal) {
 			new PrintModeModal(
 				this,
@@ -147,7 +216,10 @@ export default class SmartPrintPlugin extends Plugin {
 				this.settings,
 				useAdvancedPrint,
 				async (state) => {
-					if (useAdvancedPrint && state === "advanced") {
+					if (
+						useAdvancedPrint &&
+						state === "advanced"
+					) {
 						await advancedPrint(
 							this.app,
 							this.manifest,
@@ -155,9 +227,15 @@ export default class SmartPrintPlugin extends Plugin {
 							isSelection,
 						);
 					} else if (state === "standard") {
-						await this.standardPrint(isSelection, file);
+						await this.standardPrint(
+							isSelection,
+							file,
+						);
 					} else {
-						await this.basicPrint(isSelection, file);
+						await this.basicPrint(
+							isSelection,
+							file,
+						);
 					}
 				},
 				async () => await this.saveSettings(),
@@ -172,30 +250,62 @@ export default class SmartPrintPlugin extends Plugin {
 	}
 
 	/**
-	 * Prints the current note or a specified file using basic mode
-	 * @param isSelection Whether to print only the selected text (default: false)
-	 * @param file Optional file to print, defaults to active file
+	 * Standard print: renders markdown to HTML then opens
+	 * it in the system browser with auto print dialog.
+	 * Desktop only.
+	 *
+	 * @param isSelection - Print selected text only
+	 * @param file - Specific file to print
 	 */
-	async basicPrint(isSelection = false, file?: TFile): Promise<void> {
-		const content = await contentToHTML(
-			this.app,
-			this.settings,
+	async standardPrint(
+		isSelection = false,
+		file?: TFile,
+	): Promise<void> {
+		const content = await this.preparePrintContent(
 			isSelection,
 			file,
 		);
-		if (!content) {
-			return;
-		}
+		if (!content) return;
+		await printContent(
+			content,
+			this.app,
+			this.manifest,
+			this.settings,
+		);
+	}
+
+	/**
+	 * Basic print: renders markdown to HTML then displays
+	 * an in-app preview with Printd.
+	 * Works on both desktop and mobile.
+	 *
+	 * @param isSelection - Print selected text only
+	 * @param file - Specific file to print
+	 */
+	async basicPrint(
+		isSelection = false,
+		file?: TFile,
+	): Promise<void> {
+		const content = await this.preparePrintContent(
+			isSelection,
+			file,
+		);
+		if (!content) return;
 
 		const globalCSS = await generatePrintStyles(
 			this.app,
 			this.manifest,
 			this.settings,
 		);
-		await openPrintModal(content, this.settings, globalCSS);
+		await openPrintModal(
+			content,
+			this.settings,
+			globalCSS,
+		);
 	}
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 }
+

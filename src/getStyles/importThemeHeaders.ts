@@ -1,16 +1,20 @@
 import { App } from "obsidian";
+import {
+	switchToLightTheme,
+} from "../utils/themeSwitch.ts";
 
 /**
  * Gets all header colors from the current theme, handling dark mode
  */
-export function getHeaderColors(app: App): Map<number, string> {
+export function getHeaderColors(
+	app: App,
+): Map<number, string> {
 	const css = getCustomCSS(app);
 	const headerColors = extractHeaderColors(css);
-	const isDark = isDarkMode();
 
 	const realColors = new Map<number, string>();
 	headerColors.forEach((color, level) => {
-		const realColor = getCSSVariableValue(color, isDark);
+		const realColor = getCSSVariableValue(color);
 		realColors.set(level, realColor);
 	});
 
@@ -20,20 +24,25 @@ export function getHeaderColors(app: App): Map<number, string> {
 /**
  * Gets the InlineTitle color from the current theme, handling dark mode
  */
-export function getInlineTitleColor(app: App): string {
+export function getInlineTitleColor(
+	app: App,
+): string {
 	const css = getCustomCSS(app);
-	const inlineTitleColor = extractInlineTitleColor(css);
-	const isDark = isDarkMode();
+	const inlineTitleColor =
+		extractInlineTitleColor(css);
 
-	// If we find a definition in the CSS, use it. Not working: themes are not using "inline-title" or variables linked to it.
 	if (inlineTitleColor) {
-		return getCSSVariableValue(inlineTitleColor, isDark);
+		return getCSSVariableValue(inlineTitleColor);
 	}
 
-	// Fallback method: check computed style (if a markdown note is open)
-	const inlineTitleElement = document.querySelector(".inline-title");
+	// Fallback: check computed style
+	const inlineTitleElement =
+		document.querySelector(".inline-title");
 	if (inlineTitleElement) {
-		const computedColor = window.getComputedStyle(inlineTitleElement).color;
+		const computedColor =
+			window.getComputedStyle(
+				inlineTitleElement,
+			).color;
 		return rgbToHex(computedColor);
 	}
 
@@ -48,7 +57,9 @@ export function getInlineTitleColor(app: App): string {
 export function getCustomCSS(app: App): string {
 	const theme = app.customCss.theme;
 	return (
-		app.customCss.csscache.get(`.obsidian/themes/${theme}/theme.css`) ?? ""
+		app.customCss.csscache.get(
+			`.obsidian/themes/${theme}/theme.css`,
+		) ?? ""
 	);
 }
 
@@ -116,61 +127,46 @@ function extractInlineTitleColor(content: string): string | null {
 	return null;
 }
 
-export function isDarkMode(): boolean {
-	return document.body.classList.contains("theme-dark");
-}
-
 /**
- * Gets the computed color value for a CSS variable, handling dark mode conversion
+ * Gets the computed color value for a CSS variable.
+ * Temporarily switches to light theme to get the
+ * correct print color values.
+ *
+ * @param variableName - CSS variable or color value
+ * @returns Resolved hex color string
  */
 export function getCSSVariableValue(
 	variableName: string,
-	isDark: boolean,
 ): string {
-	return temporaryThemeSwitch(isDark, () => {
+	const restoreTheme = switchToLightTheme();
+
+	try {
 		const temp = document.createElement("div");
 		document.body.appendChild(temp);
 
 		try {
 			if (variableName.startsWith("var(")) {
 				temp.style.color = variableName;
-			} else if (variableName.startsWith("#")) {
+			} else if (
+				variableName.startsWith("#")
+			) {
 				return variableName;
-			} else if (variableName.startsWith("rgb")) {
+			} else if (
+				variableName.startsWith("rgb")
+			) {
 				return rgbToHex(variableName);
 			} else {
 				temp.style.color = variableName;
 			}
 
-			const computedColor = window.getComputedStyle(temp).color;
+			const computedColor =
+				window.getComputedStyle(temp).color;
 			return rgbToHex(computedColor);
 		} finally {
 			document.body.removeChild(temp);
 		}
-	});
-}
-
-/**
- * Temporarily switches theme to light mode if darkmode and executes a callback.
- */
-function temporaryThemeSwitch(isDark: boolean, callback: () => string): string {
-	const body = document.body;
-	const wasDark = isDarkMode();
-
-	try {
-		if (wasDark && isDark) {
-			body.classList.remove("theme-dark");
-			body.classList.add("theme-light");
-		}
-
-		const result = callback();
-
-		return result;
 	} finally {
-		if (wasDark && isDark) {
-			body.classList.remove("theme-light");
-			body.classList.add("theme-dark");
-		}
+		restoreTheme();
 	}
 }
 

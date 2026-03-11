@@ -1,11 +1,18 @@
 import { App, Notice, type PluginManifest } from "obsidian";
-import path from "path";
 import type { SmartPrintPluginSettings } from "../types.ts";
 import { FONT_OPTIONS } from "./fontOptions.ts";
 import { ERROR_MESSAGES } from "../constants.ts";
 
 /**
- * Generates CSS styles for printing, combining plugin styles, user snippets, and some styles settings
+ * Generates CSS styles for printing by combining:
+ * - Plugin base styles (styles.css)
+ * - User custom print snippet (print.css)
+ * - Dynamic settings (font, headings, colors, etc.)
+ *
+ * @param app - Obsidian App instance
+ * @param manifest - Plugin manifest (for locating styles.css)
+ * @param settings - Current plugin settings
+ * @returns Combined CSS string ready for injection
  */
 export async function generatePrintStyles(
 	app: App,
@@ -17,7 +24,9 @@ export async function generatePrintStyles(
 	// Read plugin stylesheet
 	let pluginStyle = "";
 	if (manifest.dir) {
-		const cssPath = path.join(manifest.dir, "styles.css");
+		// Use string interpolation instead of Node.js path.join()
+		// Obsidian vault paths always use forward slashes
+		const cssPath = `${manifest.dir}/styles.css`;
 		try {
 			pluginStyle = await adapter.read(cssPath);
 		} catch {

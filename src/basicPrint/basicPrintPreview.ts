@@ -1,5 +1,8 @@
 import { Printd } from "printd";
 import type { SmartPrintPluginSettings } from "../types.ts";
+import {
+	switchToLightTheme,
+} from "../utils/themeSwitch.ts";
 
 /**
  * Opens a modal window with print preview and controls
@@ -53,7 +56,7 @@ interface PrintPreviewOptions {
 class PrintPreview {
 	private previewWindow: HTMLDivElement | null = null;
 	private printd: Printd;
-	private wasInDarkMode: boolean = false;
+	private restoreTheme: (() => void) | null = null;
 
 	constructor() {
 		this.printd = new Printd();
@@ -64,10 +67,8 @@ class PrintPreview {
 		globalCss: string,
 		options: PrintPreviewOptions = {},
 	): void {
-		this.wasInDarkMode = document.body.classList.contains("theme-dark");
-		if (this.wasInDarkMode) {
-			document.body.classList.replace("theme-dark", "theme-light");
-		}
+		// Switch to light theme for print rendering
+		this.restoreTheme = switchToLightTheme();
 
 		this.previewWindow = document.createElement("div");
 		this.previewWindow.className = "print-preview-window";
@@ -167,10 +168,13 @@ class PrintPreview {
 	}
 
 	close(): void {
-		if (this.wasInDarkMode) {
-			document.body.classList.replace("theme-light", "theme-dark");
+		if (this.restoreTheme) {
+			this.restoreTheme();
+			this.restoreTheme = null;
 		}
-		this.previewWindow?.parentNode?.removeChild(this.previewWindow);
+		this.previewWindow?.parentNode?.removeChild(
+			this.previewWindow,
+		);
 		this.previewWindow = null;
 	}
 }
