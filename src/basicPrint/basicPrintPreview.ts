@@ -1,5 +1,5 @@
-import { Printd } from 'printd';
-import type { SmartPrintPluginSettings } from '../types.ts';
+import { Printd } from "printd";
+import type { SmartPrintPluginSettings } from "../types.ts";
 
 /**
  * Opens a modal window with print preview and controls
@@ -7,64 +7,72 @@ import type { SmartPrintPluginSettings } from '../types.ts';
  * @param settings Plugin settings
  * @param cssString CSS styles to apply
  */
-export async function openPrintModal(content: HTMLElement, settings: SmartPrintPluginSettings, cssString: string): Promise<void> {
-    const styleManager = new PrintStyleManager(settings);
-    const printContent = styleManager.prepareForPrint(content);
+export async function openPrintModal(
+	content: HTMLElement,
+	settings: SmartPrintPluginSettings,
+	cssString: string,
+): Promise<void> {
+	const styleManager = new PrintStyleManager(settings);
+	const printContent = styleManager.prepareForPrint(content);
 
-    // Create proper HTML structure
-    const htmlElement = document.createElement('html');
-    const headElement = document.createElement('head');
-    const bodyElement = document.createElement('body');
+	// Create proper HTML structure
+	const htmlElement = document.createElement("html");
+	const headElement = document.createElement("head");
+	const bodyElement = document.createElement("body");
 
-    // Setup head
-    const styleElement = document.createElement('style');
-    styleElement.textContent = cssString;
-    headElement.appendChild(styleElement);
+	// Setup head
+	const styleElement = document.createElement("style");
+	styleElement.textContent = cssString;
+	headElement.appendChild(styleElement);
 
-    // Setup body
-    bodyElement.className = 'obsidian-print';
-    bodyElement.appendChild(printContent);
+	// Setup body
+	bodyElement.className = "obsidian-print";
+	bodyElement.appendChild(printContent);
 
-    // Assemble HTML
-    htmlElement.appendChild(headElement);
-    htmlElement.appendChild(bodyElement);
+	// Assemble HTML
+	htmlElement.appendChild(headElement);
+	htmlElement.appendChild(bodyElement);
 
-    const preview = new PrintPreview();
-    preview.createPreview(htmlElement, cssString, {
-        width: '90%',
-        height: '90%',
-        scale: 1
-    });
+	const preview = new PrintPreview();
+	preview.createPreview(htmlElement, cssString, {
+		width: "90%",
+		height: "90%",
+		scale: 1,
+	});
 }
 
 interface PrintPreviewOptions {
-    width?: string;
-    height?: string;
-    scale?: number;
+	width?: string;
+	height?: string;
+	scale?: number;
 }
 
 /**
  * Handles the print preview window and printing functionality
  */
 class PrintPreview {
-    private previewWindow: HTMLDivElement | null = null;
-    private printd: Printd;
-    private wasInDarkMode: boolean = false;
+	private previewWindow: HTMLDivElement | null = null;
+	private printd: Printd;
+	private wasInDarkMode: boolean = false;
 
-    constructor() {
-        this.printd = new Printd();
-    }
+	constructor() {
+		this.printd = new Printd();
+	}
 
-    createPreview(element: HTMLElement, globalCss: string, options: PrintPreviewOptions = {}): void {
-        this.wasInDarkMode = document.body.classList.contains('theme-dark');
-        if (this.wasInDarkMode) {
-            document.body.classList.replace('theme-dark', 'theme-light');
-        }
+	createPreview(
+		element: HTMLElement,
+		globalCss: string,
+		options: PrintPreviewOptions = {},
+	): void {
+		this.wasInDarkMode = document.body.classList.contains("theme-dark");
+		if (this.wasInDarkMode) {
+			document.body.classList.replace("theme-dark", "theme-light");
+		}
 
-        this.previewWindow = document.createElement('div');
-        this.previewWindow.className = 'print-preview-window';
+		this.previewWindow = document.createElement("div");
+		this.previewWindow.className = "print-preview-window";
 
-        const containerStyles = `
+		const containerStyles = `
 .print-preview-window {
     position: fixed;
     top: 50%;
@@ -76,8 +84,8 @@ class PrintPreview {
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
     z-index: 9999;
     overflow: auto;
-    width: ${options.width || '80%'};
-    height: ${options.height || '80%'};
+    width: ${options.width || "80%"};
+    height: ${options.height || "80%"};
 }
 .print-preview-controls {
     position: sticky;
@@ -118,74 +126,75 @@ class PrintPreview {
 }
         `;
 
-        const style = document.createElement('style');
-        style.textContent = globalCss + "\n" + containerStyles;
+		const style = document.createElement("style");
+		style.textContent = globalCss + "\n" + containerStyles;
 
-        const controls = document.createElement('div');
-        controls.className = 'print-preview-controls';
+		const controls = document.createElement("div");
+		controls.className = "print-preview-controls";
 
-        const printButton = document.createElement('button');
-        printButton.textContent = 'Print';
-        printButton.onclick = (): void => {
-            this.printd.print(element, [globalCss]);
-            this.close();
-        };
+		const printButton = document.createElement("button");
+		printButton.textContent = "Print";
+		printButton.onclick = (): void => {
+			this.printd.print(element, [globalCss]);
+			this.close();
+		};
 
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'Close';
-        closeButton.onclick = (): void => this.close();
+		const closeButton = document.createElement("button");
+		closeButton.textContent = "Close";
+		closeButton.onclick = (): void => this.close();
 
-        controls.append(printButton, closeButton);
+		controls.append(printButton, closeButton);
 
-        const contentContainer = document.createElement('div');
-        contentContainer.className = 'print-preview-content';
+		const contentContainer = document.createElement("div");
+		contentContainer.className = "print-preview-content";
 
-        // Create a self-sizing page with 20px padding
-        const page = document.createElement('div');
-        page.className = 'print-preview-page';
-        const pageContent = document.createElement('div');
-        pageContent.className = 'print-preview-page-content';
-        pageContent.appendChild(element.cloneNode(true));
-        page.appendChild(pageContent);
-        contentContainer.appendChild(page);
+		// Create a self-sizing page with 20px padding
+		const page = document.createElement("div");
+		page.className = "print-preview-page";
+		const pageContent = document.createElement("div");
+		pageContent.className = "print-preview-page-content";
+		pageContent.appendChild(element.cloneNode(true));
+		page.appendChild(pageContent);
+		contentContainer.appendChild(page);
 
-        this.previewWindow.append(style, controls, contentContainer);
-        document.body.appendChild(this.previewWindow);
+		this.previewWindow.append(style, controls, contentContainer);
+		document.body.appendChild(this.previewWindow);
 
-        if (options.scale) {
-            contentContainer.style.transform = `scale(${options.scale})`;
-            contentContainer.style.transformOrigin = 'top center';
-        }
-    }
+		if (options.scale) {
+			contentContainer.style.transform = `scale(${options.scale})`;
+			contentContainer.style.transformOrigin = "top center";
+		}
+	}
 
-    close(): void {
-        if (this.wasInDarkMode) {
-            document.body.classList.replace('theme-light', 'theme-dark');
-        }
-        this.previewWindow?.parentNode?.removeChild(this.previewWindow);
-        this.previewWindow = null;
-    }
+	close(): void {
+		if (this.wasInDarkMode) {
+			document.body.classList.replace("theme-light", "theme-dark");
+		}
+		this.previewWindow?.parentNode?.removeChild(this.previewWindow);
+		this.previewWindow = null;
+	}
 }
 
 /**
  * Manages the styling of content for printing
  */
 export class PrintStyleManager {
-    constructor(private settings: SmartPrintPluginSettings) { }
+	constructor(private settings: SmartPrintPluginSettings) {}
 
-    /**
-     * Prepares the content for printing by adding necessary print classes
-     * @param content The HTML content to prepare
-     * @returns The prepared content
-     */
-    prepareForPrint(content: HTMLElement): HTMLElement {
-        const printContent = content.cloneNode(true) as HTMLElement;
-        printContent.classList.add('obsidian-print');
+	/**
+	 * Prepares the content for printing by adding necessary print classes
+	 * @param content The HTML content to prepare
+	 * @returns The prepared content
+	 */
+	prepareForPrint(content: HTMLElement): HTMLElement {
+		const printContent = content.cloneNode(true) as HTMLElement;
+		printContent.classList.add("obsidian-print");
 
-        const mathElements = printContent.querySelectorAll('.math, .math-block');
-        mathElements.forEach(elem => {
-            elem.classList.add('math-print');
-        });
-        return printContent;
-    }
+		const mathElements =
+			printContent.querySelectorAll(".math, .math-block");
+		mathElements.forEach((elem) => {
+			elem.classList.add("math-print");
+		});
+		return printContent;
+	}
 }

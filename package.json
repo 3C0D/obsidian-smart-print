@@ -31,25 +31,25 @@
 		"lint:fix": "eslint . --ext .ts --fix"
 	},
 	"devDependencies": {
+		"@types/eslint": "latest",
 		"@types/node": "^22.15.26",
 		"@types/semver": "^7.7.0",
+		"@typescript-eslint/eslint-plugin": "latest",
+		"@typescript-eslint/parser": "latest",
 		"builtin-modules": "3.3.0",
 		"dedent": "^1.6.0",
 		"dotenv": "^16.4.5",
 		"esbuild": "latest",
+		"eslint": "latest",
+		"eslint-import-resolver-typescript": "latest",
 		"fs-extra": "^11.2.0",
 		"obsidian": "*",
 		"obsidian-typings": "^3.9.5",
+		"prettier": "^3.8.1",
+		"printd": "^1.6.0",
 		"semver": "^7.7.2",
 		"tsx": "^4.19.4",
-		"typescript": "^5.8.2",
-		"@types/eslint": "latest",
-		"@typescript-eslint/eslint-plugin": "latest",
-		"@typescript-eslint/parser": "latest",
-		"eslint": "latest",
-		"eslint-import-resolver-typescript": "latest",
-		"jiti": "latest",
-		"printd": "^1.6.0"
+		"typescript": "^5.8.2"
 	},
 	"dependencies": {
 		"@types/lodash": "^4.17.17",

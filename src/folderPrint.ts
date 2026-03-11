@@ -1,60 +1,66 @@
-import { App, TFile, TFolder, Notice } from 'obsidian';
-import { generateHTML } from './normalCapturePreview.ts';
-import SmartPrintPlugin from './main.ts';
+import { App, TFile, TFolder, Notice } from "obsidian";
+import { generateHTML } from "./normalCapturePreview.ts";
+import SmartPrintPlugin from "./main.ts";
+import { ERROR_MESSAGES } from "./constants.ts";
 
 /**
  * Gets the parent folder of the currently active file
- * 
+ *
  * @param app The Obsidian App instance
  * @returns The parent folder of the active file, or null if not found
  */
 export async function getFolderByActiveFile(app: App): Promise<TFolder | null> {
-    const activeFile = app.workspace.getActiveFile();
+	const activeFile = app.workspace.getActiveFile();
 
-    if (activeFile) {
-        const parentFolder = activeFile.parent;
+	if (activeFile) {
+		const parentFolder = activeFile.parent;
 
-        // if file is in root folder, return null
-        if (parentFolder instanceof TFolder && !parentFolder.isRoot()) {
-            return parentFolder;
-        }
-    }
+		// if file is in root folder, return null
+		if (parentFolder instanceof TFolder && !parentFolder.isRoot()) {
+			return parentFolder;
+		}
+	}
 
-    return null;
+	return null;
 }
-
 
 /**
  * Prints all markdown files in the current folder or specified folder
  * @param plugin The SmartPrintPlugin instance
  * @param folder Optional folder to print, defaults to active file's folder
  */
-export async function printFolder(plugin: SmartPrintPlugin, folder?: TFolder): Promise<void> {
-    const activeFolder = folder || await getFolderByActiveFile(plugin.app);
-    if (!activeFolder) {
-        new Notice('Could not resolve folder.');
-        return;
-    }
+export async function printFolder(
+	plugin: SmartPrintPlugin,
+	folder?: TFolder,
+): Promise<void> {
+	const activeFolder = folder || (await getFolderByActiveFile(plugin.app));
+	if (!activeFolder) {
+		new Notice(ERROR_MESSAGES.FOLDER_NOT_FOUND);
+		return;
+	}
 
-    const files = activeFolder.children.filter((file) => file instanceof TFile && file.extension === 'md') as TFile[];
+	const files = activeFolder.children.filter(
+		(file) => file instanceof TFile && file.extension === "md",
+	) as TFile[];
 
-    if (files.length === 0) {
-        new Notice('No markdown files found in the folder.');
-        return;
-    }
+	if (files.length === 0) {
+		new Notice(ERROR_MESSAGES.NO_MARKDOWN_FILES);
+		return;
+	}
 
-    const folderContent = createDiv();
+	// createDiv() is a global Obsidian API function that creates a div element
+	const folderContent = createDiv();
 
-    for (const file of files) {
-        const content = await generateHTML(plugin.app, plugin.settings, file);
-        if (!content) {
-            continue;
-        }
-        if (!plugin.settings.combineFolderNotes) {
-            content.addClass('obsidian-print-page-break');
-        }
-        folderContent.append(content);
-    }
+	for (const file of files) {
+		const content = await generateHTML(plugin.app, plugin.settings, file);
+		if (!content) {
+			continue;
+		}
+		if (!plugin.settings.combineFolderNotes) {
+			content.addClass("obsidian-print-page-break");
+		}
+		folderContent.append(content);
+	}
 
-    await plugin.handlePrint(false);
+	await plugin.handlePrint(false);
 }

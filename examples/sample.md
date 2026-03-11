@@ -5,8 +5,9 @@ This is a sample document demonstrating various Markdown and Obsidian features t
 ## Text Formatting
 
 You can format text in various ways:
+
 - **Bold text** for emphasis
-- *Italic text* for slight emphasis
+- _Italic text_ for slight emphasis
 - ~~Strikethrough~~ for deleted content
 - ==Highlighted text== for important information
 - `inline code` for code snippets
@@ -14,20 +15,23 @@ You can format text in various ways:
 ## Lists
 
 ### Unordered Lists
+
 - Item 1
 - Item 2
-  - Nested item 2.1
-  - Nested item 2.2
+    - Nested item 2.1
+    - Nested item 2.2
 - Item 3
 
 ### Ordered Lists
+
 1. First item
 2. Second item
-   1. Nested item 2.1
-   2. Nested item 2.2
+    1. Nested item 2.1
+    2. Nested item 2.2
 3. Third item
 
 ### Task Lists
+
 - [ ] Incomplete task
 - [x] Completed task
 - [ ] Another task with **formatted** text
@@ -35,9 +39,9 @@ You can format text in various ways:
 ## Blockquotes
 
 > This is a blockquote
-> 
+>
 > It can span multiple lines
-> 
+>
 > > And can be nested
 
 ## Code Blocks
@@ -45,16 +49,16 @@ You can format text in various ways:
 ```javascript
 // JavaScript code example
 function greet(name) {
-  console.log(`Hello, ${name}!`);
+	console.log(`Hello, ${name}!`);
 }
 
-greet('Obsidian User');
+greet("Obsidian User");
 ```
 
 ## Tables
 
 | Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 | Cell 7   | Cell 8   | Cell 9   |
@@ -102,7 +106,7 @@ sequenceDiagram
     participant User
     participant Obsidian
     participant Plugin
-    
+
     User->>Obsidian: Open note
     Obsidian->>Plugin: Load plugin
     User->>Plugin: Click print button
@@ -116,6 +120,7 @@ sequenceDiagram
 Inline equation: $E = mc^2$
 
 Block equation:
+
 $$
 \frac{d}{dx}(x^n) = nx^{n-1}
 $$

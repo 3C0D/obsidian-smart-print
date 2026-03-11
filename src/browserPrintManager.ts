@@ -1,22 +1,29 @@
-import { Notice } from 'obsidian';
-import { tmpdir } from 'os';
-import path from 'path';
-import { unlinkSync, writeFileSync } from 'fs';
-import { exec } from 'child_process';
+import { Notice } from "obsidian";
+import { isMobile } from "./utils/platform.ts";
+import { Printd } from "printd";
+import { ERROR_MESSAGES } from "./constants.ts";
+
+// Delay before cleaning up temporary print files (allows browser to open the file)
+const TEMP_FILE_CLEANUP_DELAY_MS = 5000;
 
 /**
  * Prints the given content using the default browser
  */
 export class PrintManager {
-    /**
-     * Creates a printable HTML string from the given content and styles
-     */
-    public createPrintableHtml(content: HTMLElement, styles: string, isAdvanced: boolean = false, filePath?: string): string {
-        const fileName = filePath || "Untitled";
-        const title = isAdvanced ? "⚡" : "";
-        const favicon = "🖨️";
+	/**
+	 * Creates a printable HTML string from the given content and styles
+	 */
+	public createPrintableHtml(
+		content: HTMLElement,
+		styles: string,
+		isAdvanced: boolean = false,
+		filePath?: string,
+	): string {
+		const fileName = filePath || "Untitled";
+		const title = isAdvanced ? "⚡" : "";
+		const favicon = "🖨️";
 
-        return `<!DOCTYPE html>
+		return `<!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
@@ -40,44 +47,71 @@ export class PrintManager {
         </div>
     </body>
     </html>`;
-    }
+	}
 
-    /**
-     * Opens the HTML content in a browser and triggers the print dialog
-     * Creates a temporary file that is automatically deleted after 5 seconds
-     */
-    public async browserPrint(html: string): Promise<void> {
-        try {
-            const fileName = `obsidian-print-${Date.now()}.html`;
-            const savePath = path.join(tmpdir(), fileName);
+	/**
+	 * Opens the HTML content in a browser and triggers the print dialog
+	 * On desktop: Creates a temporary file and opens in browser
+	 * On mobile: Uses Printd library for in-app printing
+	 */
+	public async browserPrint(html: string): Promise<void> {
+		if (isMobile()) {
+			// Mobile: use Printd for in-app printing
+			try {
+				const printd = new Printd();
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(html, "text/html");
+				const styles = Array.from(doc.querySelectorAll("style"))
+					.map((s) => s.textContent || "")
+					.join("\n");
+				const body = doc.body;
+				printd.print(body, [styles]);
+			} catch (error) {
+				console.error("Failed to print on mobile:", error);
+				new Notice(ERROR_MESSAGES.PREPARE_CONTENT_FAILED);
+			}
+		} else {
+			// Desktop: use file system and browser
+			try {
+				const { tmpdir } = await import("os");
+				const path = await import("path");
+				const { unlinkSync, writeFileSync } = await import("fs");
+				const { exec } = await import("child_process");
 
-            writeFileSync(savePath, html);
+				const fileName = `obsidian-print-${Date.now()}.html`;
+				const savePath = path.join(tmpdir(), fileName);
 
-            // Open the html file in the default browser
-            const openCommand = process.platform === 'win32'
-                ? `start "" "${savePath}"`
-                : process.platform === 'darwin'
-                    ? `open "${savePath}"`
-                    : `xdg-open "${savePath}"`;
+				writeFileSync(savePath, html);
 
-            exec(openCommand, (error: Error | null) => {
-                if (error) {
-                    console.error('Failed to open browser:', error);
-                    new Notice('Failed to open print dialog' + error.message);
-                } else {
-                    setTimeout(() => {
-                        try {
-                            // Delete the temporary file
-                            unlinkSync(savePath);
-                        } catch {
-                            // Silently fail if unable to delete temp file
-                        }
-                    }, 5000);
-                }
-            });
+				const openCommand =
+					process.platform === "win32"
+						? `start "" "${savePath}"`
+						: process.platform === "darwin"
+							? `open "${savePath}"`
+							: `xdg-open "${savePath}"`;
 
-        } catch {
-            new Notice('Failed to open print dialog');
-        }
-    }
+				exec(openCommand, (error: Error | null) => {
+					if (error) {
+						console.error("Failed to open browser:", error);
+						new Notice(
+							ERROR_MESSAGES.PRINT_DIALOG_FAILED +
+								": " +
+								error.message,
+						);
+					} else {
+						setTimeout(() => {
+							try {
+								unlinkSync(savePath);
+							} catch {
+								// Silently fail if unable to delete temp file
+							}
+						}, TEMP_FILE_CLEANUP_DELAY_MS);
+					}
+				});
+			} catch (error) {
+				console.error("Failed to initialize desktop print:", error);
+				new Notice(ERROR_MESSAGES.PRINT_DIALOG_FAILED_DETAILS);
+			}
+		}
+	}
 }
