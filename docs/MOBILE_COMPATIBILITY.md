@@ -1,4 +1,4 @@
-# Mobile Compatibility Implementation
+ Mobile Compatibility Implementation
 
 ## Overview
 
