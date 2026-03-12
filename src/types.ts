@@ -75,11 +75,7 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings =
 	h2Size: "22px",
 	h1Size: "24px",
 	inlineTitleSize: "26px",
-	printFontFamily:
-		"var(--print-font-family," +
-		" -apple-system, BlinkMacSystemFont," +
-		' "Segoe UI", Roboto, Arial,' +
-		" sans-serif)",
+	printFontFamily: "obsidian",
 	autoSyncHeadingSizes: true,
 
 	// Colors

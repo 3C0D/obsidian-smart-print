@@ -74,8 +74,8 @@ export class PrintModeModal extends Modal {
 		const titleLabel = container.createEl("label");
 		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
 		titleCheck.checked = this.settings.printTitle;
-		titleLabel.appendText(" Print Title");
-		titleLabel.title = "Adds the file name as a centered title at the top of the printed page.\nAutomatically hide first H1 if same as title.";
+		titleLabel.appendText(" Show File Title");
+		titleLabel.title = "Displays the filename as the document title.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)";
 		titleCheck.addEventListener("change", async () => {
 			this.settings.printTitle = titleCheck.checked;
 			await this.saveSettings();
@@ -88,6 +88,7 @@ export class PrintModeModal extends Modal {
 		});
 		metaCheck.checked = this.settings.showMetadata;
 		metaLabel.appendText(" Show Metadata");
+		metaLabel.title = "Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)";
 		metaCheck.addEventListener(
 			"change",
 			async () => {
@@ -103,7 +104,8 @@ export class PrintModeModal extends Modal {
 			type: "checkbox",
 		});
 		breaksCheck.checked = this.settings.hrPageBreaks;
-		breaksLabel.appendText(" Page Breaks at HR");
+		breaksLabel.appendText(" Page Breaks at ---");
+		breaksLabel.title = "Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)";
 		breaksCheck.addEventListener(
 			"change",
 			async () => {
@@ -120,6 +122,7 @@ export class PrintModeModal extends Modal {
 		});
 		colorCheck.checked = this.settings.printInColor;
 		colorLabel.appendText(" Print in color");
+		colorLabel.title = "Print with colors or force black & white output.\nWhen disabled, all text is forced to black.\n\n(Selector: .obsidian-print *)";
 		colorCheck.addEventListener(
 			"change",
 			async () => {
@@ -139,7 +142,7 @@ export class PrintModeModal extends Modal {
 		const commentsCheck = commentsLabel.createEl("input", { type: "checkbox" });
 		commentsCheck.checked = this.settings.showComments;
 		commentsLabel.appendText(" Show comments");
-		commentsLabel.title = "Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview will not render).";
+		commentsLabel.title = "Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)";
 		
 		// Warning only for non-folder print (folder print already has warning at top)
 		let warningEl: HTMLElement | null = null;
@@ -299,7 +302,7 @@ export class PrintModeModal extends Modal {
 			const combineCheck = combineLabel.createEl("input", { type: "checkbox" });
 			combineCheck.checked = this.settings.combineFolderNotes;
 			combineLabel.appendText(" Combine notes");
-			combineLabel.title = "When enabled, all notes are printed continuously.\nWhen disabled, each note starts on a new page.";
+			combineLabel.title = "When enabled, all notes are printed continuously.\nWhen disabled, each note starts on a new page.\n\n(Invisible <hr> elements with page-break-before: always)";
 			combineCheck.addEventListener("change", async () => {
 				this.settings.combineFolderNotes = combineCheck.checked;
 				await this.saveSettings();

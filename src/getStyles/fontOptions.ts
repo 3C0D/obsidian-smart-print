@@ -1,9 +1,14 @@
 // Central font options for both settings and modal and CSS generation
 export const FONT_OPTIONS = [
 	{
+		value: "obsidian",
+		label: "Obsidian Font (current)",
+		css: 'var(--font-text, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
+	},
+	{
 		value: "system",
 		label: "System Default",
-		css: 'var(--print-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji")',
+		css: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
 	},
 
 	// Sans-serif fonts
@@ -11,6 +16,11 @@ export const FONT_OPTIONS = [
 		value: "sans-serif",
 		label: "Sans-serif Generic",
 		css: "sans-serif",
+	},
+	{
+		value: "inter",
+		label: "Inter",
+		css: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 	},
 	{
 		value: "arial",
@@ -31,6 +41,11 @@ export const FONT_OPTIONS = [
 		value: "roboto",
 		label: "Roboto",
 		css: 'Roboto, "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+	},
+	{
+		value: "sourcesans",
+		label: "Source Sans Pro",
+		css: '"Source Sans Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 	},
 	{
 		value: "ubuntu",
