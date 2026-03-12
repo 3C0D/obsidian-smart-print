@@ -345,6 +345,111 @@ export class PrintSettingTab extends PluginSettingTab {
 			}
 		}
 
+		// ─── Print options ─────────────────────────
+
+		new Setting(containerEl)
+			.setName("Print in color")
+			.setDesc(
+				"Enable to print with heading colors" +
+					" and theme colors. Disable for" +
+					" black & white output.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings
+							.printInColor,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings
+							.printInColor = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Skip preview")
+			.setDesc(
+				"Print immediately without showing" +
+					" the preview window. The print" +
+					" dialog will open directly.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings
+							.skipPreview,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings
+							.skipPreview = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		// ─── UI settings ──────────────────────────
+
+		new Setting(containerEl)
+			.setName("Show ribbon icon")
+			.setDesc(
+				"Show the printer icon in the left" +
+					" sidebar ribbon.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings
+							.showRibbonIcon,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings
+							.showRibbonIcon = value;
+						this.plugin
+							.updateRibbonIcon();
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Show context menu items")
+			.setDesc(
+				"Show print options in right-click" +
+					" context menus (file explorer" +
+					" and editor).",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings
+							.showContextMenu,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings
+							.showContextMenu = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Group in submenu")
+			.setDesc(
+				"Group context menu items under a" +
+					' "Smart Print" submenu to keep' +
+					" menus clean.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings
+							.useSubmenu,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings
+							.useSubmenu = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
 		// ─── Desktop-only settings ─────────────────
 
 		if (!mobile) {

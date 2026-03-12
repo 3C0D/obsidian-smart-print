@@ -5,34 +5,37 @@ import {
 } from "../utils/themeSwitch.ts";
 
 /**
- * Opens a modal window with print preview and controls
- * @param content The HTML content to print
- * @param settings Plugin settings
- * @param cssString CSS styles to apply
+ * Opens a preview window then allows the user to print.
+ *
+ * @param content - Rendered HTML content
+ * @param settings - Plugin settings
+ * @param cssString - CSS styles to apply
  */
 export async function openPrintModal(
 	content: HTMLElement,
 	settings: SmartPrintPluginSettings,
 	cssString: string,
 ): Promise<void> {
-	const styleManager = new PrintStyleManager(settings);
-	const printContent = styleManager.prepareForPrint(content);
+	const styleManager =
+		new PrintStyleManager(settings);
+	const printContent =
+		styleManager.prepareForPrint(content);
 
-	// Create proper HTML structure
-	const htmlElement = document.createElement("html");
-	const headElement = document.createElement("head");
-	const bodyElement = document.createElement("body");
+	const htmlElement =
+		document.createElement("html");
+	const headElement =
+		document.createElement("head");
+	const bodyElement =
+		document.createElement("body");
 
-	// Setup head
-	const styleElement = document.createElement("style");
+	const styleElement =
+		document.createElement("style");
 	styleElement.textContent = cssString;
 	headElement.appendChild(styleElement);
 
-	// Setup body
 	bodyElement.className = "obsidian-print";
 	bodyElement.appendChild(printContent);
 
-	// Assemble HTML
 	htmlElement.appendChild(headElement);
 	htmlElement.appendChild(bodyElement);
 
@@ -43,6 +46,54 @@ export async function openPrintModal(
 		scale: 1,
 	});
 }
+
+/**
+ * Prints content directly without showing a preview.
+ * Uses Printd to trigger the system print dialog
+ * immediately.
+ *
+ * @param content - Rendered HTML content
+ * @param settings - Plugin settings
+ * @param cssString - CSS styles to apply
+ */
+export async function directPrint(
+	content: HTMLElement,
+	settings: SmartPrintPluginSettings,
+	cssString: string,
+): Promise<void> {
+	const restoreTheme = switchToLightTheme();
+
+	try {
+		const styleManager =
+			new PrintStyleManager(settings);
+		const printContent =
+			styleManager.prepareForPrint(content);
+
+		const htmlElement =
+			document.createElement("html");
+		const headElement =
+			document.createElement("head");
+		const bodyElement =
+			document.createElement("body");
+
+		const styleElement =
+			document.createElement("style");
+		styleElement.textContent = cssString;
+		headElement.appendChild(styleElement);
+
+		bodyElement.className = "obsidian-print";
+		bodyElement.appendChild(printContent);
+
+		htmlElement.appendChild(headElement);
+		htmlElement.appendChild(bodyElement);
+
+		const printd = new Printd();
+		printd.print(htmlElement, [cssString]);
+	} finally {
+		restoreTheme();
+	}
+}
+
 
 interface PrintPreviewOptions {
 	width?: string;

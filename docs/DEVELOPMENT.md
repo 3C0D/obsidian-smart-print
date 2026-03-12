@@ -3,6 +3,9 @@
 **Last updated:** 2026-03-12
 **Status:** Active reference document
 
+> **See also:** [ROADMAP.md](./ROADMAP.md) for
+> feature tracking and issue status matrix.
+
 ---
 
 ## Architecture Overview
@@ -46,8 +49,39 @@ src/
 ### Key flow:
 1. `handlePrint()` in `main.ts` is the entry point
 2. On mobile → goes directly to `basicPrint()` (no modal)
-3. On desktop with modal → shows `PrintModeModal` with 1-3 buttons
-4. On desktop without modal → routes based on `useBrowserPrint` setting
+3. On desktop with modal → shows `PrintModeModal`
+4. On desktop without modal → routes based on settings
+5. `basicPrint()` → `openPrintModal()` or `directPrint()`
+   (based on `skipPreview` setting)
+
+---
+
+## Settings Reference
+
+### New settings (v2.0+)
+
+| Setting | Type | Default | Platform | Description |
+|---|---|---|---|---|
+| `showRibbonIcon` | bool | `true` | All | Show/hide printer icon in ribbon |
+| `showContextMenu` | bool | `true` | All | Enable/disable context menu entries |
+| `useSubmenu` | bool | `true` | All | Group entries under "Smart Print" submenu |
+| `skipPreview` | bool | `false` | All | Print directly without preview window |
+| `printInColor` | bool | `true` | All | Color or black & white output |
+
+### Existing settings
+
+| Setting | Type | Default | Platform | Description |
+|---|---|---|---|---|
+| `printTitle` | bool | `true` | All | Include note title |
+| `showMetadata` | bool | `false` | All | Include YAML frontmatter |
+| `hrPageBreaks` | bool | `false` | All | Treat `---` as page breaks |
+| `combineFolderNotes` | bool | `false` | All | Merge vs separate pages for folder print |
+| `useModal` | bool | `true` | Desktop | Show print mode selection modal |
+| `useBrowserPrint` | bool | `true` | Desktop | Use browser instead of Electron |
+| `printFontFamily` | string | system | All | Font for print output |
+| `autoSyncHeadingSizes` | bool | `true` | All | Auto-scale heading sizes |
+| `h1Size`..`h6Size` | string | varies | All | Individual heading sizes |
+| `h1Color`..`h6Color` | string | black | All | Individual heading colors |
 
 ---
 
@@ -65,10 +99,18 @@ src/
 ## Shared Utilities
 
 ### `switchToLightTheme()` — `src/utils/themeSwitch.ts`
-Used wherever printing needs light theme (paper is white):
+Used wherever printing needs light theme:
 - `advancedPrint.ts`
-- `basicPrintPreview.ts` (PrintPreview class)
+- `basicPrintPreview.ts` (PrintPreview + directPrint)
 - `importThemeHeaders.ts` (getCSSVariableValue)
+
+### `directPrint()` — `src/basicPrint/basicPrintPreview.ts`
+Prints immediately without showing a preview window.
+Used when `skipPreview` setting is enabled.
+
+### `updateRibbonIcon()` — `src/main.ts`
+Dynamically adds/removes the ribbon icon. Called on
+plugin load and when `showRibbonIcon` setting changes.
 
 Pattern:
 ```typescript
@@ -108,10 +150,13 @@ These could be unified into a shared utility in a future refactor.
 - `@types/lodash` can also be removed.
 
 ### Context Menu Submenus
-A user requested grouping print menu items under a submenu to reduce clutter. The Obsidian API supports `item.setSubmenu()` since v1.4+. This was not implemented in the current refactor but is straightforward to add.
+Implemented via `useSubmenu` setting. When enabled,
+editor context menu items are grouped under a
+"Smart Print" submenu with distinct icons.
+File explorer context menus also support it.
 
 ### `generatePreviewContent()` in `normalCapturePreview.ts`
-This function (lines 170-211) appears to be unused — it was likely part of the original plugin's architecture. Verify and remove if confirmed.
+This function appears to be unused. Verify and remove.
 
 ---
 

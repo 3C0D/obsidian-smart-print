@@ -55,40 +55,106 @@ export async function generatePrintStyles(
     display: none !important;
 }`;
 
-	const headingsCSS = ["h1", "h2", "h3", "h4", "h5", "h6"]
+	const headingsCSS = [
+		"h1",
+		"h2",
+		"h3",
+		"h4",
+		"h5",
+		"h6",
+	]
 		.map((tag) => {
-			const sizeKey = `${tag}Size` as keyof SmartPrintPluginSettings;
-			const colorKey = `${tag}Color` as keyof SmartPrintPluginSettings;
-			return `.obsidian-print ${tag} { font-size: ${settings[sizeKey]}; color: ${settings[colorKey]}; }`;
+			const sizeKey =
+				`${tag}Size` as keyof SmartPrintPluginSettings;
+			const colorKey =
+				`${tag}Color` as keyof SmartPrintPluginSettings;
+			return (
+				`.obsidian-print ${tag} {` +
+				` font-size: ${settings[sizeKey]};` +
+				` color: ${settings[colorKey]}; }`
+			);
 		})
 		.join("\n");
 
-	// Final combined CSS, including hr page breaks
+	// Black & white override: disable all colors
+	const bwCSS = !settings.printInColor
+		? `
+.obsidian-print,
+.obsidian-print * {
+    color: black !important;
+}
+.obsidian-print .inline-title {
+    color: black !important;
+}
+.obsidian-print h1, .obsidian-print h2,
+.obsidian-print h3, .obsidian-print h4,
+.obsidian-print h5, .obsidian-print h6 {
+    color: black !important;
+}
+`
+		: "";
+
+	const fontFamily = getFontFamily(
+		settings.printFontFamily,
+	);
+
+	const hrCSS = settings.hrPageBreaks
+		? ".obsidian-print hr {" +
+			" page-break-before: always;" +
+			" border: none; }"
+		: "";
+
+	const metaCSS = !settings.showMetadata
+		? ".obsidian-print .metadata-container" +
+			" { display: none !important; }"
+		: "";
+
+	// Final combined CSS
 	return `
-        .obsidian-print { font-size: ${settings.fontSize}; font-family: ${getFontFamily(settings.printFontFamily)}; }
-        ${titleCSS}
-        ${headingsCSS}
-        ${settings.hrPageBreaks ? ".obsidian-print hr { page-break-before: always; border: none; }" : ""}
-        ${!settings.showMetadata ? ".obsidian-print .metadata-container { display: none !important; }" : ""}
-        ${pluginStyle}
-        ${userStyle}
+.obsidian-print {
+    font-size: ${settings.fontSize};
+    font-family: ${fontFamily};
+}
+${titleCSS}
+${headingsCSS}
+${hrCSS}
+${metaCSS}
+${bwCSS}
+${pluginStyle}
+${userStyle}
     `;
 }
 
-export function getFontFamily(fontKey?: string): string {
-	const fontOption = FONT_OPTIONS.find((font) => font.value === fontKey);
+/**
+ * Returns the CSS font-family declaration for a
+ * given font key from FONT_OPTIONS.
+ */
+export function getFontFamily(
+	fontKey?: string,
+): string {
+	const fontOption = FONT_OPTIONS.find(
+		(font) => font.value === fontKey,
+	);
 	return fontOption?.css || FONT_OPTIONS[0].css;
 }
 
-function getPrintSnippetValue(app: App): string | undefined {
-	const printCssPath = ".obsidian/snippets/print.css";
+function getPrintSnippetValue(
+	app: App,
+): string | undefined {
+	const printCssPath =
+		".obsidian/snippets/print.css";
 	return app.customCss.csscache.get(printCssPath);
 }
 
-export function isPrintSnippetEnabled(app: App): boolean {
+export function isPrintSnippetEnabled(
+	app: App,
+): boolean {
 	return app.customCss.enabledSnippets.has("print");
 }
 
-export function getPrintSnippet(app: App): boolean {
+export function getPrintSnippet(
+	app: App,
+): boolean {
 	return app.customCss.snippets.contains("print");
 }
+
