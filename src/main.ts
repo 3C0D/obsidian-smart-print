@@ -121,7 +121,7 @@ export default class SmartPrintPlugin extends Plugin {
 
 		this.addCommand({
 			id: "print-selection",
-			name: "Selection",
+			name: "Selection (basic print)",
 			callback: async () =>
 				await this.handlePrint(true),
 		});
@@ -182,13 +182,13 @@ export default class SmartPrintPlugin extends Plugin {
 
 	// ─── Print Logic ───────────────────────────────────
 
-/**
-	 * Main print entry point with unified capture strategy.
-	 * Uses best available capture method automatically.
-	 * 
-	 * @param isSelection - Print selected text only
-	 * @param file - Specific file to print
-	 */
+	/**
+		 * Main print entry point with unified capture strategy.
+		 * Uses best available capture method automatically.
+		 * 
+		 * @param isSelection - Print selected text only
+		 * @param file - Specific file to print
+		 */
 	public async handlePrint(
 		isSelection = false,
 		file?: TFile,

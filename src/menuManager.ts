@@ -23,7 +23,6 @@ export function addFileMenuItems(
 					.onClick(
 						async () =>
 							await plugin.handlePrint(
-								true,
 								false,
 								file,
 							),
@@ -44,7 +43,6 @@ export function addFileMenuItems(
 						.onClick(
 							async () =>
 								await plugin.handlePrint(
-									true,
 									false,
 									file,
 								),
@@ -52,13 +50,12 @@ export function addFileMenuItems(
 				});
 				sub.addItem((subItem) => {
 					subItem
-						.setTitle("Print selection")
+						.setTitle("Print selection (basic print)")
 						.setIcon("text-select")
 						.setDisabled(!hasSelection)
 						.onClick(
 							async () =>
 								await plugin.handlePrint(
-									false,
 									true,
 									file,
 								),
@@ -108,18 +105,17 @@ export function addEditorMenuItems(
 					.setIcon("file-text")
 					.onClick(
 						async () =>
-							await plugin.handlePrint(),
+							await plugin.handlePrint(false),
 					);
 			});
 			sub.addItem((subItem) => {
 				subItem
-					.setTitle("Print selection")
+					.setTitle("Print selection (basic print)")
 					.setIcon("text-select")
 					.setDisabled(!hasSelection)
 					.onClick(
 						async () =>
 							await plugin.handlePrint(
-								false,
 								true,
 							),
 					);
@@ -131,17 +127,16 @@ export function addEditorMenuItems(
 				.setIcon("printer")
 				.onClick(
 					async () =>
-						await plugin.handlePrint(),
+						await plugin.handlePrint(false),
 				);
 		});
 		menu.addItem((item) => {
-			item.setTitle("Print selection")
+			item.setTitle("Print selection (basic print)")
 				.setIcon("printer")
 				.setDisabled(!hasSelection)
 				.onClick(
 					async () =>
 						await plugin.handlePrint(
-							false,
 							true,
 						),
 				);
