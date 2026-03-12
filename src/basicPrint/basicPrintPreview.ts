@@ -21,26 +21,8 @@ export async function openPrintModal(
 	const printContent =
 		styleManager.prepareForPrint(content);
 
-	const htmlElement =
-		document.createElement("html");
-	const headElement =
-		document.createElement("head");
-	const bodyElement =
-		document.createElement("body");
-
-	const styleElement =
-		document.createElement("style");
-	styleElement.textContent = cssString;
-	headElement.appendChild(styleElement);
-
-	bodyElement.className = "obsidian-print";
-	bodyElement.appendChild(printContent);
-
-	htmlElement.appendChild(headElement);
-	htmlElement.appendChild(bodyElement);
-
 	const preview = new PrintPreview();
-	preview.createPreview(htmlElement, cssString, {
+	preview.createPreview(printContent, cssString, {
 		width: "90%",
 		height: "90%",
 		scale: 1,
