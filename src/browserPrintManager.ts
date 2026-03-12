@@ -73,16 +73,23 @@ export class PrintManager {
 		} else {
 			// Desktop: use file system and browser
 			try {
-				const { tmpdir } = await import("os");
-				const path = await import("path");
-				const { unlinkSync, writeFileSync } = await import("fs");
-				const { exec } = await import("child_process");
+				// 1. Lazy load Node.js modules exclusively on desktop
+				// We use require() inside this block to prevent ESbuild from
+				// bundling them for mobile, where these modules do not exist.
+				const { tmpdir } = require("os") as typeof import("os");
+				const { join } = require("path") as typeof import("path");
+				const { writeFileSync, unlinkSync } = require("fs") as typeof import("fs");
+				const { exec } = require("child_process") as typeof import("child_process");
 
+				// 2. Prepare a unique temporary file path
 				const fileName = `obsidian-print-${Date.now()}.html`;
-				const savePath = path.join(tmpdir(), fileName);
+				const savePath = join(tmpdir(), fileName);
 
+				// 3. Write the rendered HTML content to the temporary file
 				writeFileSync(savePath, html);
 
+				// 4. Determine the correct generic command to open a file
+				// according to the user's operating system
 				const openCommand =
 					process.platform === "win32"
 						? `start "" "${savePath}"`
@@ -90,6 +97,7 @@ export class PrintManager {
 							? `open "${savePath}"`
 							: `xdg-open "${savePath}"`;
 
+				// 5. Execute the command to open the file in the default browser
 				exec(openCommand, (error: Error | null) => {
 					if (error) {
 						console.error("Failed to open browser:", error);
@@ -99,6 +107,8 @@ export class PrintManager {
 								error.message,
 						);
 					} else {
+						// 6. Schedule a cleanup to delete the temporary file after
+						// a small delay, giving the browser enough time to load it.
 						setTimeout(() => {
 							try {
 								unlinkSync(savePath);
