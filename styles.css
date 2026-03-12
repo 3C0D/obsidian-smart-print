@@ -292,3 +292,36 @@
 	max-width: 100%;
 	page-break-inside: avoid;
 }
+
+/* Math / LaTeX (MathJax) */
+.obsidian-print mjx-container {
+	display: inline-block !important;
+	visibility: visible !important;
+}
+
+.obsidian-print mjx-container svg {
+	display: inline-block !important;
+	visibility: visible !important;
+	overflow: visible !important;
+}
+
+.obsidian-print .math,
+.obsidian-print .math-block {
+	display: block !important;
+	visibility: visible !important;
+	overflow: visible !important;
+}
+
+.obsidian-print .math-block mjx-container {
+	display: block !important;
+	text-align: center;
+	margin: 1em 0;
+}
+
+/* Preserve MathJax hidden SVG defs */
+.obsidian-print svg[style*="display: none"] {
+	position: absolute;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}

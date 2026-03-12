@@ -103,11 +103,41 @@ export async function getRenderedContent(
 
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
 			container.appendChild(clonedSizer);
+
+			// --- DEBUG MATHJAX CHTML STYLES ---
+			document.querySelectorAll("style").forEach((style, i) => {
+				if (style.textContent?.includes("MJX") || style.textContent?.includes("mjx")) {
+					console.log(`Style[${i}] id:`, style.id, "length:", style.textContent.length);
+					console.log("Preview:", style.textContent.substring(0, 200));
+				}
+			});
+			// --- END DEBUG ---
+			// Copy MathJax global SVG font cache (required for math rendering)
+			const mjxDefs = document.querySelector(
+				'svg[style*="display: none"] defs, #MJX-SVG-global-cache',
+			);
+			if (mjxDefs) {
+				const defsContainer = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"svg",
+				);
+				defsContainer.style.display = "none";
+				defsContainer.appendChild(mjxDefs.cloneNode(true));
+				container.insertBefore(defsContainer, container.firstChild);
+			}
 		}
 
 		// Add metadata if enabled
 		if (settings.showMetadata) {
 			addMetadataToPreview(container, app);
+		}
+
+		// Inject MathJax CHTML styles required for math rendering
+		const mjxStyles = document.getElementById("MJX-CHTML-styles");
+		if (mjxStyles) {
+			const styleEl = document.createElement("style");
+			styleEl.textContent = mjxStyles.textContent;
+			container.insertBefore(styleEl, container.firstChild);
 		}
 
 		return container;
@@ -158,7 +188,7 @@ async function waitForStableContent(
 			const stabilityChecker = setInterval(() => {
 				const timeSinceLastMutation = Date.now() - lastMutationTime;
 
-				// Consider content stable if no mutations for 1 second
+				// Consider content stable if no mutations for 1 seconds
 				if (timeSinceLastMutation > 1000) {
 					clearInterval(stabilityChecker);
 					observer.disconnect();
