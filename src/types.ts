@@ -39,6 +39,8 @@ export interface SmartPrintPluginSettings {
 	useSubmenu: boolean;
 	/** Show print mode modal (desktop only) */
 	useModal: boolean;
+	/** Show folder print options modal */
+	useFolderModal: boolean;
 	/** Show preview before printing */
 	usePreview: boolean;
 	/** Skip preview, print directly (basic mode) */
@@ -93,6 +95,7 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings =
 		showContextMenu: true,
 		useSubmenu: true,
 		useModal: true,
+		useFolderModal: true,
 		usePreview: true,
 		skipPreview: false,
 

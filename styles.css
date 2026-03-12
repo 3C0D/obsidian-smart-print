@@ -93,7 +93,6 @@
 
 .obsidian-print pre[class*="language-"]::before {
 	content: attr(class);
-	content: attr(class);
 	position: absolute;
 	top: 0.5em;
 	right: 0.5em;
@@ -108,14 +107,8 @@
 }
 
 /* Clean up language class name display */
-.obsidian-print pre[class*="language-"]::before {
-	content: attr(class);
-	content: attr(class);
-	text-transform: none;
-}
-
+.obsidian-print pre[class*="language-"]::before,
 .obsidian-print pre[class^="language-"]::before {
-	content: attr(class);
 	content: attr(class);
 	text-transform: none;
 }
@@ -281,6 +274,11 @@
 /* Task lists */
 .obsidian-print .task-list-item {
 	list-style-type: none;
+	margin-left: 0;
+}
+
+.obsidian-print ul > li.task-list-item > ul {
+	padding-left: 1.5em;
 }
 
 .obsidian-print .task-list-item-checkbox {

@@ -104,6 +104,22 @@ export class PrintModeModal extends Modal {
 				await this.saveSettings();
 			},
 		);
+
+		// Print in color checkbox
+		const colorLabel = container.createEl("label");
+		const colorCheck = colorLabel.createEl("input", {
+			type: "checkbox",
+		});
+		colorCheck.checked = this.settings.printInColor;
+		colorLabel.appendText(" Print in color");
+		colorCheck.addEventListener(
+			"change",
+			async () => {
+				this.settings.printInColor =
+					colorCheck.checked;
+				await this.saveSettings();
+			},
+		);
 	}
 
 	/**

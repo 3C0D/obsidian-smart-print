@@ -227,11 +227,6 @@ export class PrintStyleManager {
 		const printContent = content.cloneNode(true) as HTMLElement;
 		printContent.classList.add("obsidian-print");
 
-		const mathElements =
-			printContent.querySelectorAll(".math, .math-block");
-		mathElements.forEach((elem) => {
-			elem.classList.add("math-print");
-		});
 		return printContent;
 	}
 }

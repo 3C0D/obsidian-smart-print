@@ -8,6 +8,7 @@ import {
 	generatePrintStyles,
 } from "./getStyles/generatePrintStyles.ts";
 import { PrintManager } from "./browserPrintManager.ts";
+import { FolderPrintModal } from "./FolderPrintModal.ts";
 
 /**
  * Gets the parent folder of the currently active file.
@@ -75,9 +76,12 @@ export async function printFolder(
 	// 3. Assemble all files into a single master div container
 	const folderContent = createDiv();
 
-	// TODO: As per docs/TODO.md, we should add an intermediate modal here
-	// to prompt the user whether they want to combine notes or separate them
-	// via page breaks, rather than relying solely on the plugin setting.
+	if (plugin.settings.useFolderModal) {
+		const proceed = await new Promise<boolean>((resolve) => {
+			new FolderPrintModal(plugin, (confirmed) => resolve(confirmed)).open();
+		});
+		if (!proceed) return;
+	}
 
 	for (const file of files) {
 		// Generate the standard HTML structure for a single file using Obsidian's API

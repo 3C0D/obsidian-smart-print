@@ -4,30 +4,31 @@
 
 ---
 
-## ✅ Implemented (this session)
+## ✅ Implemented
 
-### Issue #2 (obsidian-smart-print) — UX improvements
+### Session 1 — UX improvements & Mobile
 - [x] **Ribbon icon toggle** — `showRibbonIcon` setting
-      Adds/removes the printer icon dynamically
 - [x] **Context menu toggle** — `showContextMenu` setting
-      Disables right-click entries entirely  
 - [x] **Submenu grouping** — `useSubmenu` setting
-      Groups all entries under "Smart Print" submenu
 - [x] **Skip preview** — `skipPreview` setting
-      Prints directly without preview window
 - [x] **Color / B&W** — `printInColor` setting
-      Forces all text to black when disabled
-
-### Mobile compatibility (from obsidian-print issues)
 - [x] Fixed crash from Node.js `path` import
 - [x] Mobile skips modal, goes to basic print
 - [x] Desktop-only settings hidden on mobile
-
-### Code quality
 - [x] Shared `switchToLightTheme()` utility
 - [x] Fixed `folderPrint` regression
 - [x] Improved JSDoc
 - [x] 100-char line limit enforced
+
+### Session 2 — Code cleanup & Folder modal (2024-12-19)
+- [x] **Code mort supprimé** — `generatePreviewContent()` removed
+- [x] **CSS nettoyé** — Duplications supprimées, règles optimisées
+- [x] **Métadonnées** — Classe `custom-metadata-line` ajoutée
+- [x] **Debug conditionnel** — Console.log conditionnés à `debugMode`
+- [x] **Checkboxes imbriquées** — Règles CSS d'indentation ajoutées
+- [x] **FolderPrintModal** — Nouveau modal pour options d'impression dossier
+- [x] **Print in color** — Option ajoutée dans PrintModeModal
+- [x] **useFolderModal** — Nouveau setting pour activer/désactiver le modal
 
 ---
 
@@ -37,10 +38,11 @@
 
 #### Community submission preparation
 - [ ] Test thoroughly on both desktop and mobile
-- [ ] Clean up `package.json` (remove unused `lodash`)
-- [ ] Remove unused `generatePreviewContent()` function
+- [ ] Clean up `package.json` (remove unused dependencies)
+- [x] Remove unused `generatePreviewContent()` function ✅
 - [ ] Ensure `manifest.json` version matches
 - [ ] Prepare README with features, screenshots, etc.
+- [ ] Add screenshots of FolderPrintModal
 - [ ] Submit to Obsidian community plugins repo
 
 ### Medium Priority
@@ -64,7 +66,7 @@
       reliable printing.
 
 #### UX improvements
-- [ ] **Color/B&W in modal** — Add color/B&W toggle
+- [x] **Color/B&W in modal** — Add color/B&W toggle ✅
       to the PrintModeModal for quick switching without
       going to settings.
 
@@ -89,6 +91,8 @@
       name. CSS `@page` rules can do this but browser
       support varies.
 
+- [x] **Metadata CSS class** — `custom-metadata-line` ✅
+      now properly applied in both renderers.
 - [ ] **Unified metadata renderer** — Extract into
       shared utility (normalCapturePreview +
       advancedCapturePreview have near-identical code).
@@ -111,7 +115,7 @@
 | #21 | LaTeX not rendered | ⚠️ Advanced mode captures if MathJax loaded |
 | #22 | Plugin CSS not applied | ✅ Theme colors imported; `generatePrintStyles` |
 | #24 | Title includes Obsidian info | 🔜 Fixable in `createPrintableHtml()` |
-| #25 | Nested checkboxes not indented | ✅ Fixed in `styles.css` |
+| #25 | Nested checkboxes not indented | ✅ Fixed in `styles.css` (2024-12-19) |
 | #26 | Spaces between checkbox blocks | ✅ Fixed in `styles.css` |
 
 ### obsidian-smart-print issues

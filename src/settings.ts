@@ -475,6 +475,27 @@ export class PrintSettingTab extends PluginSettingTab {
 				);
 
 			new Setting(containerEl)
+				.setName("Show folder print options modal")
+				.setDesc(
+					"Show a modal with options when" +
+						" printing folders.",
+				)
+				.addToggle((toggle) =>
+					toggle
+						.setValue(
+							this.plugin.settings
+								.useFolderModal,
+						)
+						.onChange(async (value) => {
+							this.plugin.settings
+								.useFolderModal =
+								value;
+							await this.plugin
+								.saveSettings();
+						}),
+				);
+
+			new Setting(containerEl)
 				.setName("Use browser print")
 				.setDesc(
 					"Enable advanced printing through" +

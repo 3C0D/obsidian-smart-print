@@ -58,7 +58,9 @@ export async function getRenderedContent(
 		// This will enable advanced print mode in the modal for selection operations
 		if (isSelection) {
 			const selection = window.getSelection();
-			console.log("Selection:", selection);
+			if (settings.debugMode) {
+				console.log("Selection:", selection);
+			}
 
 			if (!selection || selection.rangeCount === 0) {
 				new Notice("No text selected");
@@ -72,12 +74,16 @@ export async function getRenderedContent(
 			const fragment = range.cloneContents();
 
 			if (fragment.childNodes.length === 0) {
-				console.log("No content in selection fragment");
+				if (settings.debugMode) {
+					console.log("No content in selection fragment");
+				}
 				new Notice("Selection appears to be empty");
 				return null;
 			}
 
-			console.log("Selection fragment:", fragment);
+			if (settings.debugMode) {
+				console.log("Selection fragment:", fragment);
+			}
 
 			Array.from(fragment.childNodes).forEach((node) => {
 				if (node.nodeType === Node.TEXT_NODE) {
@@ -90,7 +96,9 @@ export async function getRenderedContent(
 			});
 
 			container.appendChild(sizer);
-			console.log("Final container with selection:", container);
+			if (settings.debugMode) {
+				console.log("Final container with selection:", container);
+			}
 		} else {
 			const originalSizer = previewEl.querySelector(
 				".markdown-preview-sizer",
@@ -104,14 +112,14 @@ export async function getRenderedContent(
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
 			container.appendChild(clonedSizer);
 
-			// --- DEBUG MATHJAX CHTML STYLES ---
-			document.querySelectorAll("style").forEach((style, i) => {
-				if (style.textContent?.includes("MJX") || style.textContent?.includes("mjx")) {
-					console.log(`Style[${i}] id:`, style.id, "length:", style.textContent.length);
-					console.log("Preview:", style.textContent.substring(0, 200));
-				}
-			});
-			// --- END DEBUG ---
+			if (settings.debugMode) {
+				document.querySelectorAll("style").forEach((style, i) => {
+					if (style.textContent?.includes("MJX") || style.textContent?.includes("mjx")) {
+						console.log(`Style[${i}] id:`, style.id, "length:", style.textContent.length);
+					}
+				});
+			}
+
 			// Copy MathJax global SVG font cache (required for math rendering)
 			const mjxDefs = document.querySelector(
 				'svg[style*="display: none"] defs, #MJX-SVG-global-cache',
@@ -224,7 +232,7 @@ function addMetadataToPreview(container: HTMLElement, app: App): void {
 				"custom-metadata-content",
 			);
 			Object.entries(metadata).forEach(([key, value]) => {
-				const line = metadataContent.createDiv();
+				const line = metadataContent.createDiv("custom-metadata-line");
 				const displayValue = Array.isArray(value)
 					? value.join(", ")
 					: typeof value === "object" && value !== null
