@@ -105,6 +105,11 @@ Every print command opens a simple modal where you can:
 - **Import theme colors:** One-click import from your current theme (light mode)
 - **Print in color:** Toggle between color and black & white output
 - **Custom CSS:** Advanced styling with `.obsidian-print` prefix (desktop only)
+  - Create a `print.css` file in `.obsidian/snippets/`
+  - Use `.obsidian-print` as prefix for your selectors
+  - Example: `.obsidian-print a { color: blue; text-decoration: underline; }`
+  - Your custom styles will override plugin defaults without needing `!important`
+  - To override black & white mode, use `!important` in your snippet
 
 ### Print Behavior
 
@@ -131,7 +136,7 @@ Every print command opens a simple modal where you can:
 
 💡 **Font variety:** The plugin includes web-safe fonts and popular options like Roboto, Ubuntu, Georgia, and Fira Code for different document styles
 
-💡 **Custom styling:** Create advanced layouts with custom CSS using `.obsidian-print` selectors (desktop only)
+💡 **Custom styling:** Create a `print.css` file in `.obsidian/snippets/` with `.obsidian-print` selectors. Your styles will override plugin defaults without `!important` (unless overriding black & white mode)
 
 💡 **Quick printing:** Use "Quick print" command to skip the modal and print immediately
 

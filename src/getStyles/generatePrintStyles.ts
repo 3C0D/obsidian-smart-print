@@ -91,6 +91,23 @@ export async function generatePrintStyles(
 .obsidian-print h5, .obsidian-print h6 {
     color: black !important;
 }
+.obsidian-print mark {
+    background-color: #e0e0e0 !important;
+}
+.obsidian-print .callout {
+    border-color: #999 !important;
+    background-color: white !important;
+}
+.obsidian-print .callout-title {
+    background-color: #f0f0f0 !important;
+    color: black !important;
+}
+.obsidian-print svg *[fill]:not([fill="none"]) {
+    fill: black !important;
+}
+.obsidian-print svg *[stroke]:not([stroke="none"]) {
+    stroke: black !important;
+}
 `
 		: "";
 
@@ -119,9 +136,9 @@ ${titleCSS}
 ${headingsCSS}
 ${hrCSS}
 ${metaCSS}
-${bwCSS}
 ${pluginStyle}
 ${userStyle}
+${bwCSS}
     `;
 }
 

@@ -31,9 +31,21 @@
 	background-color: white;
 }
 
-/* Force text color for non-headings */
-.obsidian-print *:not(h1, h2, h3, h4, h5, h6) {
-	color: black !important;
+/* Force text color for common text elements */
+.obsidian-print p,
+.obsidian-print li,
+.obsidian-print td,
+.obsidian-print th {
+	color: black;
+}
+
+/* Allow inline elements to inherit theme colors */
+.obsidian-print strong,
+.obsidian-print b,
+.obsidian-print em,
+.obsidian-print i,
+.obsidian-print span {
+	color: inherit;
 }
 
 /* Inline title if Print title enabled */
