@@ -20,6 +20,7 @@ Smart Print automatically chooses the best rendering method for your content:
 - **No mode selection required** - just click Print!
 
 **What renders perfectly:**
+
 - ✅ Mermaid diagrams
 - ✅ Dataview queries (when visible in preview)
 - ✅ Callouts with icons
@@ -108,8 +109,8 @@ Every print command opens a simple modal where you can:
   - Create a `print.css` file in `.obsidian/snippets/`
   - Use `.obsidian-print` as prefix for your selectors
   - Example: `.obsidian-print a { color: blue; text-decoration: underline; }`
-  - Your custom styles will override plugin defaults without needing `!important`
-  - To override black & white mode, use `!important` in your snippet
+  - No need for `!important` - your styles will apply automatically
+  - The "Print in color" toggle in the modal will still work as expected
 
 ### Print Behavior
 
@@ -136,7 +137,7 @@ Every print command opens a simple modal where you can:
 
 💡 **Font variety:** The plugin includes web-safe fonts and popular options like Roboto, Ubuntu, Georgia, and Fira Code for different document styles
 
-💡 **Custom styling:** Create a `print.css` file in `.obsidian/snippets/` with `.obsidian-print` selectors. Your styles will override plugin defaults without `!important` (unless overriding black & white mode)
+💡 **Custom styling:** Create a `print.css` file in `.obsidian/snippets/` with `.obsidian-print` selectors. No `!important` needed - your styles apply automatically and respect the "Print in color" toggle
 
 💡 **Quick printing:** Use "Quick print" command to skip the modal and print immediately
 
@@ -168,16 +169,20 @@ Smart Print uses an intelligent capture strategy:
 ## Troubleshooting
 
 **Dynamic content not rendering?**
+
 - Make sure the note is open in preview mode
 - For Dataview/MetaBind, ensure the plugin is enabled and content is visible
 
 **Wrong file printed from explorer?**
+
 - This is now fixed - the plugin correctly identifies the target file
 
 **Theme colors not applied?**
+
 - Use "Get theme colors" button in settings to import your theme's colors
 
 **Print dialog not appearing?**
+
 - Check that "Skip preview" is disabled in settings
 - On mobile, ensure you have print permissions
 
