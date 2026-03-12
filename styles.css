@@ -63,6 +63,13 @@
 	text-decoration: none;
 }
 
+/* Highlighted text */
+.obsidian-print mark {
+	background-color: #fff3a3;
+	color: black !important;
+	padding: 0 2px;
+}
+
 /* Code blocks */
 .obsidian-print pre,
 .obsidian-print code {
@@ -70,14 +77,12 @@
 	border: 1px solid #e1e4e8;
 	border-radius: 3px;
 	padding: 0.2em 0.4em;
-	font-family: var(
-		--print-code-font,
-		"SFMono-Regular",
-		Consolas,
-		"Liberation Mono",
-		Menlo,
-		monospace
-	);
+	font-family: var(--print-code-font,
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace);
 	color: #24292e;
 	white-space: pre-wrap !important;
 	word-wrap: break-word !important;
@@ -259,15 +264,15 @@
 	list-style-position: outside;
 }
 
-.obsidian-print ul > li {
+.obsidian-print ul>li {
 	list-style-type: disc !important;
 }
 
-.obsidian-print ul > li > ul > li {
+.obsidian-print ul>li>ul>li {
 	list-style-type: circle !important;
 }
 
-.obsidian-print ul > li > ul > li > ul > li {
+.obsidian-print ul>li>ul>li>ul>li {
 	list-style-type: square !important;
 }
 
@@ -277,7 +282,7 @@
 	margin-left: 0;
 }
 
-.obsidian-print ul > li.task-list-item > ul {
+.obsidian-print ul>li.task-list-item>ul {
 	padding-left: 1.5em;
 }
 
@@ -322,4 +327,14 @@
 	width: 0;
 	height: 0;
 	overflow: hidden;
+}
+
+/* Obsidian comments (only visible when showComments is enabled) */
+.obsidian-print .obsidian-comment {
+	background-color: #fffbe6;
+	border: 1px dashed #cca800;
+	border-radius: 3px;
+	padding: 0 4px;
+	color: #7a6000;
+	font-size: 0.9em;
 }

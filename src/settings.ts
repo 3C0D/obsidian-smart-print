@@ -62,7 +62,7 @@ export class PrintSettingTab extends PluginSettingTab {
 			containerEl,
 			"Font size",
 			"Set the font size for the printed note" +
-				" (in pixels).",
+			" (in pixels).",
 			this.plugin.settings.fontSize,
 			this.plugin.settings.autoSyncHeadingSizes,
 			this.plugin,
@@ -98,7 +98,7 @@ export class PrintSettingTab extends PluginSettingTab {
 				.setName(`Heading ${level} size`)
 				.setDesc(
 					`Set the size for <h${level}>` +
-						` elements (in pixels).`,
+					` elements (in pixels).`,
 				)
 				.addText((text) =>
 					text
@@ -127,7 +127,7 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Inline title size")
 			.setDesc(
 				"Set the size for the inline title" +
-					" (in pixels).",
+				" (in pixels).",
 			)
 			.addText((text) =>
 				text
@@ -161,20 +161,20 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Import theme colors")
 			.setDesc(
 				"Import all heading colors and inline" +
-					" title color from your current theme" +
-					" (using light mode values). ⚠️ For" +
-					" inline title: ensure to have an" +
-					" open markdown view.",
+				" title color from your current theme" +
+				" (using light mode values). ⚠️ For" +
+				" inline title: ensure to have an" +
+				" open markdown view.",
 			)
 			.addButton((button) =>
 				button
 					.setButtonText("get theme colors")
 					.setTooltip(
 						"Import heading colors from" +
-							" your current theme." +
-							" This will update all" +
-							" heading colors and" +
-							" inline title color.",
+						" your current theme." +
+						" This will update all" +
+						" heading colors and" +
+						" inline title color.",
 					)
 					.onClick(async () => {
 						await initializeThemeColors(
@@ -208,7 +208,7 @@ export class PrintSettingTab extends PluginSettingTab {
 				.setName(`Heading ${index + 1} color`)
 				.setDesc(
 					`Set the color for` +
-						` <h${index + 1}> elements.`,
+					` <h${index + 1}> elements.`,
 				)
 				.addColorPicker((color) =>
 					color
@@ -229,9 +229,9 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Combine folder notes")
 			.setDesc(
 				"When printing a folder, combine all" +
-					" notes into a single document. If" +
-					" disabled, each note will start on" +
-					" a new page.",
+				" notes into a single document. If" +
+				" disabled, each note will start on" +
+				" a new page.",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -250,7 +250,7 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Show metadata")
 			.setDesc(
 				"Include the note metadata in the" +
-					" printout.",
+				" printout.",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -265,13 +265,32 @@ export class PrintSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Show comments")
+			.setDesc(
+				"Display Obsidian comments (%% ... %%)" +
+				" in the printout. Comments will appear" +
+				" with a yellow background.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings.showComments,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings
+							.showComments = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.setName(
 				"Treat horizontal lines as page breaks",
 			)
 			.setDesc(
 				"Enable this option to interpret" +
-					" horizontal lines (---) as" +
-					" page breaks",
+				" horizontal lines (---) as" +
+				" page breaks",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -294,14 +313,14 @@ export class PrintSettingTab extends PluginSettingTab {
 				.setName("Custom CSS")
 				.setDesc(
 					'Click the folder icon to create' +
-						' a "print.css" file in' +
-						" snippets. A toggle will" +
-						" appear here once the file" +
-						" exists to enable/disable" +
-						" your custom styles. Use" +
-						' ".obsidian-print" as prefix' +
-						" for your selectors. e.g:" +
-						' ".obsidian-print a {...}".',
+					' a "print.css" file in' +
+					" snippets. A toggle will" +
+					" appear here once the file" +
+					" exists to enable/disable" +
+					" your custom styles. Use" +
+					' ".obsidian-print" as prefix' +
+					" for your selectors. e.g:" +
+					' ".obsidian-print a {...}".',
 				)
 				.addButton((button) =>
 					button
@@ -351,8 +370,8 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Print in color")
 			.setDesc(
 				"Enable to print with heading colors" +
-					" and theme colors. Disable for" +
-					" black & white output.",
+				" and theme colors. Disable for" +
+				" black & white output.",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -371,8 +390,8 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Skip preview")
 			.setDesc(
 				"Print immediately without showing" +
-					" the preview window. The print" +
-					" dialog will open directly.",
+				" the preview window. The print" +
+				" dialog will open directly.",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -393,7 +412,7 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Show ribbon icon")
 			.setDesc(
 				"Show the printer icon in the left" +
-					" sidebar ribbon.",
+				" sidebar ribbon.",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -414,8 +433,8 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Show context menu items")
 			.setDesc(
 				"Show print options in right-click" +
-					" context menus (file explorer" +
-					" and editor).",
+				" context menus (file explorer" +
+				" and editor).",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -434,8 +453,8 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setName("Group in submenu")
 			.setDesc(
 				"Group context menu items under a" +
-					' "Smart Print" submenu to keep' +
-					" menus clean.",
+				' "Smart Print" submenu to keep' +
+				" menus clean.",
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -457,8 +476,8 @@ export class PrintSettingTab extends PluginSettingTab {
 				.setName("Show print mode selection")
 				.setDesc(
 					"Show a modal to choose between" +
-						" basic, standard and advanced" +
-						" (when possible) print mode.",
+					" basic, standard and advanced" +
+					" (when possible) print mode.",
 				)
 				.addToggle((toggle) =>
 					toggle
@@ -478,7 +497,7 @@ export class PrintSettingTab extends PluginSettingTab {
 				.setName("Show folder print options modal")
 				.setDesc(
 					"Show a modal with options when" +
-						" printing folders.",
+					" printing folders.",
 				)
 				.addToggle((toggle) =>
 					toggle
@@ -499,11 +518,11 @@ export class PrintSettingTab extends PluginSettingTab {
 				.setName("Use browser print")
 				.setDesc(
 					"Enable advanced printing through" +
-						" browser. This provides more" +
-						" printing options and better" +
-						" text formatting. When" +
-						" disabled, use Obsidian's" +
-						" basic print only.",
+					" browser. This provides more" +
+					" printing options and better" +
+					" text formatting. When" +
+					" disabled, use Obsidian's" +
+					" basic print only.",
 				)
 				.addToggle((toggle) =>
 					toggle
@@ -699,15 +718,14 @@ function createFontSizeSettingWithAutoSync(
 
 	// Add toggle for auto-sync headings sizes
 	const label = document.createElement("span");
-	label.textContent = "Auto-sync headings sizes";
+	label.textContent = "Scale headings with base size";
 	label.style.marginLeft = "5px";
 	setting.controlEl.appendChild(label);
 
 	setting.addToggle((toggle) =>
 		toggle
 			.setTooltip(
-				"Auto-sync heading sizes when" +
-					" font size changes",
+				"When enabled, heading sizes (H1-H6) are automatically rescaled proportionally when the base font size changes.",
 			)
 			.setValue(autoSyncEnabled)
 			.onChange(async (enabled) => {

@@ -26,8 +26,9 @@ export async function getBestContent(
 
 	// Check if we can use advanced capture
 	// Only works for active file (DOM capture requires preview to be open)
+	// Bypass advanced capture when showComments is enabled (comments are already stripped from DOM)
 	const activeFile = app.workspace.getActiveFile();
-	const canUseAdvanced = !file || file.path === activeFile?.path;
+	const canUseAdvanced = (!file || file.path === activeFile?.path) && !settings.showComments;
 
 	if (!canUseAdvanced) {
 		if (settings.debugMode) {

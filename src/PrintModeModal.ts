@@ -50,21 +50,37 @@ export class PrintModeModal extends Modal {
 		container.style.gap = "20px";
 		container.style.marginBottom = "15px";
 
-		// Print title checkbox
-		const titleLabel = container.createEl("label");
-		const titleCheck = titleLabel.createEl("input", {
-			type: "checkbox",
-		});
+		// Print title checkbox with nested hide H1 option
+		const titleWrapper = container.createDiv();
+		titleWrapper.style.display = "flex";
+		titleWrapper.style.flexDirection = "column";
+		titleWrapper.style.gap = "4px";
+
+		const titleLabel = titleWrapper.createEl("label");
+		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
 		titleCheck.checked = this.settings.printTitle;
 		titleLabel.appendText(" Print Title");
-		titleCheck.addEventListener(
-			"change",
-			async () => {
-				this.settings.printTitle =
-					titleCheck.checked;
-				await this.saveSettings();
-			},
-		);
+		titleLabel.title = "Adds the file name as a centered title at the top of the printed page";
+		titleCheck.addEventListener("change", async () => {
+			this.settings.printTitle = titleCheck.checked;
+			hideH1Label.style.display = titleCheck.checked ? "flex" : "none";
+			await this.saveSettings();
+		});
+
+		const hideH1Label = titleWrapper.createEl("label");
+		hideH1Label.style.display = this.settings.printTitle ? "flex" : "none";
+		hideH1Label.style.fontSize = "11px";
+		hideH1Label.style.paddingLeft = "16px";
+		hideH1Label.style.alignItems = "center";
+		hideH1Label.style.gap = "4px";
+		const hideH1Check = hideH1Label.createEl("input", { type: "checkbox" });
+		hideH1Check.checked = this.settings.hideH1IfSameAsTitle;
+		hideH1Label.appendText(" Hide H1 if same as title");
+		hideH1Label.title = "If the first heading matches the file name, it will be hidden to avoid duplication";
+		hideH1Check.addEventListener("change", async () => {
+			this.settings.hideH1IfSameAsTitle = hideH1Check.checked;
+			await this.saveSettings();
+		});
 
 		// Metadata checkbox
 		const metaLabel = container.createEl("label");
@@ -113,6 +129,17 @@ export class PrintModeModal extends Modal {
 				await this.saveSettings();
 			},
 		);
+
+		// Show comments checkbox
+		const commentsLabel = container.createEl("label");
+		const commentsCheck = commentsLabel.createEl("input", { type: "checkbox" });
+		commentsCheck.checked = this.settings.showComments;
+		commentsLabel.appendText(" Show comments");
+		commentsLabel.title = "Show Obsidian comments (%% ... %%) in print output";
+		commentsCheck.addEventListener("change", async () => {
+			this.settings.showComments = commentsCheck.checked;
+			await this.saveSettings();
+		});
 	}
 
 	/**
@@ -201,7 +228,8 @@ export class PrintModeModal extends Modal {
 		});
 		syncCheck.checked =
 			this.settings.autoSyncHeadingSizes;
-		syncLabel.appendText("Auto-sync headings size");
+		syncLabel.appendText("Scale headings with base size");
+		syncLabel.title = "When enabled, heading sizes (H1-H6) are automatically rescaled proportionally when the base font size changes.";
 		syncCheck.addEventListener(
 			"change",
 			async () => {

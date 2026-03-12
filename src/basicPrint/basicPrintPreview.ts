@@ -120,6 +120,7 @@ class PrintPreview {
     overflow: auto;
     width: ${options.width || "80%"};
     height: ${options.height || "80%"};
+    scrollbar-width: thin;
 }
 .print-preview-controls {
     position: sticky;
@@ -216,7 +217,7 @@ class PrintPreview {
  * Manages the styling of content for printing
  */
 export class PrintStyleManager {
-	constructor(private settings: SmartPrintPluginSettings) {}
+	constructor(private settings: SmartPrintPluginSettings) { }
 
 	/**
 	 * Prepares the content for printing by adding necessary print classes

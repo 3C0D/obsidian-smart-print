@@ -85,6 +85,9 @@ export async function generateHTML(
 			titleEl.addClass("inline-title");
 		}
 
+		// Store title for later comparison if needed
+		const titleText = input instanceof TFile ? input.basename.toLowerCase().trim() : "";
+
 		// Get the markdown content based on input type
 		let markdownContent: string;
 		let sourcePath: string;
@@ -104,6 +107,15 @@ export async function generateHTML(
 			markdownContent = markdownContent.replace(/^---[\s\S]*?---\n?/, "");
 		}
 
+		// Mark comments with inline code placeholder before rendering
+		// HTML inline is escaped by the renderer, so we use markdown code syntax
+		if (settings.showComments) {
+			markdownContent = markdownContent.replace(
+				/%%(.+?)%%/gs,
+				(_, content) => `\`[comment: ${content.trim()}]\``,
+			);
+		}
+
 		// Render the markdown content
 		const component = new Component();
 		component.load();
@@ -117,6 +129,28 @@ export async function generateHTML(
 			);
 		} finally {
 			component.unload();
+		}
+
+		// Post-processing: Convert code placeholders to styled comment spans
+		if (settings.showComments) {
+			contentSizer.querySelectorAll("code").forEach((code) => {
+				if (code.textContent?.startsWith("[comment: ")) {
+					const span = document.createElement("span");
+					span.className = "obsidian-comment";
+					span.textContent = code.textContent
+						.replace("[comment: ", "")
+						.replace(/\]$/, "");
+					code.replaceWith(span);
+				}
+			});
+		}
+
+		// Remove first H1 if it duplicates the inline title
+		if (settings.printTitle && settings.hideH1IfSameAsTitle && input instanceof TFile) {
+			const firstH1 = contentSizer.querySelector("h1:not(.inline-title)");
+			if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
+				firstH1.remove();
+			}
 		}
 
 		return content;

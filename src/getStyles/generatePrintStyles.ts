@@ -100,13 +100,13 @@ export async function generatePrintStyles(
 
 	const hrCSS = settings.hrPageBreaks
 		? ".obsidian-print hr {" +
-			" page-break-before: always;" +
-			" border: none; }"
+		" page-break-before: always;" +
+		" border: none; }"
 		: "";
 
 	const metaCSS = !settings.showMetadata
 		? ".obsidian-print .metadata-container" +
-			" { display: none !important; }"
+		" { display: none !important; }"
 		: "";
 
 	// Final combined CSS
