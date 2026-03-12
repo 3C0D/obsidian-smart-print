@@ -3,7 +3,6 @@ import {
 	TFile,
 	TFolder,
 	debounce,
-	type Menu,
 } from "obsidian";
 import {
 	DEFAULT_SETTINGS,

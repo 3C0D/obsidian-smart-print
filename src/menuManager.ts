@@ -33,7 +33,7 @@ export function addFileMenuItems(
 				const sub = (
 					item
 						.setTitle("Smart Print")
-						.setIcon("printer") as any // eslint-disable-line @typescript-eslint/no-explicit-any
+						.setIcon("printer") as any  
 				).setSubmenu() as Menu;
 
 				sub.addItem((subItem) => {
@@ -96,7 +96,7 @@ export function addEditorMenuItems(
 			const sub = (
 				item
 					.setTitle("Smart Print")
-					.setIcon("printer") as any // eslint-disable-line @typescript-eslint/no-explicit-any
+					.setIcon("printer") as any  
 			).setSubmenu() as Menu;
 
 			sub.addItem((subItem) => {

@@ -227,6 +227,8 @@ export class PrintStyleManager {
 		const printContent = content.cloneNode(true) as HTMLElement;
 		printContent.classList.add("obsidian-print");
 
+		// Note: settings parameter available for future use
+		// Currently used for potential print customizations
 		return printContent;
 	}
 }
