@@ -10,16 +10,7 @@ import {
 	type SmartPrintPluginSettings,
 } from "./types.ts";
 import { printFolder } from "./folderPrint.ts";
-import {
-	printContent,
-} from "./basicPrint/basicPrint.ts";
-import {
-	advancedPrint,
-} from "./advancedPrint/advancedPrint.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
-import {
-	contentToHTML,
-} from "./normalCapturePreview.ts";
 import {
 	initializeThemeColors,
 	initializeFontSizes,
@@ -37,6 +28,8 @@ import {
 	addFileMenuItems,
 	addEditorMenuItems,
 } from "./menuManager.ts";
+import { getBestContent, getBestPrintEngine } from "./captureStrategy.ts";
+import { PrintManager } from "./browserPrintManager.ts";
 
 export default class SmartPrintPlugin extends Plugin {
 	settings: SmartPrintPluginSettings;
@@ -123,15 +116,14 @@ export default class SmartPrintPlugin extends Plugin {
 		this.addCommand({
 			id: "quick-print-note",
 			name: "Quick print (no modal)",
-			callback: async () =>
-				await this.basicPrint(),
+			callback: async () => await this.unifiedPrint(),
 		});
 
 		this.addCommand({
 			id: "print-selection",
 			name: "Selection",
 			callback: async () =>
-				await this.handlePrint(false, true),
+				await this.handlePrint(true),
 		});
 
 		this.addCommand({
@@ -190,159 +182,93 @@ export default class SmartPrintPlugin extends Plugin {
 
 	// ─── Print Logic ───────────────────────────────────
 
-	/**
-	 * Prepares HTML content from the active note.
-	 * Shows a Notice if no content is available.
-	 *
-	 * @param isSelection - Print selected text only
-	 * @param file - Specific file to print
-	 * @returns Rendered HTML element, or null
-	 */
-	private async preparePrintContent(
-		isSelection: boolean,
-		file?: TFile,
-	): Promise<HTMLElement | null> {
-		return await contentToHTML(
-			this.app,
-			this.settings,
-			isSelection,
-			file,
-		);
-	}
-
-	/**
-	 * Main print entry point. Routes to correct mode:
-	 * - Mobile: always uses basicPrint (no modal)
-	 * - Desktop with modal: shows PrintModeModal
-	 * - Desktop without modal: settings-based routing
-	 *
-	 * @param useAdvancedPrint - Allow advanced option
+/**
+	 * Main print entry point with unified capture strategy.
+	 * Uses best available capture method automatically.
+	 * 
 	 * @param isSelection - Print selected text only
 	 * @param file - Specific file to print
 	 */
 	public async handlePrint(
-		useAdvancedPrint = true,
 		isSelection = false,
 		file?: TFile,
 	): Promise<void> {
-		// Mobile: always go directly to basic print
-		if (isMobile()) {
-			await this.basicPrint(isSelection, file);
+		const mobile = isMobile();
+
+		// Mobile: skip modal, print directly
+		if (mobile) {
+			await this.unifiedPrint(isSelection, file);
 			return;
 		}
 
-		// Desktop: show modal or settings-based routing
+		// Desktop: show modal if enabled
 		if (this.settings.useModal) {
 			new PrintModeModal(
 				this,
 				this.app,
 				this.settings,
-				useAdvancedPrint,
-				async (state) => {
-					if (
-						useAdvancedPrint &&
-						state === "advanced"
-					) {
-						await advancedPrint(
-							this.app,
-							this.manifest,
-							this.settings,
-							isSelection,
-						);
-					} else if (
-						state === "standard"
-					) {
-						await this.standardPrint(
-							isSelection,
-							file,
-						);
-					} else {
-						await this.basicPrint(
-							isSelection,
-							file,
-						);
-					}
+				async () => {
+					await this.unifiedPrint(isSelection, file);
 				},
-				async () =>
-					await this.saveSettings(),
+				async () => await this.saveSettings(),
 			).open();
 		} else {
-			if (this.settings.useBrowserPrint) {
-				await this.standardPrint(
-					isSelection,
-					file,
-				);
-			} else {
-				await this.basicPrint(
-					isSelection,
-					file,
-				);
-			}
+			await this.unifiedPrint(isSelection, file);
 		}
 	}
 
 	/**
-	 * Standard print: renders markdown to HTML then
-	 * opens it in the system browser.
-	 * Desktop only.
+	 * Unified print method using best capture strategy.
+	 * Automatically selects best capture method and print engine.
+	 * 
+	 * @param isSelection - Print selected text only
+	 * @param file - Specific file to print
 	 */
-	async standardPrint(
+	async unifiedPrint(
 		isSelection = false,
 		file?: TFile,
 	): Promise<void> {
-		const content =
-			await this.preparePrintContent(
-				isSelection,
-				file,
-			);
-		if (!content) return;
-		await printContent(
-			content,
+		// Get best content using unified capture strategy
+		const content = await getBestContent(
 			this.app,
-			this.manifest,
 			this.settings,
+			isSelection,
+			file,
 		);
-	}
-
-	/**
-	 * Basic print: renders markdown to HTML then
-	 * either shows a preview or prints directly.
-	 * Works on both desktop and mobile.
-	 *
-	 * If skipPreview is enabled, uses Printd to
-	 * print immediately without preview window.
-	 */
-	async basicPrint(
-		isSelection = false,
-		file?: TFile,
-	): Promise<void> {
-		const content =
-			await this.preparePrintContent(
-				isSelection,
-				file,
-			);
 		if (!content) return;
 
+		// Generate styles
 		const globalCSS = await generatePrintStyles(
 			this.app,
 			this.manifest,
 			this.settings,
 		);
 
-		if (this.settings.skipPreview) {
-			// Print directly without preview
-			await directPrint(
-				content,
-				this.settings,
-				globalCSS,
+		// Determine best print engine
+		const engine = getBestPrintEngine(
+			this.settings,
+			isMobile(),
+		);
+
+		if (engine === "browser") {
+			// Browser print (desktop only)
+			const filePath = file?.path ?? this.app.workspace.getActiveFile()?.path ?? "Untitled";
+			const printer = new PrintManager();
+			await printer.browserPrint(
+				printer.createPrintableHtml(
+					content,
+					globalCSS,
+					true,
+					filePath,
+				),
 			);
 		} else {
-			// Show preview first
-			await openPrintModal(
-				content,
-				this.settings,
-				globalCSS,
-			);
+			// Printd (mobile or desktop basic)
+			if (this.settings.skipPreview) {
+				await directPrint(content, this.settings, globalCSS);
+			} else {
+				await openPrintModal(content, this.settings, globalCSS);
+			}
 		}
 	}
 

@@ -8,23 +8,16 @@ import type SmartPrintPlugin from "./main.ts";
 import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
 
 /**
- * Modal dialog for choosing print mode and quick options.
- * Only shown on desktop — mobile routes bypass the modal.
- *
- * Displays:
- * - Quick options: Print Title, Show Metadata, Page Breaks
- * - Font settings: Font family, font size, auto-sync toggle
- * - Mode buttons: Basic, Standard (browser), Advanced (browser)
+ * Simplified print options modal.
+ * No longer asks for print mode - uses unified capture strategy.
+ * Only shows user-facing options: title, metadata, colors, fonts.
  */
 export class PrintModeModal extends Modal {
 	constructor(
 		private plugin: SmartPrintPlugin,
 		app: App,
 		private settings: SmartPrintPluginSettings,
-		private useAdvancedPrint: boolean,
-		private onSubmit: (
-			printMode: string | null,
-		) => void,
+		private onSubmit: () => void,
 		private saveSettings: () => Promise<void>,
 	) {
 		super(app);
@@ -225,11 +218,8 @@ export class PrintModeModal extends Modal {
 	}
 
 	/**
-	 * Renders the print mode buttons.
-	 * All modes are available on desktop:
-	 * - Basic: Electron/Printd in-app print
-	 * - Standard: Opens browser with print dialog
-	 * - Advanced: Full DOM capture → browser print
+	 * Renders the print button.
+	 * No mode selection - uses unified capture strategy.
 	 */
 	private renderButtons(contentEl: HTMLElement): void {
 		const container = contentEl.createDiv();
@@ -238,44 +228,14 @@ export class PrintModeModal extends Modal {
 		container.style.gap = "10px";
 		container.style.marginTop = "20px";
 
-		// Basic Print button (Obsidian/Electron native)
-		const basicBtn = container.createEl("button");
-		basicBtn.style.width = "150px";
-		basicBtn.style.color = "var(--text-accent)";
-		basicBtn.setText("Basic");
-		basicBtn.addEventListener("click", () => {
+		const printBtn = container.createEl("button");
+		printBtn.style.width = "150px";
+		printBtn.style.color = "var(--text-accent)";
+		printBtn.setText("Print");
+		printBtn.addEventListener("click", () => {
 			this.close();
-			this.onSubmit("basic");
+			this.onSubmit();
 		});
-
-		// Standard Print button (in browser)
-		if (this.settings.useBrowserPrint) {
-			const stdBtn =
-				container.createEl("button");
-			stdBtn.style.width = "150px";
-			stdBtn.style.color = "var(--text-accent)";
-			stdBtn.setText("Standard (browser)");
-			stdBtn.addEventListener("click", () => {
-				this.close();
-				this.onSubmit("standard");
-			});
-		}
-
-		// Advanced Print button (in browser)
-		if (
-			this.useAdvancedPrint &&
-			this.settings.useBrowserPrint
-		) {
-			const advBtn =
-				container.createEl("button");
-			advBtn.style.width = "150px";
-			advBtn.style.color = "var(--text-accent)";
-			advBtn.setText("Advanced (browser)");
-			advBtn.addEventListener("click", () => {
-				this.close();
-				this.onSubmit("advanced");
-			});
-		}
 	}
 
 	onClose(): void {

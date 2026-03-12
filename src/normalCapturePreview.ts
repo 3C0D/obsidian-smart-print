@@ -55,7 +55,13 @@ export async function contentToHTML(
 }
 
 /**
- * Modify generateHTML to include isAdvanced parameter
+ * Generates HTML content from markdown input.
+ * Renders markdown using Obsidian's MarkdownRenderer API.
+ * 
+ * @param app - Obsidian App instance
+ * @param settings - Plugin settings
+ * @param input - TFile or markdown string to render
+ * @returns Rendered HTML element or null
  */
 export async function generateHTML(
 	app: App,

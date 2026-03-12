@@ -26,6 +26,7 @@ export class FolderPrintModal extends Modal {
 
 		const closeBtn = header.createEl("button");
 		closeBtn.setText("✕");
+		closeBtn.title = "Close and disable this modal (re-enable in Settings)";
 		closeBtn.style.background = "none";
 		closeBtn.style.border = "none";
 		closeBtn.style.fontSize = "20px";
