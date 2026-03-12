@@ -2,6 +2,7 @@ import {
 	Plugin,
 	TFile,
 	TFolder,
+	debounce,
 	type Menu,
 } from "obsidian";
 import {
@@ -39,13 +40,11 @@ export default class SmartPrintPlugin extends Plugin {
 	private ribbonIconEl: HTMLElement | null = null;
 
 	async onload(): Promise<void> {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData(),
-		);
+		await this.loadSettings();
 
 		// Initialize header colors if not done before
+		// Useful so we have accurate colors for printing headings from theme
+
 		if (!this.settings.hasInitializedColors) {
 			await initializeThemeColors(
 				this.app,
@@ -73,27 +72,34 @@ export default class SmartPrintPlugin extends Plugin {
 	 * the setting changes.
 	 */
 	updateRibbonIcon(): void {
-		// Remove existing icon if any
+		// 1. Always remove the existing icon first.
+		// This is necessary because this function is called every time
+		// the user toggles the setting in the options. If we didn't remove it,
+		// toggling the setting multiple times would stack multiple icons.
 		if (this.ribbonIconEl) {
 			this.ribbonIconEl.remove();
 			this.ribbonIconEl = null;
 		}
 
+		// If the user disabled the icon in settings, we stop here (icon remains removed).
 		if (!this.settings.showRibbonIcon) return;
 
-		// Add debounce to prevent double triggering
-		let isProcessing = false;
+		// 2. Anti-spam lock (Debounce)
+		// Generating print HTML can be heavy. If a user double-clicks the icon
+		// (especially on touch devices), we don't want to run the print logic twice.
+		// We use Obsidian's native debounce function to suppress rapid repeated clicks.
+		const debouncedPrint = debounce(
+			async () => {
+				await this.handlePrint();
+			},
+			500,
+			true, // 'true' means it triggers on the *leading* edge (immediate execution, ignoring subsequent clicks for 500ms)
+		);
+
 		this.ribbonIconEl = this.addRibbonIcon(
 			"printer",
 			"Print note",
-			async () => {
-				if (isProcessing) return;
-				isProcessing = true;
-				await this.handlePrint();
-				setTimeout(() => {
-					isProcessing = false;
-				}, 500);
-			},
+			debouncedPrint,
 		);
 	}
 
@@ -449,6 +455,13 @@ export default class SmartPrintPlugin extends Plugin {
 				globalCSS,
 			);
 		}
+	}
+
+	async loadSettings(): Promise<void> {
+		this.settings = {
+			...DEFAULT_SETTINGS,
+			...(await this.loadData()),
+		};
 	}
 
 	async saveSettings(): Promise<void> {
