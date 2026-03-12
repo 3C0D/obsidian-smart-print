@@ -338,3 +338,11 @@
 	color: #7a6000;
 	font-size: 0.9em;
 }
+
+
+/* Print modal hint text */
+.print-modal-hint {
+	font-size: 12px;
+	color: var(--text-muted);
+	font-weight: normal;
+}

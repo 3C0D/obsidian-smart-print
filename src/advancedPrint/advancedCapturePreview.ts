@@ -112,6 +112,18 @@ export async function getRenderedContent(
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
 			container.appendChild(clonedSizer);
 
+			// Remove first H1 if it duplicates the file title
+			if (settings.printTitle && settings.hideH1IfSameAsTitle) {
+				const activeFile = app.workspace.getActiveFile();
+				if (activeFile) {
+					const titleText = activeFile.basename.toLowerCase().trim();
+					const firstH1 = clonedSizer.querySelector("h1:not(.inline-title)");
+					if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
+						firstH1.remove();
+					}
+				}
+			}
+
 			if (settings.debugMode) {
 				document.querySelectorAll("style").forEach((style, i) => {
 					if (style.textContent?.includes("MJX") || style.textContent?.includes("mjx")) {

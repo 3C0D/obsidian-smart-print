@@ -31,7 +31,13 @@ export class PrintModeModal extends Modal {
 		this.modalEl.style.height = "280px";
 
 		contentEl.empty();
-		contentEl.createEl("h2", { text: "Print Options" });
+
+		const title = contentEl.createEl("h2");
+		title.setText("Print Options ");
+
+		const hint = title.createEl("span");
+		hint.addClass("print-modal-hint");
+		hint.setText("(hover for details)");
 
 		this.renderOptionsRow(contentEl);
 		this.renderFontRow(contentEl);
