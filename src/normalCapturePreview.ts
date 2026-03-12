@@ -55,6 +55,25 @@ export async function contentToHTML(
 }
 
 /**
+ * Removes artifact nodes produced by Obsidian internal processors.
+ * Some processors write "true" or "false" as text or bare element nodes.
+ */
+function removeArtifactNodes(el: HTMLElement): void {
+	const toRemove: ChildNode[] = [];
+	el.childNodes.forEach((node) => {
+		const text = node.textContent?.trim() ?? "";
+		const isArtifact = text === "true" || text === "false";
+		const isLeaf =
+			node.nodeType === Node.TEXT_NODE ||
+			(node instanceof HTMLElement && node.children.length === 0);
+		if (isArtifact && isLeaf) {
+			toRemove.push(node);
+		}
+	});
+	toRemove.forEach((n) => el.removeChild(n));
+}
+
+/**
  * Generates HTML content from markdown input.
  * Renders markdown using Obsidian's MarkdownRenderer API.
  * 
@@ -87,23 +106,85 @@ export async function generateHTML(
 
 		// Get the markdown content based on input type
 		let markdownContent: string;
-		let sourcePath: string = "";
+		let sourcePath: string;
 
 		if (input instanceof TFile) {
-			markdownContent = await app.vault.cachedRead(input);
+			markdownContent = String(await app.vault.cachedRead(input));
 			sourcePath = input.path;
 		} else {
-			markdownContent = input;
+			markdownContent = String(input);
+			sourcePath = app.workspace.getActiveFile()?.path ?? "";
+		}
+
+		// Strip frontmatter before rendering — Obsidian's frontmatter processor
+		// rejects with boolean `true` when it encounters raw frontmatter in rendered content,
+		// since we already handle metadata separately via addMetadataToContent.
+		if (typeof markdownContent === "string") {
+			markdownContent = markdownContent.replace(/^---[\s\S]*?---\n?/, "");
 		}
 
 		// Render the markdown content
-		await MarkdownRenderer.render(
-			app,
-			markdownContent,
-			content,
-			sourcePath,
-			new Component(),
-		);
+		const component = new Component();
+		component.load();
+
+		// Must be attached to DOM for Obsidian processors to work correctly
+		const renderTarget = createDiv();
+		renderTarget.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:800px;";
+		document.body.appendChild(renderTarget);
+
+		try {
+			try {
+				await MarkdownRenderer.render(
+					app,
+					markdownContent,
+					renderTarget,
+					sourcePath,
+					component,
+				);
+			} catch (e) {
+				if (settings.debugMode) {
+					console.warn("MarkdownRenderer threw:", e);
+					console.log("renderTarget content after throw:", renderTarget.innerHTML);
+				}
+			}
+
+			// If renderer produced nothing, retry without app context (simpler render)
+			// This handles cases where a plugin processor throws before writing content
+			if (renderTarget.childNodes.length === 0) {
+				try {
+					await MarkdownRenderer.render(
+						app,
+						markdownContent,
+						renderTarget,
+						"",  // empty sourcePath disables some problematic processors
+						component,
+					);
+				} catch (e) {
+					if (settings.debugMode) {
+						console.warn("Fallback render also threw:", e);
+					}
+				}
+			}
+
+			// Last resort: plain text if still nothing
+			if (renderTarget.childNodes.length === 0) {
+				renderTarget.createEl("p").textContent = markdownContent;
+			}
+
+			// Remove artifact nodes: Obsidian processors sometimes write "true"/"false"
+			// as text nodes or bare elements when processing partial/stripped content
+			removeArtifactNodes(renderTarget);
+
+			// Move cleaned children to contentSizer
+			while (renderTarget.firstChild) {
+				contentSizer.appendChild(renderTarget.firstChild);
+			}
+		} finally {
+			component.unload();
+			if (renderTarget.parentNode) {
+				document.body.removeChild(renderTarget);
+			}
+		};
 
 		return content;
 	} catch (error) {

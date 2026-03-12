@@ -1,4 +1,4 @@
-import { App, TFile } from "obsidian";
+import { App, TFile, Notice, MarkdownView, MarkdownRenderer, Component } from "obsidian";
 import type { SmartPrintPluginSettings } from "./types.ts";
 import { getRenderedContent } from "./advancedPrint/advancedCapturePreview.ts";
 import { contentToHTML } from "./normalCapturePreview.ts";
@@ -20,13 +20,41 @@ export async function getBestContent(
 	isSelection: boolean = false,
 	file?: TFile,
 ): Promise<HTMLElement | null> {
-	// For selections, advanced mode is currently broken
-	// Fall back to standard renderer
 	if (isSelection) {
-		if (settings.debugMode) {
-			console.log("Selection mode: using standard renderer");
+		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+		if (!activeView) return null;
+		
+		const selection = activeView.editor.getSelection();
+		if (!selection) {
+			new Notice("No text selected.");
+			return null;
 		}
-		return await contentToHTML(app, settings, isSelection, file);
+
+		// For selections, render directly without complex pipeline
+		// MarkdownRenderer throws on partial content with certain processors
+		const container = document.createElement("div");
+		container.className = "markdown-preview-view";
+		const sizer = container.createDiv("markdown-preview-sizer");
+		
+		const component = new Component();
+		component.load();
+		try {
+			await MarkdownRenderer.render(
+				app,
+				selection,
+				sizer,
+				activeView.file?.path ?? "",
+				component,
+			);
+		} catch {
+			// If render fails, split into paragraphs as plain fallback
+			sizer.empty();
+			selection.split("\n\n").filter(Boolean).forEach((para) => {
+				sizer.createEl("p").textContent = para;
+			});
+		}
+		component.unload();
+		return container as HTMLElement;
 	}
 
 	// Check if we can use advanced capture
