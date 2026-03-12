@@ -33,6 +33,10 @@ import {
 	generatePrintStyles,
 } from "./getStyles/generatePrintStyles.ts";
 import { isMobile } from "./utils/platform.ts";
+import {
+	addFileMenuItems,
+	addEditorMenuItems,
+} from "./menuManager.ts";
 
 export default class SmartPrintPlugin extends Plugin {
 	settings: SmartPrintPluginSettings;
@@ -157,7 +161,8 @@ export default class SmartPrintPlugin extends Plugin {
 						file instanceof TFile ||
 						file instanceof TFolder
 					) {
-						this.addFileMenuItems(
+						addFileMenuItems(
+							this,
 							menu,
 							file,
 							source,
@@ -176,154 +181,12 @@ export default class SmartPrintPlugin extends Plugin {
 						!this.settings.showContextMenu
 					)
 						return;
-					this.addEditorMenuItems(menu);
+					addEditorMenuItems(this, menu);
 				},
 			),
 		);
 	}
 
-	/**
-	 * Adds print items to the file explorer menu.
-	 * Groups under submenu if useSubmenu is enabled.
-	 */
-	private addFileMenuItems(
-		menu: Menu,
-		file: TFile | TFolder,
-		source: string,
-	): void {
-		const editor = this.app.workspace.activeEditor?.editor;
-		const hasSelection = !!editor?.getSelection();
-
-		if (file instanceof TFile) {
-			if (source === "file-explorer-context-menu") {
-				menu.addItem((item) => {
-					item.setTitle("Print note")
-						.setIcon("printer")
-						.onClick(
-							async () =>
-								await this.handlePrint(
-									true,
-									false,
-									file,
-								),
-						);
-				});
-			} else {
-				menu.addItem((item) => {
-					const sub = (
-						item
-							.setTitle("Smart Print")
-							.setIcon("printer") as any // eslint-disable-line @typescript-eslint/no-explicit-any
-					).setSubmenu() as Menu;
-
-					sub.addItem((subItem) => {
-						subItem
-							.setTitle("Print note")
-							.setIcon("file-text")
-							.onClick(
-								async () =>
-									await this.handlePrint(
-										true,
-										false,
-										file,
-									),
-							);
-					});
-					sub.addItem((subItem) => {
-						subItem
-							.setTitle("Print selection")
-							.setIcon("text-select")
-							.setDisabled(!hasSelection)
-							.onClick(
-								async () =>
-									await this.handlePrint(
-										false,
-										true,
-										file,
-									),
-							);
-					});
-				});
-			}
-		} else {
-			menu.addItem((item) => {
-				item.setTitle(
-					"Print all notes in folder",
-				)
-					.setIcon("printer")
-					.onClick(
-						async () =>
-							await printFolder(
-								this,
-								file as TFolder,
-							),
-					);
-			});
-		}
-	}
-
-	/**
-	 * Adds print items to the editor right-click menu.
-	 * Groups under submenu if useSubmenu is enabled.
-	 */
-	private addEditorMenuItems(menu: Menu): void {
-		const editor = this.app.workspace.activeEditor?.editor;
-		const hasSelection = !!editor?.getSelection();
-
-		if (this.settings.useSubmenu) {
-			menu.addItem((item) => {
-				const sub = (
-					item
-						.setTitle("Smart Print")
-						.setIcon("printer") as any // eslint-disable-line @typescript-eslint/no-explicit-any
-				).setSubmenu() as Menu;
-
-				sub.addItem((subItem) => {
-					subItem
-						.setTitle("Print note")
-						.setIcon("file-text")
-						.onClick(
-							async () =>
-								await this.handlePrint(),
-						);
-				});
-				sub.addItem((subItem) => {
-					subItem
-						.setTitle("Print selection")
-						.setIcon("text-select")
-						.setDisabled(!hasSelection)
-						.onClick(
-							async () =>
-								await this.handlePrint(
-									false,
-									true,
-								),
-						);
-				});
-			});
-		} else {
-			menu.addItem((item) => {
-				item.setTitle("Print note")
-					.setIcon("printer")
-					.onClick(
-						async () =>
-							await this.handlePrint(),
-					);
-			});
-			menu.addItem((item) => {
-				item.setTitle("Print selection")
-					.setIcon("printer")
-					.setDisabled(!hasSelection)
-					.onClick(
-						async () =>
-							await this.handlePrint(
-								false,
-								true,
-							),
-					);
-			});
-		}
-	}
 
 	// ─── Print Logic ───────────────────────────────────
 
