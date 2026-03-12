@@ -1,4 +1,4 @@
-import { Modal, App } from "obsidian";
+import { Modal, App, Platform } from "obsidian";
 import type { SmartPrintPluginSettings } from "./types.ts";
 import {
 	validateFontSize,
@@ -137,15 +137,32 @@ export class PrintModeModal extends Modal {
 		);
 
 		// Show comments checkbox
-		const commentsLabel = container.createEl("label");
+		const commentsWrapper = container.createDiv();
+		commentsWrapper.style.display = "flex";
+		commentsWrapper.style.flexDirection = "column";
+		commentsWrapper.style.gap = "3px";
+
+		const commentsLabel = commentsWrapper.createEl("label");
 		const commentsCheck = commentsLabel.createEl("input", { type: "checkbox" });
 		commentsCheck.checked = this.settings.showComments;
 		commentsLabel.appendText(" Show comments");
-		commentsLabel.title = "Show Obsidian comments (%% ... %%) in print output";
+		commentsLabel.title = "Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview will not render).";
 		commentsCheck.addEventListener("change", async () => {
 			this.settings.showComments = commentsCheck.checked;
+			warningEl.style.display = commentsCheck.checked && !Platform.isMobile ? "block" : "none";
 			await this.saveSettings();
 		});
+
+		const warningEl = commentsWrapper.createEl("span");
+		warningEl.setText("(No post-render)");
+		warningEl.style.display = this.settings.showComments && !Platform.isMobile ? "block" : "none";
+		warningEl.style.fontSize = "10px";
+		warningEl.style.paddingLeft = "16px";
+		warningEl.style.color = "#a0522d";
+		warningEl.style.backgroundColor = "#fdf6ec";
+		warningEl.style.borderRadius = "3px";
+		warningEl.style.padding = "1px 5px";
+		warningEl.style.border = "1px solid #e8c97a";
 	}
 
 	/**

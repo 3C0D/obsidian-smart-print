@@ -269,7 +269,9 @@ export class PrintSettingTab extends PluginSettingTab {
 			.setDesc(
 				"Display Obsidian comments (%% ... %%)" +
 				" in the printout. Comments will appear" +
-				" with a yellow background.",
+				" with a yellow background." +
+				" ⚠ Warning: Enabling this disables advanced" +
+				" rendering (Mermaid, LaTeX, Dataview will not render).",
 			)
 			.addToggle((toggle) =>
 				toggle
