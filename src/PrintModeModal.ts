@@ -19,6 +19,7 @@ export class PrintModeModal extends Modal {
 		private settings: SmartPrintPluginSettings,
 		private onSubmit: () => void,
 		private saveSettings: () => Promise<void>,
+		private isFolderPrint: boolean = false,
 	) {
 		super(app);
 	}
@@ -26,18 +27,31 @@ export class PrintModeModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 
-		// Set modal size
+		// Set modal size (larger for folder print)
 		this.modalEl.style.width = "500px";
-		this.modalEl.style.height = "280px";
+		this.modalEl.style.height = this.isFolderPrint ? "285px" : "280px";
 
 		contentEl.empty();
 
 		const title = contentEl.createEl("h2");
-		title.setText("Print Options ");
+		title.setText(this.isFolderPrint ? "Folder Print Options " : "Print Options ");
 
 		const hint = title.createEl("span");
 		hint.addClass("print-modal-hint");
 		hint.setText("(hover for details)");
+
+		// Warning for folder print (no post-render)
+		if (this.isFolderPrint) {
+			const warningEl = contentEl.createEl("div");
+			warningEl.setText("Note: No post-render (Mermaid, Dataview, LaTeX will not render)");
+			warningEl.style.fontSize = "11px";
+			warningEl.style.color = "var(--text-muted)";
+			warningEl.style.backgroundColor = "rgba(255, 200, 200, 0.15)";
+			warningEl.style.padding = "3px 8px";
+			warningEl.style.borderRadius = "3px";
+			warningEl.style.marginBottom = "12px";
+			warningEl.style.fontStyle = "italic";
+		}
 
 		this.renderOptionsRow(contentEl);
 		this.renderFontRow(contentEl);
@@ -126,22 +140,30 @@ export class PrintModeModal extends Modal {
 		commentsCheck.checked = this.settings.showComments;
 		commentsLabel.appendText(" Show comments");
 		commentsLabel.title = "Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview will not render).";
+		
+		// Warning only for non-folder print (folder print already has warning at top)
+		let warningEl: HTMLElement | null = null;
+		if (!this.isFolderPrint) {
+			warningEl = commentsWrapper.createEl("span");
+			warningEl.setText("(No post-render)");
+			warningEl.style.display = this.settings.showComments && !Platform.isMobile ? "block" : "none";
+			warningEl.style.fontSize = "10px";
+			warningEl.style.paddingLeft = "16px";
+			warningEl.style.color = "#a0522d";
+			warningEl.style.backgroundColor = "#fdf6ec";
+			warningEl.style.borderRadius = "3px";
+			warningEl.style.padding = "1px 5px";
+			warningEl.style.border = "1px solid #e8c97a";
+		}
+		
 		commentsCheck.addEventListener("change", async () => {
 			this.settings.showComments = commentsCheck.checked;
-			warningEl.style.display = commentsCheck.checked && !Platform.isMobile ? "block" : "none";
+			// Only show warning for non-folder print
+			if (!this.isFolderPrint && warningEl) {
+				warningEl.style.display = commentsCheck.checked && !Platform.isMobile ? "block" : "none";
+			}
 			await this.saveSettings();
 		});
-
-		const warningEl = commentsWrapper.createEl("span");
-		warningEl.setText("(No post-render)");
-		warningEl.style.display = this.settings.showComments && !Platform.isMobile ? "block" : "none";
-		warningEl.style.fontSize = "10px";
-		warningEl.style.paddingLeft = "16px";
-		warningEl.style.color = "#a0522d";
-		warningEl.style.backgroundColor = "#fdf6ec";
-		warningEl.style.borderRadius = "3px";
-		warningEl.style.padding = "1px 5px";
-		warningEl.style.border = "1px solid #e8c97a";
 	}
 
 	/**
@@ -255,7 +277,8 @@ export class PrintModeModal extends Modal {
 		const container = contentEl.createDiv();
 		container.style.display = "flex";
 		container.style.justifyContent = "center";
-		container.style.gap = "10px";
+		container.style.alignItems = "center";
+		container.style.gap = "15px";
 		container.style.marginTop = "20px";
 
 		const printBtn = container.createEl("button");
@@ -266,6 +289,22 @@ export class PrintModeModal extends Modal {
 			this.close();
 			this.onSubmit();
 		});
+
+		// Combine notes checkbox (only for folder print, next to Print button)
+		if (this.isFolderPrint) {
+			const combineLabel = container.createEl("label");
+			combineLabel.style.display = "flex";
+			combineLabel.style.alignItems = "center";
+			combineLabel.style.gap = "5px";
+			const combineCheck = combineLabel.createEl("input", { type: "checkbox" });
+			combineCheck.checked = this.settings.combineFolderNotes;
+			combineLabel.appendText(" Combine notes");
+			combineLabel.title = "When enabled, all notes are printed continuously.\nWhen disabled, each note starts on a new page.";
+			combineCheck.addEventListener("change", async () => {
+				this.settings.combineFolderNotes = combineCheck.checked;
+				await this.saveSettings();
+			});
+		}
 	}
 
 	onClose(): void {

@@ -8,7 +8,7 @@ import {
 	generatePrintStyles,
 } from "./getStyles/generatePrintStyles.ts";
 import { PrintManager } from "./browserPrintManager.ts";
-import { FolderPrintModal } from "./FolderPrintModal.ts";
+import { PrintModeModal } from "./PrintModeModal.ts";
 
 /**
  * Gets the parent folder of the currently active file.
@@ -73,15 +73,23 @@ export async function printFolder(
 		return;
 	}
 
-	// 3. Assemble all files into a single master div container
-	const folderContent = createDiv();
-
+	// 3. Show modal first if enabled
 	if (plugin.settings.useFolderModal) {
 		const proceed = await new Promise<boolean>((resolve) => {
-			new FolderPrintModal(plugin, (confirmed) => resolve(confirmed)).open();
+			new PrintModeModal(
+				plugin,
+				plugin.app,
+				plugin.settings,
+				() => resolve(true),
+				async () => await plugin.saveSettings(),
+				true // isFolderPrint = true
+			).open();
 		});
 		if (!proceed) return;
 	}
+
+	// 4. Assemble all files into a single master div container
+	const folderContent = createDiv();
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
