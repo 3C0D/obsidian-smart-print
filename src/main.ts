@@ -150,7 +150,7 @@ export default class SmartPrintPlugin extends Plugin {
 		this.registerEvent(
 			this.app.workspace.on(
 				"file-menu",
-				(menu, file) => {
+				(menu, file, source) => {
 					if (!this.settings.showContextMenu)
 						return;
 					if (
@@ -160,6 +160,7 @@ export default class SmartPrintPlugin extends Plugin {
 						this.addFileMenuItems(
 							menu,
 							file,
+							source,
 						);
 					}
 				},
@@ -188,16 +189,13 @@ export default class SmartPrintPlugin extends Plugin {
 	private addFileMenuItems(
 		menu: Menu,
 		file: TFile | TFolder,
+		source: string,
 	): void {
+		const editor = this.app.workspace.activeEditor?.editor;
+		const hasSelection = !!editor?.getSelection();
+
 		if (file instanceof TFile) {
-			if (this.settings.useSubmenu) {
-				menu.addItem((item) => {
-					item.setTitle("Smart Print")
-						.setIcon("printer")
-						.setSubmenu();
-				});
-				// Items added via submenu API
-				// will be inside the submenu
+			if (source === "file-explorer-context-menu") {
 				menu.addItem((item) => {
 					item.setTitle("Print note")
 						.setIcon("printer")
@@ -212,16 +210,39 @@ export default class SmartPrintPlugin extends Plugin {
 				});
 			} else {
 				menu.addItem((item) => {
-					item.setTitle("Print note")
-						.setIcon("printer")
-						.onClick(
-							async () =>
-								await this.handlePrint(
-									true,
-									false,
-									file,
-								),
-						);
+					const sub = (
+						item
+							.setTitle("Smart Print")
+							.setIcon("printer") as any // eslint-disable-line @typescript-eslint/no-explicit-any
+					).setSubmenu() as Menu;
+
+					sub.addItem((subItem) => {
+						subItem
+							.setTitle("Print note")
+							.setIcon("file-text")
+							.onClick(
+								async () =>
+									await this.handlePrint(
+										true,
+										false,
+										file,
+									),
+							);
+					});
+					sub.addItem((subItem) => {
+						subItem
+							.setTitle("Print selection")
+							.setIcon("text-select")
+							.setDisabled(!hasSelection)
+							.onClick(
+								async () =>
+									await this.handlePrint(
+										false,
+										true,
+										file,
+									),
+							);
+					});
 				});
 			}
 		} else {
@@ -246,6 +267,9 @@ export default class SmartPrintPlugin extends Plugin {
 	 * Groups under submenu if useSubmenu is enabled.
 	 */
 	private addEditorMenuItems(menu: Menu): void {
+		const editor = this.app.workspace.activeEditor?.editor;
+		const hasSelection = !!editor?.getSelection();
+
 		if (this.settings.useSubmenu) {
 			menu.addItem((item) => {
 				const sub = (
@@ -267,6 +291,7 @@ export default class SmartPrintPlugin extends Plugin {
 					subItem
 						.setTitle("Print selection")
 						.setIcon("text-select")
+						.setDisabled(!hasSelection)
 						.onClick(
 							async () =>
 								await this.handlePrint(
@@ -288,6 +313,7 @@ export default class SmartPrintPlugin extends Plugin {
 			menu.addItem((item) => {
 				item.setTitle("Print selection")
 					.setIcon("printer")
+					.setDisabled(!hasSelection)
 					.onClick(
 						async () =>
 							await this.handlePrint(
