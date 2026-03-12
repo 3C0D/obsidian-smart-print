@@ -145,8 +145,8 @@ export async function generateHTML(
 			});
 		}
 
-		// Remove first H1 if it duplicates the inline title
-		if (settings.printTitle && settings.hideH1IfSameAsTitle && input instanceof TFile) {
+		// Remove first H1 if it duplicates the inline title (automatic behavior)
+		if (settings.printTitle && input instanceof TFile) {
 			const firstH1 = contentSizer.querySelector("h1:not(.inline-title)");
 			if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
 				firstH1.remove();

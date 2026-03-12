@@ -112,8 +112,8 @@ export async function getRenderedContent(
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
 			container.appendChild(clonedSizer);
 
-			// Remove first H1 if it duplicates the file title
-			if (settings.printTitle && settings.hideH1IfSameAsTitle) {
+			// Remove first H1 if it duplicates the file title (automatic behavior)
+			if (settings.printTitle) {
 				const activeFile = app.workspace.getActiveFile();
 				if (activeFile) {
 					const titleText = activeFile.basename.toLowerCase().trim();

@@ -56,35 +56,14 @@ export class PrintModeModal extends Modal {
 		container.style.gap = "20px";
 		container.style.marginBottom = "15px";
 
-		// Print title checkbox with nested hide H1 option
-		const titleWrapper = container.createDiv();
-		titleWrapper.style.display = "flex";
-		titleWrapper.style.flexDirection = "column";
-		titleWrapper.style.gap = "4px";
-
-		const titleLabel = titleWrapper.createEl("label");
+		// Print title checkbox (simple, no nested option)
+		const titleLabel = container.createEl("label");
 		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
 		titleCheck.checked = this.settings.printTitle;
 		titleLabel.appendText(" Print Title");
-		titleLabel.title = "Adds the file name as a centered title at the top of the printed page";
+		titleLabel.title = "Adds the file name as a centered title at the top of the printed page.\nAutomatically hide first H1 if same as title.";
 		titleCheck.addEventListener("change", async () => {
 			this.settings.printTitle = titleCheck.checked;
-			hideH1Label.style.display = titleCheck.checked ? "flex" : "none";
-			await this.saveSettings();
-		});
-
-		const hideH1Label = titleWrapper.createEl("label");
-		hideH1Label.style.display = this.settings.printTitle ? "flex" : "none";
-		hideH1Label.style.fontSize = "11px";
-		hideH1Label.style.paddingLeft = "16px";
-		hideH1Label.style.alignItems = "center";
-		hideH1Label.style.gap = "4px";
-		const hideH1Check = hideH1Label.createEl("input", { type: "checkbox" });
-		hideH1Check.checked = this.settings.hideH1IfSameAsTitle;
-		hideH1Label.appendText(" Hide H1 if same as title");
-		hideH1Label.title = "If the first heading matches the file name, it will be hidden to avoid duplication";
-		hideH1Check.addEventListener("change", async () => {
-			this.settings.hideH1IfSameAsTitle = hideH1Check.checked;
 			await this.saveSettings();
 		});
 

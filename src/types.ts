@@ -8,8 +8,6 @@ export interface SmartPrintPluginSettings {
 	printInColor: boolean;
 	/** Show Obsidian comments (%% ... %%) in print output */
 	showComments: boolean;
-	/** Hide first H1 if it matches the file title */
-	hideH1IfSameAsTitle: boolean;
 
 	// ─── Font settings ─────────────────────────
 	fontSize: string;
@@ -67,7 +65,6 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings =
 	combineFolderNotes: false,
 	printInColor: true,
 	showComments: false,
-	hideH1IfSameAsTitle: true,
 
 	// Font sizes
 	fontSize: "12px",
