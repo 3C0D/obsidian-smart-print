@@ -83,7 +83,8 @@ export async function printFolder(
 		if (!proceed) return;
 	}
 
-	for (const file of files) {
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
 		// Generate the standard HTML structure for a single file using Obsidian's API
 		const content = await generateHTML(
 			plugin.app,
@@ -93,14 +94,17 @@ export async function printFolder(
 		if (!content) {
 			continue;
 		}
-
-		// 4. If combining notes is disabled, inject a specific class to the container
-		// which maps to a CSS rule containing 'page-break-after: always;'
-		if (!plugin.settings.combineFolderNotes) {
-			content.addClass("obsidian-print-page-break");
-		}
 		
 		folderContent.append(content);
+		
+		// If combining notes is disabled, add a page break after each file (except the last one)
+		if (!plugin.settings.combineFolderNotes && i < files.length - 1) {
+			const pageBreak = folderContent.createEl("hr");
+			pageBreak.style.pageBreakBefore = "always";
+			pageBreak.style.border = "none";
+			pageBreak.style.margin = "0";
+			pageBreak.style.visibility = "hidden";
+		}
 	}
 
 	// 5. Generate global styles for printing (theme colors, headings, fonts)
