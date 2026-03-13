@@ -39,9 +39,7 @@ export class PrintModeModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 
-		// Set modal size (larger for folder print)
-		this.modalEl.style.width = "600px";
-		this.modalEl.style.height = this.isFolderPrint ? "320px" : "280px";
+		this.modalEl.addClass("smart-print-modal");
 
 		contentEl.empty();
 

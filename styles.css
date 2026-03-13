@@ -393,3 +393,11 @@
 	color: var(--text-muted);
 	font-weight: normal;
 }
+
+/* Print modal sizing */
+.smart-print-modal {
+	width: fit-content !important;
+	min-width: 380px !important;
+	max-width: 650px !important;
+	height: auto !important;
+}

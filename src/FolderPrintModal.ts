@@ -14,7 +14,7 @@ export class FolderPrintModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		this.modalEl.style.width = "450px";
+		this.modalEl.addClass("smart-print-modal");
 
 		const header = contentEl.createDiv();
 		header.style.display = "flex";
