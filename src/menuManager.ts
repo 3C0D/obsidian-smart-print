@@ -47,7 +47,7 @@ export function addFileMenuItems(
 				});
 				sub.addItem((subItem) => {
 					subItem
-						.setTitle("Print selection (basic print)")
+						.setTitle("Print selection")
 						.setIcon("text-select")
 						.setDisabled(!hasSelection)
 						.onClick(
@@ -95,7 +95,7 @@ export function addEditorMenuItems(plugin: SmartPrintPlugin, menu: Menu): void {
 			});
 			sub.addItem((subItem) => {
 				subItem
-					.setTitle("Print selection (basic print)")
+					.setTitle("Print selection")
 					.setIcon("text-select")
 					.setDisabled(!hasSelection)
 					.onClick(async () => await plugin.handlePrint(true));
@@ -110,7 +110,7 @@ export function addEditorMenuItems(plugin: SmartPrintPlugin, menu: Menu): void {
 				.onClick(async () => await plugin.handlePrint(false));
 		});
 		menu.addItem((item) => {
-			item.setTitle("Print selection (basic print)")
+			item.setTitle("Print selection")
 				.setIcon("printer")
 				.setDisabled(!hasSelection)
 				.onClick(async () => await plugin.handlePrint(true));

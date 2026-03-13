@@ -179,17 +179,18 @@ export default class SmartPrintPlugin extends Plugin {
 				targetFile ?? undefined,
 			);
 			
-			new PrintModeModal(
-				this,
-				this.app,
-				this.settings,
-				async () => {
-					await this.unifiedPrint(isSelection, file);
-				},
-				async () => await this.saveSettings(),
-				false,
-				contentFlags,
-			).open();
+				new PrintModeModal(
+					this,
+					this.app,
+					this.settings,
+					async () => {
+						await this.unifiedPrint(isSelection, file);
+					},
+					async () => await this.saveSettings(),
+					false,
+					isSelection,
+					contentFlags,
+				).open();
 		} else {
 			await this.unifiedPrint(isSelection, file);
 		}

@@ -25,6 +25,7 @@ export class PrintModeModal extends Modal {
 		private onSubmit: () => void,
 		private saveSettings: () => Promise<void>,
 		private isFolderPrint: boolean = false,
+		private isSelection: boolean = false,
 		private contentFlags: ContentFlags = {
 			hasImages: true,
 			hasEmbeds: true,
@@ -52,8 +53,8 @@ export class PrintModeModal extends Modal {
 		hint.addClass("print-modal-hint");
 		hint.setText("(options adapt to document content)");
 
-		// Warning for folder print (no post-render)
-		if (this.isFolderPrint) {
+		// Warning for folder print or selection (no post-render)
+		if (this.isFolderPrint || this.isSelection) {
 			const warningEl = contentEl.createEl("div");
 			warningEl.setText(
 				"Note: No post-render (Mermaid, Dataview, LaTeX will not render)",
