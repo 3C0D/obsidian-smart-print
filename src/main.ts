@@ -38,16 +38,19 @@ export default class SmartPrintPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// Initialize header colors if not done before
-		// Useful so we have accurate colors for printing headings from theme
-
+		// Initialize theme colors on first run only.
+		// This ensures we have accurate heading colors from the user's theme
+		// without overwriting their custom colors on subsequent loads.
 		if (!this.settings.hasInitializedColors) {
 			await initializeThemeColors(
 				this.app,
 				this,
 			);
 		}
-		// Initialize font sizes if not done before
+
+		// Initialize proportional font sizes on first run only.
+		// This calculates heading sizes based on the base font size,
+		// providing sensible defaults without overwriting user customizations.
 		if (!this.settings.hasInitializedSizes) {
 			await initializeFontSizes(this);
 		}
@@ -80,16 +83,18 @@ export default class SmartPrintPlugin extends Plugin {
 		// If the user disabled the icon in settings, we stop here (icon remains removed).
 		if (!this.settings.showRibbonIcon) return;
 
-		// 2. Anti-spam lock (Debounce)
-		// Generating print HTML can be heavy. If a user double-clicks the icon
-		// (especially on touch devices), we don't want to run the print logic twice.
-		// We use Obsidian's native debounce function to suppress rapid repeated clicks.
+		// 2. Anti-spam protection using debounce.
+		// Generating print HTML can be resource-intensive. If a user double-clicks
+		// the icon (especially on touch devices), we don't want to run the print
+		// logic twice simultaneously, which could cause performance issues or conflicts.
+		// The 'true' parameter means leading edge execution: first click executes
+		// immediately, subsequent clicks within 500ms are ignored.
 		const debouncedPrint = debounce(
 			async () => {
 				await this.handlePrint();
 			},
 			500,
-			true, // 'true' means it triggers on the *leading* edge (immediate execution, ignoring subsequent clicks for 500ms)
+			true,
 		);
 
 		this.ribbonIconEl = this.addRibbonIcon(
@@ -141,7 +146,9 @@ export default class SmartPrintPlugin extends Plugin {
 	 * useSubmenu settings.
 	 */
 	private registerMenus(): void {
-		// File explorer context menu
+		// Register file explorer context menu (right-click on files/folders).
+		// This adds print options when users right-click on files or folders
+		// in the file explorer sidebar.
 		this.registerEvent(
 			this.app.workspace.on(
 				"file-menu",
@@ -163,7 +170,9 @@ export default class SmartPrintPlugin extends Plugin {
 			),
 		);
 
-		// Editor right-click context menu
+		// Register editor context menu (right-click inside the editor).
+		// This adds print options when users right-click within the note content,
+		// allowing them to print the current note or selected text.
 		this.registerEvent(
 			this.app.workspace.on(
 				"editor-menu",
@@ -182,25 +191,29 @@ export default class SmartPrintPlugin extends Plugin {
 	// ─── Print Logic ───────────────────────────────────
 
 	/**
-		 * Main print entry point with unified capture strategy.
-		 * Uses best available capture method automatically.
-		 * 
-		 * @param isSelection - Print selected text only
-		 * @param file - Specific file to print
-		 */
+	 * Main print entry point with unified capture strategy.
+	 * Uses best available capture method automatically.
+	 * 
+	 * @param isSelection - Print selected text only
+	 * @param file - Specific file to print
+	 */
 	public async handlePrint(
 		isSelection = false,
 		file?: TFile,
 	): Promise<void> {
 		const mobile = isMobile();
 
-		// Mobile: skip modal, print directly
+		// Mobile: skip modal and print directly.
+		// Mobile devices have limited screen space, so we bypass the
+		// options modal and use the saved settings directly.
 		if (mobile) {
 			await this.unifiedPrint(isSelection, file);
 			return;
 		}
 
-		// Desktop: show modal if enabled
+		// Desktop: show options modal if enabled in settings.
+		// The modal allows users to adjust print settings (font, colors, etc.)
+		// before printing. If disabled, print immediately with saved settings.
 		if (this.settings.useModal) {
 			new PrintModeModal(
 				this,
@@ -227,7 +240,9 @@ export default class SmartPrintPlugin extends Plugin {
 		isSelection = false,
 		file?: TFile,
 	): Promise<void> {
-		// Get best content using unified capture strategy
+		// 1. Capture content using the best available method.
+		// This tries advanced DOM capture first (for Mermaid, Dataview, etc.),
+		// then falls back to standard Markdown rendering if needed.
 		const content = await getBestContent(
 			this.app,
 			this.settings,
@@ -236,21 +251,25 @@ export default class SmartPrintPlugin extends Plugin {
 		);
 		if (!content) return;
 
-		// Generate styles
+		// 2. Generate CSS styles for the print output.
+		// This includes font settings, colors, page breaks, and custom snippets.
 		const globalCSS = await generatePrintStyles(
 			this.app,
 			this.manifest,
 			this.settings,
 		);
 
-		// Determine best print engine
+		// 3. Select the appropriate print engine based on platform and settings.
+		// Browser print (desktop): Opens in system browser for full print options.
+		// Printd (mobile/desktop): Uses in-app print dialog.
 		const engine = getBestPrintEngine(
 			this.settings,
 			isMobile(),
 		);
 
 		if (engine === "browser") {
-			// Browser print (desktop only)
+			// Browser print: Create temporary HTML file and open in default browser.
+			// This provides better text rendering and more print options.
 			const filePath = file?.path ?? this.app.workspace.getActiveFile()?.path ?? "Untitled";
 			const printer = new PrintManager();
 			await printer.browserPrint(
@@ -262,7 +281,8 @@ export default class SmartPrintPlugin extends Plugin {
 				),
 			);
 		} else {
-			// Printd (mobile or desktop basic)
+			// Printd: Use in-app printing with Electron/mobile print dialog.
+			// Respects skipPreview setting to show/hide preview window.
 			if (this.settings.skipPreview) {
 				await directPrint(content, this.settings, globalCSS);
 			} else {

@@ -547,6 +547,10 @@ export class PrintSettingTab extends PluginSettingTab {
 /**
  * Imports heading colors from the current Obsidian theme
  * and saves them to plugin settings.
+ * 
+ * This is called on first plugin load to initialize colors,
+ * and can be manually triggered via the settings button.
+ * Uses light mode colors since print output is typically on white paper.
  *
  * @param app - Obsidian App instance
  * @param plugin - SmartPrintPlugin instance
@@ -581,6 +585,17 @@ export async function initializeThemeColors(
 /**
  * Calculates heading sizes proportionally from the base
  * font size and saves them to plugin settings.
+ * 
+ * Uses a scaling factor for each heading level:
+ * - H6: 1.1x base size
+ * - H5: 1.2x base size
+ * - H4: 1.3x base size
+ * - H3: 1.5x base size
+ * - H2: 1.7x base size
+ * - H1: 1.9x base size
+ * - Inline title: 2.0x base size
+ * 
+ * This is called on first plugin load and when auto-sync is enabled.
  *
  * @param plugin - SmartPrintPlugin instance
  */
@@ -613,6 +628,12 @@ export async function initializeFontSizes(
 /**
  * Validates and normalizes a font size value.
  * Accepts numeric strings or strings ending in "px".
+ * 
+ * Examples:
+ * - "12" -> "12px"
+ * - "12px" -> "12px"
+ * - "abc" -> defaultSize (with error notice)
+ * - "0" -> defaultSize (with error notice)
  *
  * @param value - Raw input value
  * @param defaultSize - Fallback if validation fails
@@ -641,7 +662,8 @@ export function validateFontSize(
 }
 
 /**
- * Creates a dropdown setting for font family selection
+ * Creates a dropdown setting for font family selection.
+ * Populates the dropdown with available font options and handles changes.
  */
 function createFontFamilyDropdownSetting(
 	containerEl: HTMLElement,
@@ -669,8 +691,13 @@ function createFontFamilyDropdownSetting(
 }
 
 /**
- * Creates a text input setting for font size
- * with an auto-sync heading sizes toggle.
+ * Creates a text input setting for font size with an auto-sync heading sizes toggle.
+ * 
+ * Features:
+ * - Text input for base font size
+ * - Blur event triggers auto-sync if enabled
+ * - Toggle to enable/disable auto-sync
+ * - Label explaining the auto-sync feature
  */
 function createFontSizeSettingWithAutoSync(
 	containerEl: HTMLElement,

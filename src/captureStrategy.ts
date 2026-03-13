@@ -8,6 +8,10 @@ import { switchToLightTheme } from "./utils/themeSwitch.ts";
  * Unified content capture strategy.
  * Tries advanced DOM capture first (most faithful), falls back to standard HTML generation.
  * 
+ * Advanced capture clones the live preview DOM, preserving rendered Mermaid diagrams,
+ * Dataview queries, and other dynamic content. Standard capture uses Markdown rendering,
+ * which is more reliable but doesn't capture dynamic plugin content.
+ * 
  * @param app - Obsidian App instance
  * @param settings - Plugin settings
  * @param isSelection - Whether to capture selection only
@@ -20,13 +24,16 @@ export async function getBestContent(
 	isSelection: boolean = false,
 	file?: TFile,
 ): Promise<HTMLElement | null> {
+	// Selection always uses standard capture because DOM selection
+	// can be unreliable with complex nested elements.
 	if (isSelection) {
 		return await contentToHTML(app, settings, true, undefined);
 	}
 
-	// Check if we can use advanced capture
-	// Only works for active file (DOM capture requires preview to be open)
-	// Bypass advanced capture when showComments is enabled (comments are already stripped from DOM)
+	// Check if we can use advanced DOM capture.
+	// Requirements:
+	// 1. File must be currently active (DOM only exists for active preview)
+	// 2. showComments must be disabled (comments are already stripped from DOM)
 	const activeFile = app.workspace.getActiveFile();
 	const canUseAdvanced = (!file || file.path === activeFile?.path) && !settings.showComments;
 
@@ -37,7 +44,9 @@ export async function getBestContent(
 		return await contentToHTML(app, settings, isSelection, file);
 	}
 
-	// Try advanced DOM capture first (most faithful rendering)
+	// Try advanced DOM capture first (most faithful rendering).
+	// We temporarily switch to light theme because print output is typically
+	// on white paper, and light theme colors are more suitable for printing.
 	const restoreTheme = switchToLightTheme();
 	try {
 		if (settings.debugMode) {
@@ -55,10 +64,13 @@ export async function getBestContent(
 			console.warn("Advanced DOM capture failed, falling back to standard:", error);
 		}
 	} finally {
+		// Always restore the original theme, even if capture fails.
 		restoreTheme();
 	}
 
-	// Fallback to standard HTML generation
+	// Fallback to standard HTML generation.
+	// This uses Obsidian's MarkdownRenderer API, which is more reliable
+	// but doesn't capture dynamic content from plugins.
 	if (settings.debugMode) {
 		console.log("Using standard HTML renderer");
 	}
@@ -67,6 +79,12 @@ export async function getBestContent(
 
 /**
  * Determines the best print engine based on platform and settings.
+ * 
+ * Browser print creates a temporary HTML file and opens it in the system browser,
+ * providing better text rendering and full browser print options.
+ * 
+ * Printd uses Electron's print API (desktop) or mobile print dialog,
+ * which is faster but has fewer options.
  * 
  * @param settings - Plugin settings
  * @param isMobile - Whether running on mobile

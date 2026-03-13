@@ -13,6 +13,10 @@ import { PrintModeModal } from "./PrintModeModal.ts";
 /**
  * Gets the parent folder of the currently active file.
  * Returns null if the active file is in the vault root.
+ * 
+ * This is used when printing a folder via command palette,
+ * where we need to determine which folder to print based on
+ * the currently open file's location.
  *
  * @returns Parent folder or null
  */
@@ -42,18 +46,24 @@ export async function getFolderByActiveFile(
  *
  * Flow:
  * 1. Find the target folder and filter for .md files.
- * 2. Generate HTML for each file using the standard Markdown renderer.
- * 3. Concatenate all files into a single master container.
- * 4. Apply a page-break class to separate files if 'combineFolderNotes' is false.
- * 5. Route to the correct print engine (Printd for mobile/basic, browser for desktop advanced).
+ * 2. Show options modal if enabled (allows user to adjust settings).
+ * 3. Generate HTML for each file using the standard Markdown renderer.
+ * 4. Concatenate all files into a single master container.
+ * 5. Apply invisible page breaks between files if 'combineFolderNotes' is false.
+ * 6. Route to the correct print engine (Printd for mobile/basic, browser for desktop advanced).
+ * 
+ * Note: Currently only processes direct children, not subdirectories recursively.
  *
+ * @param plugin - SmartPrintPlugin instance
  * @param folder - Optional folder, defaults to active file's folder
  */
 export async function printFolder(
 	plugin: SmartPrintPlugin,
 	folder?: TFolder,
 ): Promise<void> {
-	// 1. Identify which folder to print
+	// 1. Identify which folder to print.
+	// If no folder is provided (e.g., from command palette),
+	// use the parent folder of the currently active file.
 	const activeFolder =
 		folder || (await getFolderByActiveFile(plugin));
 	if (!activeFolder) {
@@ -61,8 +71,9 @@ export async function printFolder(
 		return;
 	}
 
-	// 2. Extract only Markdown files (.md extensions) from the folder's direct children
-	// Note: Currently, this doesn't traverse subdirectories recursively.
+	// 2. Extract only Markdown files (.md extensions) from the folder's direct children.
+	// Note: This doesn't traverse subdirectories recursively.
+	// Non-markdown files (images, PDFs, etc.) are automatically excluded.
 	const files = activeFolder.children.filter(
 		(file) =>
 			file instanceof TFile && file.extension === "md",
@@ -73,7 +84,9 @@ export async function printFolder(
 		return;
 	}
 
-	// 3. Show modal first if enabled
+	// 3. Show options modal if enabled in settings.
+	// This allows users to adjust print settings (fonts, colors, etc.)
+	// before printing the entire folder.
 	if (plugin.settings.useFolderModal) {
 		const proceed = await new Promise<boolean>((resolve) => {
 			new PrintModeModal(
@@ -88,12 +101,14 @@ export async function printFolder(
 		if (!proceed) return;
 	}
 
-	// 4. Assemble all files into a single master div container
+	// 4. Assemble all files into a single master div container.
+	// Each file is rendered separately and then appended to this container.
 	const folderContent = createDiv();
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
-		// Generate the standard HTML structure for a single file using Obsidian's API
+		// Generate the standard HTML structure for a single file using Obsidian's API.
+		// This uses MarkdownRenderer, so dynamic content (Mermaid, Dataview) won't render.
 		const content = await generateHTML(
 			plugin.app,
 			plugin.settings,
@@ -105,7 +120,9 @@ export async function printFolder(
 		
 		folderContent.append(content);
 		
-		// If combining notes is disabled, add a page break after each file (except the last one)
+		// If combining notes is disabled, add an invisible page break after each file.
+		// This ensures each note starts on a new page when printed.
+		// The <hr> is hidden but triggers page-break-before in CSS.
 		if (!plugin.settings.combineFolderNotes && i < files.length - 1) {
 			const pageBreak = folderContent.createEl("hr");
 			pageBreak.style.pageBreakBefore = "always";
@@ -115,16 +132,17 @@ export async function printFolder(
 		}
 	}
 
-	// 5. Generate global styles for printing (theme colors, headings, fonts)
+	// 5. Generate global styles for printing (theme colors, headings, fonts).
+	// This includes user's custom settings and optional CSS snippets.
 	const globalCSS = await generatePrintStyles(
 		plugin.app,
 		plugin.manifest,
 		plugin.settings,
 	);
 
-	// 6. Route to the appropriate print engine
-	// Since rendering Node modules like 'fs' or 'child_process' is impossible on mobile,
-	// mobile *must* use the basic Printd engine unconditionally.
+	// 6. Route to the appropriate print engine.
+	// Mobile must use Printd because Node.js modules (fs, child_process) don't exist.
+	// Desktop can choose between browser print (better rendering) or Printd (faster).
 	if (isMobile() || !plugin.settings.useBrowserPrint) {
 		// Mobile or basic mode: use Electron/Printd in-app preview
 		await openPrintModal(
@@ -133,7 +151,7 @@ export async function printFolder(
 			globalCSS,
 		);
 	} else {
-		// Desktop with browser print enabled
+		// Desktop with browser print enabled: create temp HTML file and open in browser
 		const printer = new PrintManager();
 		const html = printer.createPrintableHtml(
 			folderContent,

@@ -7,11 +7,21 @@ import {
 	MarkdownView,
 } from "obsidian";
 import type { SmartPrintPluginSettings } from "./types.ts";
+import { getMetadata, renderMetadata } from "./utils/metadata.ts";
 
 /**
- * Converts markdown content to HTML for printing
+ * Converts markdown content to HTML for printing.
+ * Uses Obsidian's MarkdownRenderer API for reliable rendering.
+ * 
+ * This is the "standard" capture method that works for any file,
+ * even if it's not currently open. However, it doesn't capture
+ * dynamic content from plugins (Mermaid, Dataview, etc.).
+ * 
+ * @param app - Obsidian App instance
+ * @param settings - Plugin settings
  * @param isSelection - Whether to print the selected text only (default: false)
  * @param file - TFile to print from (optional)
+ * @returns Rendered HTML element or null
  */
 export async function contentToHTML(
 	app: App,
@@ -75,7 +85,10 @@ export async function generateHTML(
 
 		// Add metadata if enabled
 		if (settings.showMetadata) {
-			addMetadataToContent(input, contentSizer, app);
+			const metadata = getMetadata(app, input);
+			if (metadata) {
+				renderMetadata(metadata, contentSizer);
+			}
 		}
 
 		// Handle title if requested
@@ -100,15 +113,17 @@ export async function generateHTML(
 			sourcePath = app.workspace.getActiveFile()?.path ?? "";
 		}
 
-		// Strip frontmatter before rendering — Obsidian's frontmatter processor
-		// rejects with boolean `true` when it encounters raw frontmatter in rendered content,
-		// since we already handle metadata separately via addMetadataToContent.
+		// Strip frontmatter before rendering.
+		// Why: Obsidian's MarkdownRenderer rejects raw frontmatter with a boolean error
+		// because frontmatter should be processed separately (we handle it via addMetadataToContent).
+		// This prevents rendering errors while preserving metadata display when enabled.
 		if (typeof markdownContent === "string") {
 			markdownContent = markdownContent.replace(/^---[\s\S]*?---\n?/, "");
 		}
 
-		// Mark comments with inline code placeholder before rendering
-		// HTML inline is escaped by the renderer, so we use markdown code syntax
+		// Convert Obsidian comments (%% ... %%) to inline code placeholders.
+		// Why: We use markdown code syntax (`text`) because HTML is escaped by the renderer.
+		// After rendering, we'll convert these back to styled spans with yellow background.
 		if (settings.showComments) {
 			markdownContent = markdownContent.replace(
 				/%%(.+?)%%/gs,
@@ -116,7 +131,9 @@ export async function generateHTML(
 			);
 		}
 
-		// Render the markdown content
+		// Render the markdown content using Obsidian's API.
+		// We create a temporary Component to manage the lifecycle of any
+		// embedded components (like code blocks with syntax highlighting).
 		const component = new Component();
 		component.load();
 		try {
@@ -128,10 +145,13 @@ export async function generateHTML(
 				component,
 			);
 		} finally {
+			// Always unload the component to prevent memory leaks.
 			component.unload();
 		}
 
-		// Post-processing: Convert code placeholders to styled comment spans
+		// Post-processing: Convert code placeholders to styled comment spans.
+		// We replace the `<code>[comment: ...]</code>` elements created by the
+		// renderer with styled spans that have a yellow background.
 		if (settings.showComments) {
 			contentSizer.querySelectorAll("code").forEach((code) => {
 				if (code.textContent?.startsWith("[comment: ")) {
@@ -145,7 +165,10 @@ export async function generateHTML(
 			});
 		}
 
-		// Remove first H1 if it duplicates the inline title (automatic behavior)
+		// Remove duplicate H1 if it matches the inline title.
+		// Why: When printTitle is enabled, we add an inline title at the top.
+		// If the note's first heading is identical to the filename, it's redundant,
+		// so we remove it to avoid duplication.
 		if (settings.printTitle && input instanceof TFile) {
 			const firstH1 = contentSizer.querySelector("h1:not(.inline-title)");
 			if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
@@ -160,57 +183,4 @@ export async function generateHTML(
 		return null;
 	}
 }
-
-/**
- * Gets metadata from any input type
- */
-function getMetadataFromInput(
-	input: TFile | string,
-	app: App,
-): { metadata: any; file: TFile | null } {
-	let file: TFile | null = null;
-	let metadata = null;
-
-	if (input instanceof TFile) {
-		file = input;
-	} else {
-		file = app.workspace.getActiveFile();
-	}
-
-	if (file) {
-		metadata = app.metadataCache.getFileCache(file)?.frontmatter;
-	}
-
-	return { metadata, file };
-}
-
-/**
- * Adds metadata content to the container
- */
-function addMetadataToContent(
-	input: TFile | string,
-	container: HTMLElement,
-	app: App,
-): void {
-	const { metadata } = getMetadataFromInput(input, app);
-
-	if (metadata && Object.keys(metadata).length > 0) {
-		const metadataContainer = container.createDiv(
-			"custom-metadata-container",
-		);
-		const metadataContent = metadataContainer.createDiv(
-			"custom-metadata-content",
-		);
-		Object.entries(metadata).forEach(([key, value]) => {
-			const line = metadataContent.createDiv("custom-metadata-line");
-			const displayValue = Array.isArray(value)
-				? value.join(", ")
-				: typeof value === "object" && value !== null
-					? JSON.stringify(value)
-					: String(value);
-			line.setText(`${key}: ${displayValue}`);
-		});
-	}
-}
-
 

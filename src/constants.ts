@@ -1,5 +1,8 @@
 /**
- * Standardized error messages used throughout the plugin
+ * Standardized error messages used throughout the plugin.
+ * 
+ * Centralized error messages ensure consistency and make
+ * it easier to update user-facing text in one place.
  */
 export const ERROR_MESSAGES = {
 	// Print errors

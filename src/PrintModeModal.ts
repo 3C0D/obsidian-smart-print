@@ -9,8 +9,14 @@ import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
 
 /**
  * Simplified print options modal.
- * No longer asks for print mode - uses unified capture strategy.
- * Only shows user-facing options: title, metadata, colors, fonts.
+ * 
+ * No longer asks for print mode - uses unified capture strategy that
+ * automatically selects the best rendering method.
+ * 
+ * Provides user-facing options:
+ * - Content: title, metadata, page breaks, colors, comments
+ * - Typography: font family, size, auto-sync headings
+ * - Folder-specific: combine notes option
  */
 export class PrintModeModal extends Modal {
 	constructor(
@@ -59,7 +65,14 @@ export class PrintModeModal extends Modal {
 	}
 
 	/**
-	 * Renders the first row: checkboxes for quick options
+	 * Renders the first row: checkboxes for quick options.
+	 * 
+	 * Options include:
+	 * - Show File Title: Displays filename as document title
+	 * - Show Metadata: Displays frontmatter at top
+	 * - Page Breaks at ---: Treats horizontal rules as page breaks
+	 * - Print in color: Toggle between color and black & white
+	 * - Show comments: Display Obsidian comments (%% ... %%)
 	 */
 	private renderOptionsRow(
 		contentEl: HTMLElement,
@@ -70,7 +83,9 @@ export class PrintModeModal extends Modal {
 		container.style.gap = "20px";
 		container.style.marginBottom = "15px";
 
-		// Print title checkbox (simple, no nested option)
+		// Print title checkbox.
+		// When enabled, displays the filename as a title at the top.
+		// Automatically removes duplicate H1 if it matches the filename.
 		const titleLabel = container.createEl("label");
 		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
 		titleCheck.checked = this.settings.printTitle;
@@ -132,7 +147,9 @@ export class PrintModeModal extends Modal {
 			},
 		);
 
-		// Show comments checkbox
+		// Show comments checkbox with warning.
+		// Important: Enabling comments disables advanced rendering because
+		// comments are already stripped from the DOM in preview mode.
 		const commentsWrapper = container.createDiv();
 		commentsWrapper.style.display = "flex";
 		commentsWrapper.style.flexDirection = "column";
@@ -170,7 +187,12 @@ export class PrintModeModal extends Modal {
 	}
 
 	/**
-	 * Renders the font settings row: family, size, auto-sync
+	 * Renders the font settings row: family, size, auto-sync.
+	 * 
+	 * Features:
+	 * - Font family dropdown with 20+ options
+	 * - Font size input (8-72px range)
+	 * - Auto-sync toggle to scale headings proportionally
 	 */
 	private renderFontRow(contentEl: HTMLElement): void {
 		const container = contentEl.createDiv();
@@ -274,7 +296,11 @@ export class PrintModeModal extends Modal {
 
 	/**
 	 * Renders the print button.
-	 * No mode selection - uses unified capture strategy.
+	 * 
+	 * No mode selection needed - the unified capture strategy
+	 * automatically chooses the best rendering method.
+	 * 
+	 * For folder print, also includes "Combine notes" checkbox.
 	 */
 	private renderButtons(contentEl: HTMLElement): void {
 		const container = contentEl.createDiv();
@@ -293,7 +319,9 @@ export class PrintModeModal extends Modal {
 			this.onSubmit();
 		});
 
-		// Combine notes checkbox (only for folder print, next to Print button)
+		// Combine notes checkbox (only for folder print).
+		// When enabled, all notes print continuously.
+		// When disabled, each note starts on a new page.
 		if (this.isFolderPrint) {
 			const combineLabel = container.createEl("label");
 			combineLabel.style.display = "flex";

@@ -1,5 +1,6 @@
 import { App, MarkdownView, Notice } from "obsidian";
 import type { SmartPrintPluginSettings } from "../types.ts";
+import { getMetadata, renderMetadata } from "../utils/metadata.ts";
 
 declare module "obsidian" {
 	interface WorkspaceLeaf {
@@ -149,7 +150,13 @@ export async function getRenderedContent(
 
 		// Add metadata if enabled
 		if (settings.showMetadata) {
-			addMetadataToPreview(container, app);
+			const metadata = getMetadata(app, app.workspace.getActiveFile()!);
+			if (metadata) {
+				const sizer = container.querySelector(".markdown-preview-sizer");
+				if (sizer) {
+					renderMetadata(metadata, sizer as HTMLElement);
+				}
+			}
 		}
 
 		// Inject MathJax CHTML styles required for math rendering
@@ -226,33 +233,3 @@ async function waitForStableContent(
 	});
 }
 
-/**
- * Advanced print mode: captures a complete snapshot of the preview content
- * Uses Obsidian's preview rendering system with full height capture
- */
-// Add this new function
-function addMetadataToPreview(container: HTMLElement, app: App): void {
-	const activeFile = app.workspace.getActiveFile();
-	if (!activeFile) return;
-
-	const metadata = app.metadataCache.getFileCache(activeFile)?.frontmatter;
-	if (metadata && Object.keys(metadata).length > 0) {
-		const sizer = container.querySelector(".markdown-preview-sizer");
-		if (sizer) {
-			const metadataContainer = createDiv("custom-metadata-container");
-			const metadataContent = metadataContainer.createDiv(
-				"custom-metadata-content",
-			);
-			Object.entries(metadata).forEach(([key, value]) => {
-				const line = metadataContent.createDiv("custom-metadata-line");
-				const displayValue = Array.isArray(value)
-					? value.join(", ")
-					: typeof value === "object" && value !== null
-						? JSON.stringify(value)
-						: String(value);
-				line.setText(`${key}: ${displayValue}`);
-			});
-			sizer.insertBefore(metadataContainer, sizer.firstChild);
-		}
-	}
-}
