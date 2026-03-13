@@ -26,6 +26,17 @@ export class PrintSettingTab extends PluginSettingTab {
 
 		const mobile = isMobile();
 
+		containerEl.createEl("p", {
+			text: "💡 Tip: Some of these settings can be changed interactively in the print modal before each print.",
+			cls: "setting-item-description",
+		});
+
+		// ═══════════════════════════════════════════
+		// Content Options
+		// ═══════════════════════════════════════════
+
+		containerEl.createEl("h3", { text: "Content Options" });
+
 		new Setting(containerEl)
 			.setName("Print note title")
 			.setDesc("Include the note title in the printout.")
@@ -37,6 +48,115 @@ export class PrintSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}),
 			);
+
+		new Setting(containerEl)
+			.setName("Show metadata")
+			.setDesc("Include the note metadata in the" + " printout.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.showMetadata)
+					.onChange(async (value) => {
+						this.plugin.settings.showMetadata = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Show comments")
+			.setDesc(
+				"Display Obsidian comments (%% ... %%)" +
+					" in the printout. Comments will appear" +
+					" with a yellow background." +
+					" ⚠ Warning: Enabling this disables advanced" +
+					" rendering (Mermaid, LaTeX, Dataview will not render).",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.showComments)
+					.onChange(async (value) => {
+						this.plugin.settings.showComments = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Hide images")
+			.setDesc("Hide all images from print output.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hideImages)
+					.onChange(async (value) => {
+						this.plugin.settings.hideImages = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Hide embedded notes")
+			.setDesc("Hide embedded notes (![[note]]) from print output.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hideEmbeds)
+					.onChange(async (value) => {
+						this.plugin.settings.hideEmbeds = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Treat horizontal lines as page breaks")
+			.setDesc(
+				"Enable this option to interpret" +
+					" horizontal lines (---) as" +
+					" page breaks",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hrPageBreaks)
+					.onChange(async (value) => {
+						this.plugin.settings.hrPageBreaks = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Combine folder notes")
+			.setDesc(
+				"When printing a folder, combine all" +
+					" notes into a single document. If" +
+					" disabled, each note will start on" +
+					" a new page.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.combineFolderNotes)
+					.onChange(async (value) => {
+						this.plugin.settings.combineFolderNotes = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Print in color")
+			.setDesc(
+				"Enable to print with heading colors" +
+					" and theme colors. Disable for" +
+					" black & white output.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.printInColor)
+					.onChange(async (value) => {
+						this.plugin.settings.printInColor = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		// ═══════════════════════════════════════════
+		// Font & Typography
+		// ═══════════════════════════════════════════
+
+		containerEl.createEl("h3", { text: "Font & Typography" });
 
 		// Font family setting
 		createFontFamilyDropdownSetting(
@@ -123,6 +243,12 @@ export class PrintSettingTab extends PluginSettingTab {
 					}),
 			);
 
+		// ═══════════════════════════════════════════
+		// Colors
+		// ═══════════════════════════════════════════
+
+		containerEl.createEl("h3", { text: "Colors" });
+
 		const hColors = [
 			"h1Color",
 			"h2Color",
@@ -183,147 +309,11 @@ export class PrintSettingTab extends PluginSettingTab {
 				);
 		});
 
-		new Setting(containerEl)
-			.setName("Combine folder notes")
-			.setDesc(
-				"When printing a folder, combine all" +
-					" notes into a single document. If" +
-					" disabled, each note will start on" +
-					" a new page.",
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.combineFolderNotes)
-					.onChange(async (value) => {
-						this.plugin.settings.combineFolderNotes = value;
-						await this.plugin.saveSettings();
-					}),
-			);
+		// ═══════════════════════════════════════════
+		// UI & UX
+		// ═══════════════════════════════════════════
 
-		new Setting(containerEl)
-			.setName("Show metadata")
-			.setDesc("Include the note metadata in the" + " printout.")
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.showMetadata)
-					.onChange(async (value) => {
-						this.plugin.settings.showMetadata = value;
-						await this.plugin.saveSettings();
-					}),
-			);
-
-		new Setting(containerEl)
-			.setName("Show comments")
-			.setDesc(
-				"Display Obsidian comments (%% ... %%)" +
-					" in the printout. Comments will appear" +
-					" with a yellow background." +
-					" ⚠ Warning: Enabling this disables advanced" +
-					" rendering (Mermaid, LaTeX, Dataview will not render).",
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.showComments)
-					.onChange(async (value) => {
-						this.plugin.settings.showComments = value;
-						await this.plugin.saveSettings();
-					}),
-			);
-
-		new Setting(containerEl)
-			.setName("Hide images")
-			.setDesc("Hide all images from print output.")
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.hideImages)
-					.onChange(async (value) => {
-						this.plugin.settings.hideImages = value;
-						await this.plugin.saveSettings();
-					}),
-			);
-
-		new Setting(containerEl)
-			.setName("Treat horizontal lines as page breaks")
-			.setDesc(
-				"Enable this option to interpret" +
-					" horizontal lines (---) as" +
-					" page breaks",
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.hrPageBreaks)
-					.onChange(async (value) => {
-						this.plugin.settings.hrPageBreaks = value;
-						await this.plugin.saveSettings();
-					}),
-			);
-
-		// Custom CSS snippet — desktop only
-		// (uses openWithDefaultApp to open folder)
-		if (!mobile) {
-			const customCSSSetting = new Setting(containerEl)
-				.setName("Custom CSS")
-				.setDesc(
-					"Click the folder icon to create" +
-						' a "print.css" file in' +
-						" snippets. A toggle will" +
-						" appear here once the file" +
-						" exists to enable/disable" +
-						" your custom styles. Use" +
-						' ".obsidian-print" as prefix' +
-						" for your selectors. e.g:" +
-						' ".obsidian-print a {...}".',
-				)
-				.addButton((button) =>
-					button
-						.setIcon("folder")
-						.setTooltip("Open snippets folder")
-						.onClick(async () => {
-							await this.app.openWithDefaultApp(
-								".obsidian/snippets",
-							);
-							window.addEventListener(
-								"focus",
-								() => {
-									this.display();
-								},
-								{ once: true },
-							);
-						}),
-				);
-
-			if (getPrintSnippet(this.app)) {
-				customCSSSetting.addToggle((toggle) =>
-					toggle
-						.setValue(isPrintSnippetEnabled(this.app))
-						.onChange(async (value) => {
-							this.app.customCss.setCssEnabledStatus(
-								"print",
-								value,
-							);
-							await this.plugin.saveSettings();
-						}),
-				);
-			}
-		}
-
-		// ─── Print options ─────────────────────────
-
-		new Setting(containerEl)
-			.setName("Print in color")
-			.setDesc(
-				"Enable to print with heading colors" +
-					" and theme colors. Disable for" +
-					" black & white output.",
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.printInColor)
-					.onChange(async (value) => {
-						this.plugin.settings.printInColor = value;
-						await this.plugin.saveSettings();
-					}),
-			);
+		containerEl.createEl("h3", { text: "UI & UX" });
 
 		new Setting(containerEl)
 			.setName("Skip preview")
@@ -340,8 +330,6 @@ export class PrintSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}),
 			);
-
-		// ─── UI settings ──────────────────────────
 
 		new Setting(containerEl)
 			.setName("Show ribbon icon")
@@ -388,9 +376,59 @@ export class PrintSettingTab extends PluginSettingTab {
 					}),
 			);
 
-		// ─── Desktop-only settings ─────────────────
+		// ═══════════════════════════════════════════
+		// Desktop-Only Settings
+		// ═══════════════════════════════════════════
 
 		if (!mobile) {
+			containerEl.createEl("h3", { text: "Desktop-Only Settings" });
+
+			// Custom CSS snippet
+			const customCSSSetting = new Setting(containerEl)
+				.setName("Custom CSS")
+				.setDesc(
+					"Click the folder icon to create" +
+						' a "print.css" file in' +
+						" snippets. A toggle will" +
+						" appear here once the file" +
+						" exists to enable/disable" +
+						" your custom styles. Use" +
+						' ".obsidian-print" as prefix' +
+						" for your selectors. e.g:" +
+						' ".obsidian-print a {...}".',
+				)
+				.addButton((button) =>
+					button
+						.setIcon("folder")
+						.setTooltip("Open snippets folder")
+						.onClick(async () => {
+							await this.app.openWithDefaultApp(
+								".obsidian/snippets",
+							);
+							window.addEventListener(
+								"focus",
+								() => {
+									this.display();
+								},
+								{ once: true },
+							);
+						}),
+				);
+
+			if (getPrintSnippet(this.app)) {
+				customCSSSetting.addToggle((toggle) =>
+					toggle
+						.setValue(isPrintSnippetEnabled(this.app))
+						.onChange(async (value) => {
+							this.app.customCss.setCssEnabledStatus(
+								"print",
+								value,
+							);
+							await this.plugin.saveSettings();
+						}),
+				);
+			}
+
 			new Setting(containerEl)
 				.setName("Show print mode selection")
 				.setDesc(
@@ -441,7 +479,11 @@ export class PrintSettingTab extends PluginSettingTab {
 				);
 		}
 
-		// ─── Debug settings ────────────────────────
+		// ═══════════════════════════════════════════
+		// Debug
+		// ═══════════════════════════════════════════
+
+		containerEl.createEl("h3", { text: "Debug" });
 
 		new Setting(containerEl)
 			.setName("Debug mode")
@@ -661,7 +703,7 @@ function addAutoSyncToggle(
 ): void {
 	// Add label before toggle
 	const label = document.createElement("span");
-	label.textContent = "Scale headings with base size";
+	label.textContent = "Scale headings with font size";
 	label.style.marginLeft = "5px";
 	setting.controlEl.appendChild(label);
 

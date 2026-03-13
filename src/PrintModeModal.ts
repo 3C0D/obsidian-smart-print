@@ -297,7 +297,7 @@ export class PrintModeModal extends Modal {
 			type: "checkbox",
 		});
 		syncCheck.checked = this.settings.autoSyncHeadingSizes;
-		syncLabel.appendText("Scale headings with base size");
+		syncLabel.appendText("Scale headings with font size");
 		syncLabel.title =
 			"All heading sizes automatically adjust when you change the base font size.";
 		syncCheck.addEventListener("change", async () => {
