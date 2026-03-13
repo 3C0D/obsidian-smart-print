@@ -44,14 +44,19 @@ export async function contentToHTML(
 
 		return await generateHTML(app, settings, selection);
 	} else {
-		if (!file || file === app.workspace.getActiveFile()) {
+		// Get the active file once to avoid multiple calls
+		const activeFile = app.workspace.getActiveFile();
+		
+		// If the target file is the active file (or no file specified),
+		// save it first to ensure we're printing the latest content
+		if (!file || file === activeFile) {
 			const activeView = app.workspace.getActiveViewOfType(MarkdownView);
 			if (activeView) {
 				await activeView.save();
 			}
-			const activeFile = app.workspace.getActiveFile();
-			if (activeFile) {
-				file = activeFile;
+			// If no file was specified, use the active file
+			if (!file) {
+				file = activeFile ?? undefined;
 			}
 		}
 

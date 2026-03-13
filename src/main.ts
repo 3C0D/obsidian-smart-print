@@ -1,34 +1,17 @@
-import {
-	Plugin,
-	TFile,
-	TFolder,
-	debounce,
-} from "obsidian";
-import {
-	DEFAULT_SETTINGS,
-	type SmartPrintPluginSettings,
-} from "./types.ts";
+import { Plugin, TFile, TFolder, debounce } from "obsidian";
+import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from "./types.ts";
 import { printFolder } from "./folderPrint.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
-import {
-	initializeThemeColors,
-	initializeFontSizes,
-	PrintSettingTab,
-} from "./settings.ts";
-import {
-	openPrintModal,
-	directPrint,
-} from "./basicPrint/basicPrintPreview.ts";
-import {
-	generatePrintStyles,
-} from "./getStyles/generatePrintStyles.ts";
+import { initializeThemeColors, initializeFontSizes, PrintSettingTab } from "./settings.ts";
+import { openPrintModal, directPrint } from "./basicPrint/basicPrintPreview.ts";
+import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
 import { isMobile } from "./utils/platform.ts";
-import {
-	addFileMenuItems,
-	addEditorMenuItems,
-} from "./menuManager.ts";
+import { addFileMenuItems, addEditorMenuItems } from "./menuManager.ts";
 import { getBestContent, getBestPrintEngine } from "./captureStrategy.ts";
 import { PrintManager } from "./browserPrintManager.ts";
+
+// Timing constants
+const RIBBON_ICON_DEBOUNCE_MS = 500; // Debounce delay for ribbon icon clicks to prevent double-printing
 
 export default class SmartPrintPlugin extends Plugin {
 	settings: SmartPrintPluginSettings;
@@ -88,12 +71,12 @@ export default class SmartPrintPlugin extends Plugin {
 		// the icon (especially on touch devices), we don't want to run the print
 		// logic twice simultaneously, which could cause performance issues or conflicts.
 		// The 'true' parameter means leading edge execution: first click executes
-		// immediately, subsequent clicks within 500ms are ignored.
+		// immediately, subsequent clicks within the debounce period are ignored.
 		const debouncedPrint = debounce(
 			async () => {
 				await this.handlePrint();
 			},
-			500,
+			RIBBON_ICON_DEBOUNCE_MS,
 			true,
 		);
 

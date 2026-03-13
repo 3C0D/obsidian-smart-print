@@ -3,8 +3,9 @@ import { isMobile } from "./utils/platform.ts";
 import { Printd } from "printd";
 import { ERROR_MESSAGES } from "./constants.ts";
 
-// Delay before cleaning up temporary print files (allows browser to open the file)
-const TEMP_FILE_CLEANUP_DELAY_MS = 5000;
+// Timing constants for browser print operations
+const TEMP_FILE_CLEANUP_DELAY_MS = 5000; // Delay before cleaning up temporary print files (allows browser to open the file)
+const PRINT_TRIGGER_DELAY_MS = 100; // Small delay before triggering print to ensure content is fully rendered
 
 /**
  * Prints the given content using the default browser
@@ -37,7 +38,7 @@ export class PrintManager {
                 // Small delay before printing to ensure everything is rendered
                 setTimeout(function() {
                     window.print();
-                }, 100);
+                }, ${PRINT_TRIGGER_DELAY_MS});
             }
         </script>
     </head>
@@ -79,7 +80,7 @@ export class PrintManager {
 				const { tmpdir } = require("os") as typeof import("os");
 				const { join } = require("path") as typeof import("path");
 				const { writeFileSync, unlinkSync } = require("fs") as typeof import("fs");
-				const { exec } = require("child_process") as typeof import("child_process");
+				const { spawn } = require("child_process") as typeof import("child_process");
 
 				// 2. Prepare a unique temporary file path
 				const fileName = `obsidian-print-${Date.now()}.html`;
@@ -88,36 +89,43 @@ export class PrintManager {
 				// 3. Write the rendered HTML content to the temporary file
 				writeFileSync(savePath, html);
 
-				// 4. Determine the correct generic command to open a file
-				// according to the user's operating system
-				const openCommand =
-					process.platform === "win32"
-						? `start "" "${savePath}"`
-						: process.platform === "darwin"
-							? `open "${savePath}"`
-							: `xdg-open "${savePath}"`;
+				// 4. Open the file in the default browser using spawn for security.
+				// Using spawn() instead of exec() prevents shell injection vulnerabilities
+				// because arguments are passed as an array, not interpolated into a string.
+				let childProcess;
+				if (process.platform === "win32") {
+					// Windows: Use 'cmd /c start "" "path"'
+					childProcess = spawn("cmd", ["/c", "start", "", savePath], {
+						detached: true,
+						stdio: "ignore",
+					});
+				} else if (process.platform === "darwin") {
+					// macOS: Use 'open path'
+					childProcess = spawn("open", [savePath], {
+						detached: true,
+						stdio: "ignore",
+					});
+				} else {
+					// Linux: Use 'xdg-open path'
+					childProcess = spawn("xdg-open", [savePath], {
+						detached: true,
+						stdio: "ignore",
+					});
+				}
 
-				// 5. Execute the command to open the file in the default browser
-				exec(openCommand, (error: Error | null) => {
-					if (error) {
-						console.error("Failed to open browser:", error);
-						new Notice(
-							ERROR_MESSAGES.PRINT_DIALOG_FAILED +
-								": " +
-								error.message,
-						);
-					} else {
-						// 6. Schedule a cleanup to delete the temporary file after
-						// a small delay, giving the browser enough time to load it.
-						setTimeout(() => {
-							try {
-								unlinkSync(savePath);
-							} catch {
-								// Silently fail if unable to delete temp file
-							}
-						}, TEMP_FILE_CLEANUP_DELAY_MS);
+				// Unref allows the parent process to exit without waiting for the child
+				childProcess.unref();
+
+				// 5. Schedule a cleanup to delete the temporary file after
+				// a small delay, giving the browser enough time to load it.
+				setTimeout(() => {
+					try {
+						unlinkSync(savePath);
+					} catch (cleanupError) {
+						// Log cleanup failures for debugging, but don't show to user
+						console.warn("Failed to cleanup temporary print file:", savePath, cleanupError);
 					}
-				});
+				}, TEMP_FILE_CLEANUP_DELAY_MS);
 			} catch (error) {
 				console.error("Failed to initialize desktop print:", error);
 				new Notice(ERROR_MESSAGES.PRINT_DIALOG_FAILED_DETAILS);

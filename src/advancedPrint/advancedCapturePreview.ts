@@ -2,6 +2,13 @@ import { App, MarkdownView, Notice } from "obsidian";
 import type { SmartPrintPluginSettings } from "../types.ts";
 import { getMetadata, renderMetadata } from "../utils/metadata.ts";
 
+// Timing constants for content capture and stabilization
+const MODE_SWITCH_DELAY_MS = 300; // Delay after switching editor modes to ensure DOM updates
+const CONTENT_STABILITY_THRESHOLD_MS = 1000; // Time without mutations to consider content stable
+const CONTENT_STABILITY_CHECK_INTERVAL_MS = 100; // How often to check for stability
+const CONTENT_STABILITY_TIMEOUT_MS = 5000; // Maximum wait time for content to stabilize
+const MUTATION_OBSERVER_INITIAL_DELAY_MS = 500; // Initial delay before starting mutation observation
+
 declare module "obsidian" {
 	interface WorkspaceLeaf {
 		rebuildView(): void;
@@ -38,7 +45,9 @@ export async function getRenderedContent(
 		} else {
 			// If already in preview, toggle modes to force refresh
 			await activeView.setState({ mode: "source" }, { history: false });
-			await new Promise((resolve) => setTimeout(resolve, 300));
+			await new Promise((resolve) =>
+				setTimeout(resolve, MODE_SWITCH_DELAY_MS),
+			);
 			await activeView.setState({ mode: "preview" }, { history: false });
 		}
 
@@ -108,8 +117,6 @@ export async function getRenderedContent(
 				throw new Error("No markdown-preview-sizer found");
 			}
 
-			await new Promise((resolve) => setTimeout(resolve, 300));
-
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
 			container.appendChild(clonedSizer);
 
@@ -118,8 +125,13 @@ export async function getRenderedContent(
 				const activeFile = app.workspace.getActiveFile();
 				if (activeFile) {
 					const titleText = activeFile.basename.toLowerCase().trim();
-					const firstH1 = clonedSizer.querySelector("h1:not(.inline-title)");
-					if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
+					const firstH1 = clonedSizer.querySelector(
+						"h1:not(.inline-title)",
+					);
+					if (
+						firstH1 &&
+						firstH1.textContent?.toLowerCase().trim() === titleText
+					) {
 						firstH1.remove();
 					}
 				}
@@ -127,8 +139,16 @@ export async function getRenderedContent(
 
 			if (settings.debugMode) {
 				document.querySelectorAll("style").forEach((style, i) => {
-					if (style.textContent?.includes("MJX") || style.textContent?.includes("mjx")) {
-						console.log(`Style[${i}] id:`, style.id, "length:", style.textContent.length);
+					if (
+						style.textContent?.includes("MJX") ||
+						style.textContent?.includes("mjx")
+					) {
+						console.log(
+							`Style[${i}] id:`,
+							style.id,
+							"length:",
+							style.textContent.length,
+						);
 					}
 				});
 			}
@@ -152,7 +172,9 @@ export async function getRenderedContent(
 		if (settings.showMetadata) {
 			const metadata = getMetadata(app, app.workspace.getActiveFile()!);
 			if (metadata) {
-				const sizer = container.querySelector(".markdown-preview-sizer");
+				const sizer = container.querySelector(
+					".markdown-preview-sizer",
+				);
 				if (sizer) {
 					renderMetadata(metadata, sizer as HTMLElement);
 				}
@@ -195,12 +217,9 @@ async function waitForStableContent(
 	return new Promise((resolve) => {
 		// Initial delay before starting observation
 		setTimeout(() => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			let mutationCount = 0;
 			let lastMutationTime = Date.now();
 
 			const observer = new MutationObserver(() => {
-				mutationCount++;
 				lastMutationTime = Date.now();
 			});
 
@@ -215,21 +234,20 @@ async function waitForStableContent(
 			const stabilityChecker = setInterval(() => {
 				const timeSinceLastMutation = Date.now() - lastMutationTime;
 
-				// Consider content stable if no mutations for 1 seconds
-				if (timeSinceLastMutation > 1000) {
+				// Consider content stable if no mutations for the threshold period
+				if (timeSinceLastMutation > CONTENT_STABILITY_THRESHOLD_MS) {
 					clearInterval(stabilityChecker);
 					observer.disconnect();
 					resolve();
 				}
-			}, 100);
+			}, CONTENT_STABILITY_CHECK_INTERVAL_MS);
 
-			// Safety timeout after 5 seconds
+			// Safety timeout to prevent infinite waiting
 			setTimeout(() => {
 				clearInterval(stabilityChecker);
 				observer.disconnect();
 				resolve();
-			}, 5000);
-		}, 500); // Initial delay
+			}, CONTENT_STABILITY_TIMEOUT_MS);
+		}, MUTATION_OBSERVER_INITIAL_DELAY_MS);
 	});
 }
-

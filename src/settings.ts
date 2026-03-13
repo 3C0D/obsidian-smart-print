@@ -707,50 +707,69 @@ function createFontSizeSettingWithAutoSync(
 	autoSyncEnabled: boolean,
 	plugin: SmartPrintPlugin,
 	onChange: (value: string) => Promise<void>,
-	onToggleAutoSync: (
-		enabled: boolean,
-	) => Promise<void>,
+	onToggleAutoSync: (enabled: boolean) => Promise<void>,
 	onManualSync: () => Promise<void>,
 ): Setting {
 	const setting = new Setting(containerEl)
 		.setName(name)
-		.setDesc(desc)
-		.addText((text) => {
-			text.setPlaceholder("12")
-				.setValue(
-					currentValue.replace("px", ""),
-				)
-				.onChange(async (value) => {
-					const validatedValue =
-						validateFontSize(
-							value,
-							"12px",
-						);
-					await onChange(validatedValue);
-				});
+		.setDesc(desc);
 
-			// Trigger auto-sync when input loses focus
-			text.inputEl.addEventListener(
-				"blur",
-				async () => {
-					if (
-						plugin.settings
-							.autoSyncHeadingSizes
-					) {
-						await onManualSync();
-					}
-				},
-			);
+	// Add font size input
+	addFontSizeInput(setting, currentValue, plugin, onChange, onManualSync);
 
-			return text;
+	// Add auto-sync toggle with label
+	addAutoSyncToggle(setting, autoSyncEnabled, onToggleAutoSync, onManualSync);
+
+	return setting;
+}
+
+/**
+ * Adds a font size text input to a setting.
+ * Includes validation and auto-sync trigger on blur.
+ */
+function addFontSizeInput(
+	setting: Setting,
+	currentValue: string,
+	plugin: SmartPrintPlugin,
+	onChange: (value: string) => Promise<void>,
+	onManualSync: () => Promise<void>,
+): void {
+	setting.addText((text) => {
+		text.setPlaceholder("12")
+			.setValue(currentValue.replace("px", ""))
+			.onChange(async (value) => {
+				const validatedValue = validateFontSize(value, "12px");
+				await onChange(validatedValue);
+			});
+
+		// Trigger auto-sync when input loses focus
+		text.inputEl.addEventListener("blur", async () => {
+			if (plugin.settings.autoSyncHeadingSizes) {
+				await onManualSync();
+			}
 		});
 
-	// Add toggle for auto-sync headings sizes
+		return text;
+	});
+}
+
+/**
+ * Adds an auto-sync toggle with explanatory label to a setting.
+ * When enabled, heading sizes automatically scale with base font size.
+ */
+function addAutoSyncToggle(
+	setting: Setting,
+	autoSyncEnabled: boolean,
+	onToggleAutoSync: (enabled: boolean) => Promise<void>,
+	onManualSync: () => Promise<void>,
+): void {
+	// Add label before toggle
 	const label = document.createElement("span");
 	label.textContent = "Scale headings with base size";
 	label.style.marginLeft = "5px";
 	setting.controlEl.appendChild(label);
 
+	// Add toggle
 	setting.addToggle((toggle) =>
 		toggle
 			.setTooltip(
@@ -764,6 +783,5 @@ function createFontSizeSettingWithAutoSync(
 				}
 			}),
 	);
-	return setting;
 }
 

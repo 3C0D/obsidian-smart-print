@@ -39,11 +39,10 @@ export function addFileMenuItems(
 			// Other contexts (e.g., tab header): Add submenu with more options.
 			// This provides access to both note printing and selection printing.
 			menu.addItem((item) => {
-				const sub = (
-					item
-						.setTitle("Smart Print")
-						.setIcon("printer") as any
-				).setSubmenu() as Menu;
+				item.setTitle("Smart Print")
+					.setIcon("printer");
+				
+				const sub = item.setSubmenu();
 
 				sub.addItem((subItem) => {
 					subItem
@@ -108,11 +107,10 @@ export function addEditorMenuItems(
 		// Submenu mode: Group print options under "Smart Print" submenu.
 		// This keeps the context menu organized when multiple plugins add items.
 		menu.addItem((item) => {
-			const sub = (
-				item
-					.setTitle("Smart Print")
-					.setIcon("printer") as any
-			).setSubmenu() as Menu;
+			item.setTitle("Smart Print")
+				.setIcon("printer");
+			
+			const sub = item.setSubmenu();
 
 			sub.addItem((subItem) => {
 				subItem
