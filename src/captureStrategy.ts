@@ -3,6 +3,7 @@ import type { SmartPrintPluginSettings } from "./types.ts";
 import { getRenderedContent } from "./advancedPrint/advancedCapturePreview.ts";
 import { contentToHTML } from "./normalCapturePreview.ts";
 import { switchToLightTheme } from "./utils/themeSwitch.ts";
+import { inlineImages } from "./utils/inlineImages.ts";
 
 /**
  * Unified content capture strategy.
@@ -27,7 +28,9 @@ export async function getBestContent(
 	// Selection always uses standard capture because DOM selection
 	// can be unreliable with complex nested elements.
 	if (isSelection) {
-		return await contentToHTML(app, settings, true, undefined);
+		const content = await contentToHTML(app, settings, true, undefined);
+		if (content) await inlineImages(content);
+		return content;
 	}
 
 	// Check if we can use advanced DOM capture.
@@ -42,7 +45,9 @@ export async function getBestContent(
 		if (settings.debugMode) {
 			console.log("File is not active, using standard renderer");
 		}
-		return await contentToHTML(app, settings, isSelection, file);
+		const content = await contentToHTML(app, settings, isSelection, file);
+		if (content) await inlineImages(content);
+		return content;
 	}
 
 	// Try advanced DOM capture first (most faithful rendering).
@@ -58,6 +63,7 @@ export async function getBestContent(
 			if (settings.debugMode) {
 				console.log("Advanced DOM capture successful");
 			}
+			await inlineImages(content);
 			return content;
 		}
 	} catch (error) {
@@ -78,7 +84,9 @@ export async function getBestContent(
 	if (settings.debugMode) {
 		console.log("Using standard HTML renderer");
 	}
-	return await contentToHTML(app, settings, isSelection, file);
+	const content = await contentToHTML(app, settings, isSelection, file);
+	if (content) await inlineImages(content);
+	return content;
 }
 
 /**
