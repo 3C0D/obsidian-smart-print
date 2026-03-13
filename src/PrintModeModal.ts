@@ -122,7 +122,7 @@ export class PrintModeModal extends Modal {
 		});
 		colorCheck.checked = this.settings.printInColor;
 		colorLabel.appendText(" Print in color");
-		colorLabel.title = "Print with colors or force black & white output.\nWhen disabled, all text is forced to black.\n\n(Selector: .obsidian-print *)";
+		colorLabel.title = "Print with colors or force black & white output.\n\n(Selector: .obsidian-print *)";
 		colorCheck.addEventListener(
 			"change",
 			async () => {
