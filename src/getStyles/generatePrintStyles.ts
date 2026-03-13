@@ -110,15 +110,18 @@ export async function generatePrintStyles(
 			" border: none; }"
 		: "";
 
+	// Hide metadata container when disabled
 	const metaCSS = !settings.showMetadata
 		? ".obsidian-print .metadata-container" +
 			" { display: none; }"
 		: "";
 
+	// Hide all images when enabled (useful for text-only prints)
 	const hideImagesCSS = settings.hideImages
 		? ".obsidian-print img { display: none; }"
 		: "";
 
+	// Hide embedded notes when enabled (excludes image embeds)
 	const hideEmbedsCSS = settings.hideEmbeds
 		? ".obsidian-print .obsidian-print-embed { display: none; }"
 		: "";

@@ -119,7 +119,10 @@ export async function getRenderedContent(
 
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
 			
-			// Flatten embedded notes: replace full preview structure with just content
+			// Flatten embedded notes: replace full preview structure with just content.
+			// Embedded notes contain a complete .markdown-preview-view structure that behaves
+			// like an independent page. We extract the content and rebuild it as a simple
+			// inline block to prevent layout issues during printing.
 			clonedSizer.querySelectorAll(".internal-embed:not(.image-embed)").forEach((embed) => {
 				const embedEl = embed as HTMLElement;
 				const title = embedEl.querySelector(".embed-title")?.textContent ?? "";

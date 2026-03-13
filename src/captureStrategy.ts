@@ -29,6 +29,7 @@ export async function getBestContent(
 	// can be unreliable with complex nested elements.
 	if (isSelection) {
 		const content = await contentToHTML(app, settings, true, undefined);
+		// Convert app:// protocol images to base64 for print compatibility
 		if (content) await inlineImages(content);
 		return content;
 	}
@@ -46,6 +47,7 @@ export async function getBestContent(
 			console.log("File is not active, using standard renderer");
 		}
 		const content = await contentToHTML(app, settings, isSelection, file);
+		// Convert app:// protocol images to base64 for print compatibility
 		if (content) await inlineImages(content);
 		return content;
 	}
@@ -63,6 +65,7 @@ export async function getBestContent(
 			if (settings.debugMode) {
 				console.log("Advanced DOM capture successful");
 			}
+			// Convert app:// protocol images to base64 for print compatibility
 			await inlineImages(content);
 			return content;
 		}
@@ -85,6 +88,7 @@ export async function getBestContent(
 		console.log("Using standard HTML renderer");
 	}
 	const content = await contentToHTML(app, settings, isSelection, file);
+	// Convert app:// protocol images to base64 for print compatibility
 	if (content) await inlineImages(content);
 	return content;
 }
