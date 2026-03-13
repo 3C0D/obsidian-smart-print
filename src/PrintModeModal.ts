@@ -93,16 +93,19 @@ export class PrintModeModal extends Modal {
 		// Print title checkbox.
 		// When enabled, displays the filename as a title at the top.
 		// Automatically removes duplicate H1 if it matches the filename.
-		createCheckbox(
-			container,
-			" Show File Title",
-			"Displays the filename as the document title.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)",
-			this.settings.printTitle,
-			async (checked) => {
-				this.settings.printTitle = checked;
-				await this.saveSettings();
-			},
-		);
+		// Not shown for selection print (no file context)
+		if (!this.isSelection) {
+			createCheckbox(
+				container,
+				" Show File Title",
+				"Displays the filename as the document title.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)",
+				this.settings.printTitle,
+				async (checked) => {
+					this.settings.printTitle = checked;
+					await this.saveSettings();
+				},
+			);
+		}
 
 		// Metadata checkbox
 		if (this.contentFlags.hasMetadata) {
@@ -162,9 +165,9 @@ export class PrintModeModal extends Modal {
 			commentsLabel.title =
 				"Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)";
 
-			// Warning only for non-folder print (folder print already has warning at top)
+			// Warning only for non-folder print and non-selection (folder/selection already has warning at top)
 			let warningEl: HTMLElement | null = null;
-			if (!this.isFolderPrint) {
+			if (!this.isFolderPrint && !this.isSelection) {
 				warningEl = commentsWrapper.createEl("span");
 				warningEl.setText("(No post-render)");
 				warningEl.style.display =
@@ -182,8 +185,8 @@ export class PrintModeModal extends Modal {
 
 			commentsCheck.addEventListener("change", async () => {
 				this.settings.showComments = commentsCheck.checked;
-				// Only show warning for non-folder print
-				if (!this.isFolderPrint && warningEl) {
+				// Only show warning for non-folder print and non-selection
+				if (!this.isFolderPrint && !this.isSelection && warningEl) {
 					warningEl.style.display =
 						commentsCheck.checked && !Platform.isMobile
 							? "block"
