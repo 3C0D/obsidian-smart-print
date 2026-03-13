@@ -46,13 +46,13 @@ export async function generatePrintStyles(
 	const titleCSS = settings.printTitle
 		? `
 .obsidian-print .inline-title {
-    display: block !important;
-    font-size: ${settings.inlineTitleSize} !important;
-    color: ${settings.inlineTitleColor} !important;
+    display: block;
+    font-size: ${settings.inlineTitleSize};
+    color: ${settings.inlineTitleColor};
 }`
 		: `
 .obsidian-print .inline-title {
-    display: none !important;
+    display: none;
 }`;
 
 	const headingsCSS = ["h1", "h2", "h3", "h4", "h5", "h6"]
@@ -112,7 +112,11 @@ export async function generatePrintStyles(
 
 	const metaCSS = !settings.showMetadata
 		? ".obsidian-print .metadata-container" +
-			" { display: none !important; }"
+			" { display: none; }"
+		: "";
+
+	const hideImagesCSS = settings.hideImages
+		? ".obsidian-print img { display: none; }"
 		: "";
 
 	// Final combined CSS
@@ -125,6 +129,7 @@ ${titleCSS}
 ${headingsCSS}
 ${hrCSS}
 ${metaCSS}
+${hideImagesCSS}
 ${pluginStyle}
 ${userStyle}
 ${bwCSS}

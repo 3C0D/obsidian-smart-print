@@ -184,6 +184,20 @@ export class PrintModeModal extends Modal {
 			}
 			await this.saveSettings();
 		});
+
+		// Hide images checkbox
+		const imagesLabel = container.createEl("label");
+		const imagesCheck = imagesLabel.createEl("input", {
+			type: "checkbox",
+		});
+		imagesCheck.checked = this.settings.hideImages;
+		imagesLabel.appendText(" Hide images");
+		imagesLabel.title =
+			"Hide all images from print output.\n\n(Selector: .obsidian-print img)";
+		imagesCheck.addEventListener("change", async () => {
+			this.settings.hideImages = imagesCheck.checked;
+			await this.saveSettings();
+		});
 	}
 
 	/**

@@ -231,6 +231,18 @@ export class PrintSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Hide images")
+			.setDesc("Hide all images from print output.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hideImages)
+					.onChange(async (value) => {
+						this.plugin.settings.hideImages = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.setName("Treat horizontal lines as page breaks")
 			.setDesc(
 				"Enable this option to interpret" +

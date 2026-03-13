@@ -8,6 +8,7 @@ export interface SmartPrintPluginSettings {
 	printInColor: boolean;
 	/** Show Obsidian comments (%% ... %%) in print output */
 	showComments: boolean;
+	hideImages: boolean;
 
 	// ─── Font settings ─────────────────────────
 	fontSize: string;
@@ -33,9 +34,7 @@ export interface SmartPrintPluginSettings {
 	hasInitializedSizes: boolean;
 
 	// ─── UI / UX options ───────────────────────
-	/** Show printer icon in the left ribbon */
 	showRibbonIcon: boolean;
-	/** Show print entries in context menus */
 	showContextMenu: boolean;
 	/** Group context menu items under a submenu */
 	useSubmenu: boolean;
@@ -64,6 +63,7 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
 	combineFolderNotes: false,
 	printInColor: true,
 	showComments: false,
+	hideImages: false,
 
 	// Font sizes
 	fontSize: "12px",
