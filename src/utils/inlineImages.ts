@@ -20,7 +20,9 @@ export async function inlineImages(container: HTMLElement): Promise<void> {
 					reader.readAsDataURL(blob);
 				});
 			} catch {
-				// Leave broken images as-is
+				// Replace broken images with a visible placeholder
+				img.alt = img.alt || "Image unavailable";
+				img.style.cssText = "display:inline-block;padding:4px 8px;border:1px dashed #999;color:#999;font-size:0.85em;";
 			}
 		}),
 	);

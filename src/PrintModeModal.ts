@@ -23,6 +23,7 @@ export class PrintModeModal extends Modal {
 		private onSubmit: () => void,
 		private saveSettings: () => Promise<void>,
 		private isFolderPrint: boolean = false,
+		private contentFlags: { hasImages: boolean; hasEmbeds: boolean } = { hasImages: true, hasEmbeds: true },
 	) {
 		super(app);
 	}
@@ -186,32 +187,36 @@ export class PrintModeModal extends Modal {
 		});
 
 		// Hide images checkbox
-		const imagesLabel = container.createEl("label");
-		const imagesCheck = imagesLabel.createEl("input", {
-			type: "checkbox",
-		});
-		imagesCheck.checked = this.settings.hideImages;
-		imagesLabel.appendText(" Hide images");
-		imagesLabel.title =
-			"Hide all images from print output.\n\n(Selector: .obsidian-print img)";
-		imagesCheck.addEventListener("change", async () => {
-			this.settings.hideImages = imagesCheck.checked;
-			await this.saveSettings();
-		});
+		if (this.contentFlags.hasImages) {
+			const imagesLabel = container.createEl("label");
+			const imagesCheck = imagesLabel.createEl("input", {
+				type: "checkbox",
+			});
+			imagesCheck.checked = this.settings.hideImages;
+			imagesLabel.appendText(" Hide images");
+			imagesLabel.title =
+				"Hide all images from print output.\n\n(Selector: .obsidian-print img)";
+			imagesCheck.addEventListener("change", async () => {
+				this.settings.hideImages = imagesCheck.checked;
+				await this.saveSettings();
+			});
+		}
 
 		// Hide embeds checkbox
-		const embedsLabel = container.createEl("label");
-		const embedsCheck = embedsLabel.createEl("input", {
-			type: "checkbox",
-		});
-		embedsCheck.checked = this.settings.hideEmbeds;
-		embedsLabel.appendText(" Hide embed files");
-		embedsLabel.title =
-			"Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .internal-embed:not(.image-embed))";
-		embedsCheck.addEventListener("change", async () => {
-			this.settings.hideEmbeds = embedsCheck.checked;
-			await this.saveSettings();
-		});
+		if (this.contentFlags.hasEmbeds) {
+			const embedsLabel = container.createEl("label");
+			const embedsCheck = embedsLabel.createEl("input", {
+				type: "checkbox",
+			});
+			embedsCheck.checked = this.settings.hideEmbeds;
+			embedsLabel.appendText(" Hide embed files");
+			embedsLabel.title =
+				"Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .obsidian-print-embed)";
+			embedsCheck.addEventListener("change", async () => {
+				this.settings.hideEmbeds = embedsCheck.checked;
+				await this.saveSettings();
+			});
+		}
 	}
 
 	/**

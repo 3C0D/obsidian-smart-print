@@ -172,6 +172,19 @@ export default class SmartPrintPlugin extends Plugin {
 		// The modal allows users to adjust print settings (font, colors, etc.)
 		// before printing. If disabled, print immediately with saved settings.
 		if (this.settings.useModal) {
+			// Scan markdown content to detect images and embeds
+			const imagePattern = /!\[.*?\]\(.*?\)|!\[\[.*?\.(png|jpg|jpeg|gif|svg|webp|bmp)[^\]]+\]\]/i;
+			const embedPattern = /!\[\[(?!.*\.(png|jpg|jpeg|gif|svg|webp|bmp))[^\]]+\]\]/i;
+			const targetFile = file ?? this.app.workspace.getActiveFile();
+			let contentFlags = { hasImages: false, hasEmbeds: false };
+			if (targetFile) {
+				const md = await this.app.vault.cachedRead(targetFile);
+				contentFlags = {
+					hasImages: imagePattern.test(md),
+					hasEmbeds: embedPattern.test(md),
+				};
+			}
+			
 			new PrintModeModal(
 				this,
 				this.app,
@@ -180,6 +193,8 @@ export default class SmartPrintPlugin extends Plugin {
 					await this.unifiedPrint(isSelection, file);
 				},
 				async () => await this.saveSettings(),
+				false,
+				contentFlags,
 			).open();
 		} else {
 			await this.unifiedPrint(isSelection, file);
