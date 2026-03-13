@@ -36,11 +36,13 @@ Smart Print automatically chooses the best rendering method for your content:
 
 Every print command opens a simple modal where you can:
 
-- **Quick toggles** for common options:
+- **Quick toggles** for common options (adapts to document content):
     - Include note title
     - Show metadata (displayed at the end of the document)
     - Hide images
+    - Hide embedded notes
     - Page breaks at horizontal rules (`---`)
+    - Show Obsidian comments (`%% ... %%`)
     - Print in color or black & white
 - **Font settings** with 20+ cross-platform font options
 - **Auto-sync heading sizes:** All heading sizes automatically adjust when you change the base font size
@@ -70,8 +72,9 @@ Every print command opens a simple modal where you can:
 **Quick customization** (in print modal):
 
 - Font family and size
-- Print title, metadata (at end), images
-- Page breaks and color output
+- Print title, metadata (at end), images, embeds
+- Page breaks, comments, and color output
+- Options automatically adapt to document content
 
 **Advanced customization** (in plugin settings):
 
@@ -153,6 +156,8 @@ Every print command opens a simple modal where you can:
 💡 **Metadata placement:** When enabled, frontmatter is displayed at the end of the document with a "Frontmatter" label
 
 💡 **Embedded images:** The plugin automatically converts embedded images to base64 for reliable printing across all platforms
+
+💡 **Adaptive modal:** Print options automatically adapt to your document content - only relevant toggles are shown based on what's in your note
 
 ## Technical Details
 

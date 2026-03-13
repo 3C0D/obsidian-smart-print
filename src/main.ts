@@ -176,12 +176,15 @@ export default class SmartPrintPlugin extends Plugin {
 			const imagePattern = /!\[.*?\]\(.*?\)|!\[\[.*?\.(png|jpg|jpeg|gif|svg|webp|bmp)[^\]]+\]\]/i;
 			const embedPattern = /!\[\[(?!.*\.(png|jpg|jpeg|gif|svg|webp|bmp))[^\]]+\]\]/i;
 			const targetFile = file ?? this.app.workspace.getActiveFile();
-			let contentFlags = { hasImages: false, hasEmbeds: false };
+			let contentFlags = { hasImages: false, hasEmbeds: false, hasComments: false, hasMetadata: false, hasHrBreaks: false };
 			if (targetFile) {
 				const md = await this.app.vault.cachedRead(targetFile);
 				contentFlags = {
 					hasImages: imagePattern.test(md),
 					hasEmbeds: embedPattern.test(md),
+					hasComments: /%%[\s\S]+?%%/.test(md),
+					hasMetadata: /^---[\s\S]+?---/.test(md),
+					hasHrBreaks: /^[-*]{3,}\s*$/m.test(md.replace(/^---[\s\S]*?---\n?/, "")),
 				};
 			}
 			

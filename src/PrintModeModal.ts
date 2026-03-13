@@ -23,7 +23,7 @@ export class PrintModeModal extends Modal {
 		private onSubmit: () => void,
 		private saveSettings: () => Promise<void>,
 		private isFolderPrint: boolean = false,
-		private contentFlags: { hasImages: boolean; hasEmbeds: boolean } = { hasImages: true, hasEmbeds: true },
+		private contentFlags: { hasImages: boolean; hasEmbeds: boolean; hasComments: boolean; hasMetadata: boolean; hasHrBreaks: boolean } = { hasImages: true, hasEmbeds: true, hasComments: true, hasMetadata: true, hasHrBreaks: true },
 	) {
 		super(app);
 	}
@@ -44,7 +44,7 @@ export class PrintModeModal extends Modal {
 
 		const hint = title.createEl("span");
 		hint.addClass("print-modal-hint");
-		hint.setText("(hover for details)");
+		hint.setText("(options adapt to document content)");
 
 		// Warning for folder print (no post-render)
 		if (this.isFolderPrint) {
@@ -98,32 +98,36 @@ export class PrintModeModal extends Modal {
 		});
 
 		// Metadata checkbox
-		const metaLabel = container.createEl("label");
-		const metaCheck = metaLabel.createEl("input", {
-			type: "checkbox",
-		});
-		metaCheck.checked = this.settings.showMetadata;
-		metaLabel.appendText(" Show Metadata");
-		metaLabel.title =
-			"Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)";
-		metaCheck.addEventListener("change", async () => {
-			this.settings.showMetadata = metaCheck.checked;
-			await this.saveSettings();
-		});
+		if (this.contentFlags.hasMetadata) {
+			const metaLabel = container.createEl("label");
+			const metaCheck = metaLabel.createEl("input", {
+				type: "checkbox",
+			});
+			metaCheck.checked = this.settings.showMetadata;
+			metaLabel.appendText(" Show Metadata");
+			metaLabel.title =
+				"Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)";
+			metaCheck.addEventListener("change", async () => {
+				this.settings.showMetadata = metaCheck.checked;
+				await this.saveSettings();
+			});
+		}
 
 		// Page breaks checkbox
-		const breaksLabel = container.createEl("label");
-		const breaksCheck = breaksLabel.createEl("input", {
-			type: "checkbox",
-		});
-		breaksCheck.checked = this.settings.hrPageBreaks;
-		breaksLabel.appendText(" Page Breaks at ---");
-		breaksLabel.title =
-			"Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)";
-		breaksCheck.addEventListener("change", async () => {
-			this.settings.hrPageBreaks = breaksCheck.checked;
-			await this.saveSettings();
-		});
+		if (this.contentFlags.hasHrBreaks) {
+			const breaksLabel = container.createEl("label");
+			const breaksCheck = breaksLabel.createEl("input", {
+				type: "checkbox",
+			});
+			breaksCheck.checked = this.settings.hrPageBreaks;
+			breaksLabel.appendText(" Page Breaks at ---");
+			breaksLabel.title =
+				"Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)";
+			breaksCheck.addEventListener("change", async () => {
+				this.settings.hrPageBreaks = breaksCheck.checked;
+				await this.saveSettings();
+			});
+		}
 
 		// Print in color checkbox
 		const colorLabel = container.createEl("label");
@@ -142,49 +146,51 @@ export class PrintModeModal extends Modal {
 		// Show comments checkbox with warning.
 		// Important: Enabling comments disables advanced rendering because
 		// comments are already stripped from the DOM in preview mode.
-		const commentsWrapper = container.createDiv();
-		commentsWrapper.style.display = "flex";
-		commentsWrapper.style.flexDirection = "column";
-		commentsWrapper.style.gap = "3px";
+		if (this.contentFlags.hasComments) {
+			const commentsWrapper = container.createDiv();
+			commentsWrapper.style.display = "flex";
+			commentsWrapper.style.flexDirection = "column";
+			commentsWrapper.style.gap = "3px";
 
-		const commentsLabel = commentsWrapper.createEl("label");
-		const commentsCheck = commentsLabel.createEl("input", {
-			type: "checkbox",
-		});
-		commentsCheck.checked = this.settings.showComments;
-		commentsLabel.appendText(" Show comments");
-		commentsLabel.title =
-			"Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)";
+			const commentsLabel = commentsWrapper.createEl("label");
+			const commentsCheck = commentsLabel.createEl("input", {
+				type: "checkbox",
+			});
+			commentsCheck.checked = this.settings.showComments;
+			commentsLabel.appendText(" Show comments");
+			commentsLabel.title =
+				"Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)";
 
-		// Warning only for non-folder print (folder print already has warning at top)
-		let warningEl: HTMLElement | null = null;
-		if (!this.isFolderPrint) {
-			warningEl = commentsWrapper.createEl("span");
-			warningEl.setText("(No post-render)");
-			warningEl.style.display =
-				this.settings.showComments && !Platform.isMobile
-					? "block"
-					: "none";
-			warningEl.style.fontSize = "10px";
-			warningEl.style.paddingLeft = "16px";
-			warningEl.style.color = "#a0522d";
-			warningEl.style.backgroundColor = "#fdf6ec";
-			warningEl.style.borderRadius = "3px";
-			warningEl.style.padding = "1px 5px";
-			warningEl.style.border = "1px solid #e8c97a";
-		}
-
-		commentsCheck.addEventListener("change", async () => {
-			this.settings.showComments = commentsCheck.checked;
-			// Only show warning for non-folder print
-			if (!this.isFolderPrint && warningEl) {
+			// Warning only for non-folder print (folder print already has warning at top)
+			let warningEl: HTMLElement | null = null;
+			if (!this.isFolderPrint) {
+				warningEl = commentsWrapper.createEl("span");
+				warningEl.setText("(No post-render)");
 				warningEl.style.display =
-					commentsCheck.checked && !Platform.isMobile
+					this.settings.showComments && !Platform.isMobile
 						? "block"
 						: "none";
+				warningEl.style.fontSize = "10px";
+				warningEl.style.paddingLeft = "16px";
+				warningEl.style.color = "#a0522d";
+				warningEl.style.backgroundColor = "#fdf6ec";
+				warningEl.style.borderRadius = "3px";
+				warningEl.style.padding = "1px 5px";
+				warningEl.style.border = "1px solid #e8c97a";
 			}
-			await this.saveSettings();
-		});
+
+			commentsCheck.addEventListener("change", async () => {
+				this.settings.showComments = commentsCheck.checked;
+				// Only show warning for non-folder print
+				if (!this.isFolderPrint && warningEl) {
+					warningEl.style.display =
+						commentsCheck.checked && !Platform.isMobile
+							? "block"
+							: "none";
+				}
+				await this.saveSettings();
+			});
+		}
 
 		// Hide images checkbox
 		if (this.contentFlags.hasImages) {
