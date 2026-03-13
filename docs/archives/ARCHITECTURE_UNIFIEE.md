@@ -61,6 +61,7 @@ handlePrint()
 ### Fichiers Clés
 
 #### `captureStrategy.ts` 🆕
+
 **Rôle :** Stratégie unifiée de capture de contenu
 
 ```typescript
@@ -72,19 +73,23 @@ getBestPrintEngine(settings, isMobile)
 ```
 
 #### `main.ts` ✅ Simplifié
+
 **Avant :** 3 méthodes (`basicPrint`, `standardPrint`, `advancedPrint`)  
 **Après :** 1 méthode (`unifiedPrint`)
 
 **Supprimé :**
+
 - `preparePrintContent()` (remplacé par `getBestContent`)
 - `standardPrint()` (logique fusionnée)
 - `basicPrint()` (logique fusionnée)
 
 #### `PrintModeModal.ts` ✅ Simplifié
+
 **Avant :** 3 boutons (Basic, Standard, Advanced)  
 **Après :** 1 bouton (Print)
 
 **Garde :**
+
 - ✅ Print Title
 - ✅ Show Metadata
 - ✅ Page Breaks at HR
@@ -93,6 +98,7 @@ getBestPrintEngine(settings, isMobile)
 - ✅ Font size + auto-sync
 
 **Supprime :**
+
 - ❌ Choix du mode d'impression (détail d'implémentation)
 
 ---
@@ -102,36 +108,38 @@ getBestPrintEngine(settings, isMobile)
 ### Ordre de Priorité
 
 1. **DOM Live Capture** (advancedCapturePreview)
-   - ✅ Mermaid diagrams
-   - ✅ Dataview queries
-   - ✅ MetaBind fields
-   - ✅ Callouts avec icônes
-   - ✅ Plugins dynamiques
-   - ⚠️ Nécessite preview mode actif
+    - ✅ Mermaid diagrams
+    - ✅ Dataview queries
+    - ✅ MetaBind fields
+    - ✅ Callouts avec icônes
+    - ✅ Plugins dynamiques
+    - ⚠️ Nécessite preview mode actif
 
 2. **Fallback : MarkdownRenderer** (normalCapturePreview)
-   - ✅ Markdown standard
-   - ✅ Tables, listes, code blocks
-   - ✅ Images, liens
-   - ❌ Plugins dynamiques non rendus
+    - ✅ Markdown standard
+    - ✅ Tables, listes, code blocks
+    - ✅ Images, liens
+    - ❌ Plugins dynamiques non rendus
 
 ### Cas Spéciaux
 
 #### Sélection de Texte
+
 ```typescript
 if (isSelection) {
-    // Advanced mode broken for selections
-    return contentToHTML(); // Fallback direct
+	// Advanced mode broken for selections
+	return contentToHTML(); // Fallback direct
 }
 ```
 
 **Raison :** `window.getSelection()` ne fonctionne pas correctement avec le DOM preview. Nécessite refonte future.
 
 #### Mode Debug
+
 ```typescript
 if (settings.debugMode) {
-    console.log("Attempting advanced DOM capture");
-    console.log("Fallback to standard renderer");
+	console.log("Attempting advanced DOM capture");
+	console.log("Fallback to standard renderer");
 }
 ```
 
@@ -142,29 +150,37 @@ Tous les logs sont conditionnels pour éviter le spam en production.
 ## 🎨 Moteurs d'Impression
 
 ### Printd (Electron)
+
 **Utilisé quand :**
+
 - Mobile (toujours)
 - Desktop + `useBrowserPrint: false`
 
 **Avantages :**
+
 - ✅ Fonctionne partout
 - ✅ Rapide
 - ✅ Pas de fichier temporaire
 
 **Limites :**
+
 - ⚠️ Rendu Electron (moins fidèle)
 - ⚠️ Options d'impression limitées
 
 ### Browser Print
+
 **Utilisé quand :**
+
 - Desktop + `useBrowserPrint: true`
 
 **Avantages :**
+
 - ✅ Rendu navigateur (très fidèle)
 - ✅ Options d'impression complètes
 - ✅ Export PDF natif
 
 **Limites :**
+
 - ❌ Desktop uniquement (Node.js requis)
 - ⚠️ Fichier temporaire créé
 
@@ -174,21 +190,21 @@ Tous les logs sont conditionnels pour éviter le spam en production.
 
 ### Complexité du Code
 
-| Métrique | Avant | Après | Delta |
-|----------|-------|-------|-------|
-| Méthodes print dans main.ts | 4 | 1 | -75% |
-| Boutons dans modal | 3 | 1 | -66% |
-| Décisions utilisateur | 3 modes | Options | Simplifié |
-| Lignes de code main.ts | ~180 | ~120 | -33% |
+| Métrique                    | Avant   | Après   | Delta     |
+| --------------------------- | ------- | ------- | --------- |
+| Méthodes print dans main.ts | 4       | 1       | -75%      |
+| Boutons dans modal          | 3       | 1       | -66%      |
+| Décisions utilisateur       | 3 modes | Options | Simplifié |
+| Lignes de code main.ts      | ~180    | ~120    | -33%      |
 
 ### Expérience Utilisateur
 
-| Aspect | Avant | Après |
-|--------|-------|-------|
-| **Choix à faire** | "Basic, Standard ou Advanced ?" | "Print" |
-| **Compréhension** | Termes techniques | Options claires |
-| **Résultat** | Dépend du choix | Toujours optimal |
-| **Erreurs** | Mauvais mode = mauvais rendu | Fallback automatique |
+| Aspect            | Avant                           | Après                |
+| ----------------- | ------------------------------- | -------------------- |
+| **Choix à faire** | "Basic, Standard ou Advanced ?" | "Print"              |
+| **Compréhension** | Termes techniques               | Options claires      |
+| **Résultat**      | Dépend du choix                 | Toujours optimal     |
+| **Erreurs**       | Mauvais mode = mauvais rendu    | Fallback automatique |
 
 ---
 
@@ -197,29 +213,29 @@ Tous les logs sont conditionnels pour éviter le spam en production.
 ### Court Terme
 
 1. **Fixer la sélection en mode avancé**
-   - Utiliser `getSelection()` sur la preview
-   - Ou créer un range custom dans le DOM capturé
+    - Utiliser `getSelection()` sur la preview
+    - Ou créer un range custom dans le DOM capturé
 
 2. **Améliorer le fallback**
-   - Détecter pourquoi la capture DOM échoue
-   - Logger les raisons en debug mode
+    - Détecter pourquoi la capture DOM échoue
+    - Logger les raisons en debug mode
 
 ### Moyen Terme
 
 3. **Unifier les métadonnées**
-   - Extraire `addMetadataToContent` en utility
-   - Partager entre normalCapture et advancedCapture
+    - Extraire `addMetadataToContent` en utility
+    - Partager entre normalCapture et advancedCapture
 
 4. **Cache de capture**
-   - Éviter de re-capturer si le contenu n'a pas changé
-   - Utile pour réimpressions rapides
+    - Éviter de re-capturer si le contenu n'a pas changé
+    - Utile pour réimpressions rapides
 
 ### Long Terme
 
 5. **Mode hybride**
-   - Capturer le DOM live
-   - Mais permettre édition avant impression
-   - Nécessite un éditeur WYSIWYG temporaire
+    - Capturer le DOM live
+    - Mais permettre édition avant impression
+    - Nécessite un éditeur WYSIWYG temporaire
 
 ---
 
@@ -252,6 +268,7 @@ Tous les logs sont conditionnels pour éviter le spam en production.
 ### Pour les Utilisateurs
 
 **Aucun changement visible** sauf :
+
 - ✅ Le modal est plus simple (1 bouton au lieu de 3)
 - ✅ Le rendu est meilleur automatiquement
 - ✅ Moins de choix = moins d'erreurs
@@ -261,6 +278,7 @@ Tous les logs sont conditionnels pour éviter le spam en production.
 **Fichiers supprimés :** Aucun (backward compatibility)  
 **Fichiers ajoutés :** `captureStrategy.ts`  
 **Fichiers modifiés :**
+
 - `main.ts` (logique simplifiée)
 - `PrintModeModal.ts` (UI simplifiée)
 

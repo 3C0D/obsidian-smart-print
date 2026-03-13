@@ -7,11 +7,11 @@ import { switchToLightTheme } from "./utils/themeSwitch.ts";
 /**
  * Unified content capture strategy.
  * Tries advanced DOM capture first (most faithful), falls back to standard HTML generation.
- * 
+ *
  * Advanced capture clones the live preview DOM, preserving rendered Mermaid diagrams,
  * Dataview queries, and other dynamic content. Standard capture uses Markdown rendering,
  * which is more reliable but doesn't capture dynamic plugin content.
- * 
+ *
  * @param app - Obsidian App instance
  * @param settings - Plugin settings
  * @param isSelection - Whether to capture selection only
@@ -35,7 +35,8 @@ export async function getBestContent(
 	// 1. File must be currently active (DOM only exists for active preview)
 	// 2. showComments must be disabled (comments are already stripped from DOM)
 	const activeFile = app.workspace.getActiveFile();
-	const canUseAdvanced = (!file || file.path === activeFile?.path) && !settings.showComments;
+	const canUseAdvanced =
+		(!file || file.path === activeFile?.path) && !settings.showComments;
 
 	if (!canUseAdvanced) {
 		if (settings.debugMode) {
@@ -61,7 +62,10 @@ export async function getBestContent(
 		}
 	} catch (error) {
 		if (settings.debugMode) {
-			console.warn("Advanced DOM capture failed, falling back to standard:", error);
+			console.warn(
+				"Advanced DOM capture failed, falling back to standard:",
+				error,
+			);
 		}
 	} finally {
 		// Always restore the original theme, even if capture fails.
@@ -79,13 +83,13 @@ export async function getBestContent(
 
 /**
  * Determines the best print engine based on platform and settings.
- * 
+ *
  * Browser print creates a temporary HTML file and opens it in the system browser,
  * providing better text rendering and full browser print options.
- * 
+ *
  * Printd uses Electron's print API (desktop) or mobile print dialog,
  * which is faster but has fewer options.
- * 
+ *
  * @param settings - Plugin settings
  * @param isMobile - Whether running on mobile
  * @returns "browser" or "printd"

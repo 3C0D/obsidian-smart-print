@@ -3,7 +3,7 @@ import { App, TFile } from "obsidian";
 /**
  * Renders metadata (frontmatter) as HTML elements.
  * Creates a styled container with key-value pairs.
- * 
+ *
  * @param metadata - Frontmatter object from Obsidian's metadata cache
  * @param container - Parent element to insert metadata into
  */
@@ -16,7 +16,9 @@ export function renderMetadata(
 	}
 
 	const metadataContainer = container.createDiv("custom-metadata-container");
-	const metadataContent = metadataContainer.createDiv("custom-metadata-content");
+	const metadataContent = metadataContainer.createDiv(
+		"custom-metadata-content",
+	);
 
 	Object.entries(metadata).forEach(([key, value]) => {
 		const line = metadataContent.createDiv("custom-metadata-line");
@@ -31,7 +33,7 @@ export function renderMetadata(
 
 /**
  * Gets metadata from a file or the active file.
- * 
+ *
  * @param app - Obsidian App instance
  * @param input - TFile or string (uses active file if string)
  * @returns Metadata object or null

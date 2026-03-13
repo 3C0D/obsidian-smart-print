@@ -1,7 +1,7 @@
 # État Actuel du Projet - Smart Print
 
 **Date:** 2024-12-19  
-**Statut:** ✅ Fonctionnel - Architecture unifiée opérationnelle  
+**Statut:** ✅ Fonctionnel - Architecture unifiée opérationnelle
 
 ---
 
@@ -65,12 +65,12 @@ Le problème de rendu vide a été résolu. L'architecture unifiée fonctionne c
 
 ```typescript
 if (activeView.getMode() === "preview") {
-    // Utiliser window.getSelection() - DOM rendu complet
-    const selection = window.getSelection();
-    const range = selection.getRangeAt(0);
-    const fragment = range.cloneContents(); // Contenu exact visible
+	// Utiliser window.getSelection() - DOM rendu complet
+	const selection = window.getSelection();
+	const range = selection.getRangeAt(0);
+	const fragment = range.cloneContents(); // Contenu exact visible
 } else {
-    // Fallback: editor.getSelection() + rendu markdown simple
+	// Fallback: editor.getSelection() + rendu markdown simple
 }
 ```
 
@@ -97,11 +97,11 @@ const isPreviewMode = activeView?.getMode() === "preview";
 
 ## 🗂️ Fichiers Critiques
 
-| Fichier | Rôle | État |
-| --------- | ------ | ------ |
-| `src/captureStrategy.ts` | Pipeline unifié | ✅ Fonctionnel |
-| `src/main.ts` | Point d'entrée `unifiedPrint()` | ✅ Fonctionnel |
-| `src/advancedPrint/advancedCapturePreview.ts` | Sélection preview | 💡 Amélioration future |
+| Fichier                                       | Rôle                            | État                   |
+| --------------------------------------------- | ------------------------------- | ---------------------- |
+| `src/captureStrategy.ts`                      | Pipeline unifié                 | ✅ Fonctionnel         |
+| `src/main.ts`                                 | Point d'entrée `unifiedPrint()` | ✅ Fonctionnel         |
+| `src/advancedPrint/advancedCapturePreview.ts` | Sélection preview               | 💡 Amélioration future |
 
 ---
 

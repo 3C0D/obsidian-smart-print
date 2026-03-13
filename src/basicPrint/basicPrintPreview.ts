@@ -1,8 +1,6 @@
 import { Printd } from "printd";
 import type { SmartPrintPluginSettings } from "../types.ts";
-import {
-	switchToLightTheme,
-} from "../utils/themeSwitch.ts";
+import { switchToLightTheme } from "../utils/themeSwitch.ts";
 
 /**
  * Opens a preview window then allows the user to print.
@@ -16,10 +14,8 @@ export async function openPrintModal(
 	settings: SmartPrintPluginSettings,
 	cssString: string,
 ): Promise<void> {
-	const styleManager =
-		new PrintStyleManager(settings);
-	const printContent =
-		styleManager.prepareForPrint(content);
+	const styleManager = new PrintStyleManager(settings);
+	const printContent = styleManager.prepareForPrint(content);
 
 	const preview = new PrintPreview();
 	preview.createPreview(printContent, cssString, {
@@ -46,20 +42,14 @@ export async function directPrint(
 	const restoreTheme = switchToLightTheme();
 
 	try {
-		const styleManager =
-			new PrintStyleManager(settings);
-		const printContent =
-			styleManager.prepareForPrint(content);
+		const styleManager = new PrintStyleManager(settings);
+		const printContent = styleManager.prepareForPrint(content);
 
-		const htmlElement =
-			document.createElement("html");
-		const headElement =
-			document.createElement("head");
-		const bodyElement =
-			document.createElement("body");
+		const htmlElement = document.createElement("html");
+		const headElement = document.createElement("head");
+		const bodyElement = document.createElement("body");
 
-		const styleElement =
-			document.createElement("style");
+		const styleElement = document.createElement("style");
 		styleElement.textContent = cssString;
 		headElement.appendChild(styleElement);
 
@@ -75,7 +65,6 @@ export async function directPrint(
 		restoreTheme();
 	}
 }
-
 
 interface PrintPreviewOptions {
 	width?: string;
@@ -206,9 +195,7 @@ class PrintPreview {
 			this.restoreTheme();
 			this.restoreTheme = null;
 		}
-		this.previewWindow?.parentNode?.removeChild(
-			this.previewWindow,
-		);
+		this.previewWindow?.parentNode?.removeChild(this.previewWindow);
 		this.previewWindow = null;
 	}
 }
@@ -217,7 +204,7 @@ class PrintPreview {
  * Manages the styling of content for printing
  */
 export class PrintStyleManager {
-	constructor(private settings: SmartPrintPluginSettings) { }
+	constructor(private settings: SmartPrintPluginSettings) {}
 
 	/**
 	 * Prepares the content for printing by adding necessary print classes

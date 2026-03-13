@@ -2,7 +2,7 @@
 
 ## 📋 Documents Actifs
 
-### 📊 État du Projet  
+### 📊 État du Projet
 
 - **[ETAT_ACTUEL.md](ETAT_ACTUEL.md)** - Synthèse pour reprendre le travail facilement
 

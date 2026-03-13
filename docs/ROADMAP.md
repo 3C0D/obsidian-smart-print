@@ -7,6 +7,7 @@
 ## ✅ Implemented
 
 ### Session 1 — UX improvements & Mobile
+
 - [x] **Ribbon icon toggle** — `showRibbonIcon` setting
 - [x] **Context menu toggle** — `showContextMenu` setting
 - [x] **Submenu grouping** — `useSubmenu` setting
@@ -21,6 +22,7 @@
 - [x] 100-char line limit enforced
 
 ### Session 2 — Code cleanup & Folder modal (2024-12-19)
+
 - [x] **Code mort supprimé** — `generatePreviewContent()` removed
 - [x] **CSS nettoyé** — Duplications supprimées, règles optimisées
 - [x] **Métadonnées** — Classe `custom-metadata-line` ajoutée
@@ -37,6 +39,7 @@
 ### High Priority
 
 #### Community submission preparation
+
 - [ ] Test thoroughly on both desktop and mobile
 - [ ] Clean up `package.json` (remove unused dependencies)
 - [x] Remove unused `generatePreviewContent()` function ✅
@@ -48,10 +51,11 @@
 ### Medium Priority
 
 #### Rendering improvements
+
 - [ ] **LaTeX/MathJax** — Investigate MathJax rendering
       in print output. Complex: would need to include
       MathJax library or capture rendered output.
-      *Workaround:* Advanced mode captures whatever the
+      _Workaround:_ Advanced mode captures whatever the
       preview renders, including MathJax if enabled.
 
 - [ ] **Dataview** — Similar to MathJax. Advanced mode
@@ -66,6 +70,7 @@
       reliable printing.
 
 #### UX improvements
+
 - [x] **Color/B&W in modal** — Add color/B&W toggle ✅
       to the PrintModeModal for quick switching without
       going to settings.
@@ -77,7 +82,7 @@
 - [ ] **Better document title** — Ensure the print
       document title in browser mode is just the filename,
       not "Obsidian Vault X - Obsidian v1.x.x".
-      *Location:* `browserPrintManager.ts` → the
+      _Location:_ `browserPrintManager.ts` → the
       `<title>` tag in `createPrintableHtml()`.
 
 ### Low Priority
@@ -107,22 +112,22 @@
 
 ### obsidian-print (original) issues
 
-| # | Issue | Status in Smart Print |
-|---|---|---|
-| #1 | Rendering — Dataview, MetaBind, math | ⚠️ Advanced mode captures rendered content |
-| #9 | Metadata not printing | ✅ Implemented (`showMetadata` setting) |
-| #17 | Mermaid shown as code | ✅ Fixed in advanced mode |
-| #21 | LaTeX not rendered | ⚠️ Advanced mode captures if MathJax loaded |
-| #22 | Plugin CSS not applied | ✅ Theme colors imported; `generatePrintStyles` |
-| #24 | Title includes Obsidian info | 🔜 Fixable in `createPrintableHtml()` |
-| #25 | Nested checkboxes not indented | ✅ Fixed in `styles.css` (2024-12-19) |
-| #26 | Spaces between checkbox blocks | ✅ Fixed in `styles.css` |
+| #   | Issue                                | Status in Smart Print                           |
+| --- | ------------------------------------ | ----------------------------------------------- |
+| #1  | Rendering — Dataview, MetaBind, math | ⚠️ Advanced mode captures rendered content      |
+| #9  | Metadata not printing                | ✅ Implemented (`showMetadata` setting)         |
+| #17 | Mermaid shown as code                | ✅ Fixed in advanced mode                       |
+| #21 | LaTeX not rendered                   | ⚠️ Advanced mode captures if MathJax loaded     |
+| #22 | Plugin CSS not applied               | ✅ Theme colors imported; `generatePrintStyles` |
+| #24 | Title includes Obsidian info         | 🔜 Fixable in `createPrintableHtml()`           |
+| #25 | Nested checkboxes not indented       | ✅ Fixed in `styles.css` (2024-12-19)           |
+| #26 | Spaces between checkbox blocks       | ✅ Fixed in `styles.css`                        |
 
 ### obsidian-smart-print issues
 
-| # | Issue | Status |
-|---|---|---|
-| #2 | Community submission + UX | ✅ UX done, submission pending |
+| #   | Issue                     | Status                         |
+| --- | ------------------------- | ------------------------------ |
+| #2  | Community submission + UX | ✅ UX done, submission pending |
 
 ---
 

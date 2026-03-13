@@ -4,11 +4,11 @@ import { printFolder } from "./folderPrint.ts";
 
 /**
  * Adds print items to the file explorer menu.
- * 
+ *
  * Behavior varies based on context:
  * - File explorer: Single "Print note" item
  * - Other contexts: Submenu with "Print note" and "Print selection" options
- * 
+ *
  * Groups under submenu if useSubmenu is enabled.
  */
 export function addFileMenuItems(
@@ -27,21 +27,14 @@ export function addFileMenuItems(
 			menu.addItem((item) => {
 				item.setTitle("Print note")
 					.setIcon("printer")
-					.onClick(
-						async () =>
-							await plugin.handlePrint(
-								false,
-								file,
-							),
-					);
+					.onClick(async () => await plugin.handlePrint(false, file));
 			});
 		} else {
 			// Other contexts (e.g., tab header): Add submenu with more options.
 			// This provides access to both note printing and selection printing.
 			menu.addItem((item) => {
-				item.setTitle("Smart Print")
-					.setIcon("printer");
-				
+				item.setTitle("Smart Print").setIcon("printer");
+
 				const sub = item.setSubmenu();
 
 				sub.addItem((subItem) => {
@@ -49,11 +42,7 @@ export function addFileMenuItems(
 						.setTitle("Print note")
 						.setIcon("file-text")
 						.onClick(
-							async () =>
-								await plugin.handlePrint(
-									false,
-									file,
-								),
+							async () => await plugin.handlePrint(false, file),
 						);
 				});
 				sub.addItem((subItem) => {
@@ -62,11 +51,7 @@ export function addFileMenuItems(
 						.setIcon("text-select")
 						.setDisabled(!hasSelection)
 						.onClick(
-							async () =>
-								await plugin.handlePrint(
-									true,
-									file,
-								),
+							async () => await plugin.handlePrint(true, file),
 						);
 				});
 			});
@@ -75,16 +60,10 @@ export function addFileMenuItems(
 		// Folder context: Add option to print all notes in the folder.
 		// This allows batch printing of multiple notes at once.
 		menu.addItem((item) => {
-			item.setTitle(
-				"Print all notes in folder",
-			)
+			item.setTitle("Print all notes in folder")
 				.setIcon("printer")
 				.onClick(
-					async () =>
-						await printFolder(
-							plugin,
-							file as TFolder,
-						),
+					async () => await printFolder(plugin, file as TFolder),
 				);
 		});
 	}
@@ -92,14 +71,11 @@ export function addFileMenuItems(
 
 /**
  * Adds print items to the editor right-click menu.
- * 
+ *
  * Provides options to print the current note or selected text.
  * Groups under submenu if useSubmenu is enabled in settings.
  */
-export function addEditorMenuItems(
-	plugin: SmartPrintPlugin,
-	menu: Menu,
-): void {
+export function addEditorMenuItems(plugin: SmartPrintPlugin, menu: Menu): void {
 	const editor = plugin.app.workspace.activeEditor?.editor;
 	const hasSelection = !!editor?.getSelection();
 
@@ -107,31 +83,22 @@ export function addEditorMenuItems(
 		// Submenu mode: Group print options under "Smart Print" submenu.
 		// This keeps the context menu organized when multiple plugins add items.
 		menu.addItem((item) => {
-			item.setTitle("Smart Print")
-				.setIcon("printer");
-			
+			item.setTitle("Smart Print").setIcon("printer");
+
 			const sub = item.setSubmenu();
 
 			sub.addItem((subItem) => {
 				subItem
 					.setTitle("Print note")
 					.setIcon("file-text")
-					.onClick(
-						async () =>
-							await plugin.handlePrint(false),
-					);
+					.onClick(async () => await plugin.handlePrint(false));
 			});
 			sub.addItem((subItem) => {
 				subItem
 					.setTitle("Print selection (basic print)")
 					.setIcon("text-select")
 					.setDisabled(!hasSelection)
-					.onClick(
-						async () =>
-							await plugin.handlePrint(
-								true,
-							),
-					);
+					.onClick(async () => await plugin.handlePrint(true));
 			});
 		});
 	} else {
@@ -140,21 +107,13 @@ export function addEditorMenuItems(
 		menu.addItem((item) => {
 			item.setTitle("Print note")
 				.setIcon("printer")
-				.onClick(
-					async () =>
-						await plugin.handlePrint(false),
-				);
+				.onClick(async () => await plugin.handlePrint(false));
 		});
 		menu.addItem((item) => {
 			item.setTitle("Print selection (basic print)")
 				.setIcon("printer")
 				.setDisabled(!hasSelection)
-				.onClick(
-					async () =>
-						await plugin.handlePrint(
-							true,
-						),
-				);
+				.onClick(async () => await plugin.handlePrint(true));
 		});
 	}
 }

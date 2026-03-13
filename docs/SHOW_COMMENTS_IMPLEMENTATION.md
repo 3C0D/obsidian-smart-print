@@ -7,6 +7,7 @@ This document explains how the "Show Comments" feature was implemented to displa
 ## The Challenge
 
 Obsidian comments (`%% ... %%`) are stripped by Obsidian's markdown parser before HTML is generated. This means:
+
 - Comments never appear in the DOM
 - CSS cannot make them visible
 - Direct HTML injection is escaped by the renderer
@@ -20,7 +21,8 @@ The implementation uses a **two-phase approach** with capture strategy bypass:
 When `showComments` is enabled, we bypass the advanced DOM capture:
 
 ```typescript
-const canUseAdvanced = (!file || file.path === activeFile?.path) && !settings.showComments;
+const canUseAdvanced =
+	(!file || file.path === activeFile?.path) && !settings.showComments;
 ```
 
 **Why?** Advanced capture clones the already-rendered DOM where comments are already stripped.
@@ -31,14 +33,15 @@ Before markdown rendering, convert comments to inline code placeholders:
 
 ```typescript
 if (settings.showComments) {
-    markdownContent = markdownContent.replace(
-        /%%(.+?)%%/gs,
-        (_, content) => `\`[comment: ${content.trim()}]\``,
-    );
+	markdownContent = markdownContent.replace(
+		/%%(.+?)%%/gs,
+		(_, content) => `\`[comment: ${content.trim()}]\``,
+	);
 }
 ```
 
-**Why inline code?** 
+**Why inline code?**
+
 - Markdown code syntax (`` `...` ``) is always rendered by Obsidian
 - It survives the markdown parser as `<code>` elements
 - We can identify and replace them in post-processing
@@ -49,16 +52,16 @@ After markdown rendering, replace code placeholders with styled spans:
 
 ```typescript
 if (settings.showComments) {
-    contentSizer.querySelectorAll("code").forEach((code) => {
-        if (code.textContent?.startsWith("[comment: ")) {
-            const span = document.createElement("span");
-            span.className = "obsidian-comment";
-            span.textContent = code.textContent
-                .replace("[comment: ", "")
-                .replace(/\]$/, "");
-            code.replaceWith(span);
-        }
-    });
+	contentSizer.querySelectorAll("code").forEach((code) => {
+		if (code.textContent?.startsWith("[comment: ")) {
+			const span = document.createElement("span");
+			span.className = "obsidian-comment";
+			span.textContent = code.textContent
+				.replace("[comment: ", "")
+				.replace(/\]$/, "");
+			code.replaceWith(span);
+		}
+	});
 }
 ```
 
@@ -68,12 +71,12 @@ Style the comment spans with distinctive appearance:
 
 ```css
 .obsidian-print .obsidian-comment {
-    background-color: #fffbe6;
-    border: 1px dashed #cca800;
-    border-radius: 3px;
-    padding: 0 4px;
-    color: #7a6000;
-    font-size: 0.9em;
+	background-color: #fffbe6;
+	border: 1px dashed #cca800;
+	border-radius: 3px;
+	padding: 0 4px;
+	color: #7a6000;
+	font-size: 0.9em;
 }
 ```
 
@@ -112,13 +115,13 @@ Added to interface and defaults:
 
 ```typescript
 export interface SmartPrintPluginSettings {
-    /** Show Obsidian comments (%% ... %%) in print output */
-    showComments: boolean;
+	/** Show Obsidian comments (%% ... %%) in print output */
+	showComments: boolean;
 }
 
 export const DEFAULT_SETTINGS = {
-    showComments: false,
-    // ...
+	showComments: false,
+	// ...
 };
 ```
 
@@ -180,15 +183,16 @@ Advanced capture (`getRenderedContent`) clones the live DOM where comments are a
 To test the feature:
 
 1. Create a note with Obsidian comments:
-   ```markdown
-   This is visible text.
-   %% This is a comment %%
-   More visible text.
-   ```
+
+    ```markdown
+    This is visible text.
+    %% This is a comment %%
+    More visible text.
+    ```
 
 2. Enable "Show comments" in:
-   - Plugin settings, OR
-   - Print modal checkbox
+    - Plugin settings, OR
+    - Print modal checkbox
 
 3. Print or preview the note
 

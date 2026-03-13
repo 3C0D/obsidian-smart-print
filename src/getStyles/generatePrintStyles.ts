@@ -55,19 +55,10 @@ export async function generatePrintStyles(
     display: none !important;
 }`;
 
-	const headingsCSS = [
-		"h1",
-		"h2",
-		"h3",
-		"h4",
-		"h5",
-		"h6",
-	]
+	const headingsCSS = ["h1", "h2", "h3", "h4", "h5", "h6"]
 		.map((tag) => {
-			const sizeKey =
-				`${tag}Size` as keyof SmartPrintPluginSettings;
-			const colorKey =
-				`${tag}Color` as keyof SmartPrintPluginSettings;
+			const sizeKey = `${tag}Size` as keyof SmartPrintPluginSettings;
+			const colorKey = `${tag}Color` as keyof SmartPrintPluginSettings;
 			return (
 				`.obsidian-print ${tag} {` +
 				` font-size: ${settings[sizeKey]};` +
@@ -111,19 +102,17 @@ export async function generatePrintStyles(
 `
 		: "";
 
-	const fontFamily = getFontFamily(
-		settings.printFontFamily,
-	);
+	const fontFamily = getFontFamily(settings.printFontFamily);
 
 	const hrCSS = settings.hrPageBreaks
 		? ".obsidian-print hr {" +
-		" page-break-before: always;" +
-		" border: none; }"
+			" page-break-before: always;" +
+			" border: none; }"
 		: "";
 
 	const metaCSS = !settings.showMetadata
 		? ".obsidian-print .metadata-container" +
-		" { display: none !important; }"
+			" { display: none !important; }"
 		: "";
 
 	// Final combined CSS
@@ -146,32 +135,20 @@ ${bwCSS}
  * Returns the CSS font-family declaration for a
  * given font key from FONT_OPTIONS.
  */
-export function getFontFamily(
-	fontKey?: string,
-): string {
-	const fontOption = FONT_OPTIONS.find(
-		(font) => font.value === fontKey,
-	);
+export function getFontFamily(fontKey?: string): string {
+	const fontOption = FONT_OPTIONS.find((font) => font.value === fontKey);
 	return fontOption?.css || FONT_OPTIONS[0].css;
 }
 
-function getPrintSnippetValue(
-	app: App,
-): string | undefined {
-	const printCssPath =
-		".obsidian/snippets/print.css";
+function getPrintSnippetValue(app: App): string | undefined {
+	const printCssPath = ".obsidian/snippets/print.css";
 	return app.customCss.csscache.get(printCssPath);
 }
 
-export function isPrintSnippetEnabled(
-	app: App,
-): boolean {
+export function isPrintSnippetEnabled(app: App): boolean {
 	return app.customCss.enabledSnippets.has("print");
 }
 
-export function getPrintSnippet(
-	app: App,
-): boolean {
+export function getPrintSnippet(app: App): boolean {
 	return app.customCss.snippets.contains("print");
 }
-

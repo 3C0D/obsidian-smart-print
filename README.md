@@ -36,10 +36,10 @@ Smart Print automatically chooses the best rendering method for your content:
 Every print command opens a simple modal where you can:
 
 - **Quick toggles** for common options:
-  - Include note title
-  - Show metadata
-  - Page breaks at horizontal rules (`---`)
-  - Print in color or black & white
+    - Include note title
+    - Show metadata
+    - Page breaks at horizontal rules (`---`)
+    - Print in color or black & white
 - **Font settings** with 20+ cross-platform font options
 - **Auto-sync heading sizes:** All heading sizes automatically adjust when you change the base font size
 
@@ -49,10 +49,10 @@ Every print command opens a simple modal where you can:
 
 - **Ribbon icon** → Print current note
 - **Command palette** → Search "Smart Print"
-  - "Current note" - Print with modal
-  - "Quick print" - Print immediately without modal
-  - "Selection" - Print selected text only
-  - "All notes in current folder" - Batch print
+    - "Current note" - Print with modal
+    - "Quick print" - Print immediately without modal
+    - "Selection" - Print selected text only
+    - "All notes in current folder" - Batch print
 - **Right-click** on files/folders → Print options
 - **Right-click** in editor → Print note or selection
 
@@ -106,11 +106,11 @@ Every print command opens a simple modal where you can:
 - **Import theme colors:** One-click import from your current theme (light mode)
 - **Print in color:** Toggle between color and black & white output
 - **Custom CSS:** Advanced styling with `.obsidian-print` prefix (desktop only)
-  - Create a `print.css` file in `.obsidian/snippets/`
-  - Use `.obsidian-print` as prefix for your selectors
-  - Example: `.obsidian-print a { color: blue; text-decoration: underline; }`
-  - No need for `!important` - your styles will apply automatically
-  - The "Print in color" toggle in the modal will still work as expected
+    - Create a `print.css` file in `.obsidian/snippets/`
+    - Use `.obsidian-print` as prefix for your selectors
+    - Example: `.obsidian-print a { color: blue; text-decoration: underline; }`
+    - No need for `!important` - your styles will apply automatically
+    - The "Print in color" toggle in the modal will still work as expected
 
 ### Print Behavior
 

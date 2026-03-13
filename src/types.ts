@@ -56,8 +56,7 @@ export interface SmartPrintPluginSettings {
 	debugMode: boolean;
 }
 
-export const DEFAULT_SETTINGS: SmartPrintPluginSettings =
-{
+export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
 	// Content
 	printTitle: true,
 	showMetadata: false,
@@ -104,4 +103,3 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings =
 	// Internal
 	debugMode: false,
 };
-

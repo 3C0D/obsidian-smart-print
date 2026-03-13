@@ -4,6 +4,7 @@ author: Obsidian User
 date: 2023-06-15
 tags: [sample, markdown, obsidian]
 ---
+
 # Sample Document
 
 This is a sample document demonstrating various Markdown and Obsidian features that can be printed with the Obsidian Print Plugin.
@@ -11,14 +12,17 @@ This is a sample document demonstrating various Markdown and Obsidian features t
 ## Éléments complexes à tester
 
 ### Math / LaTeX
+
 Inline : $E = mc^2$
 
 Bloc :
+
 $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 
 ### Mermaid
+
 ```mermaid
 graph TD
     A[Départ] --> B{Condition}
@@ -27,39 +31,46 @@ graph TD
 ```
 
 ### Dataview
+
 ```dataview
 LIST
 FROM #tag
 ```
 
 ### Listes classiques (à puces et numérotées)
+
 - Élément à puce 1
 - Élément à puce 2
-	- Puce imbriquée
+    - Puce imbriquée
 
 1. Premier élément numéroté
 2. Deuxième élément numéroté
-	1. Numéro imbriqué
+    1. Numéro imbriqué
 
 ### Listes imbriquées avec checkboxes
+
 - [ ] Tâche parent
-	- [ ] Sous-tâche 1
-	- [x] Sous-tâche 2
-		- [ ] Sous-sous-tâche
+    - [ ] Sous-tâche 1
+    - [x] Sous-tâche 2
+        - [ ] Sous-sous-tâche
 
 ### Espaces entre blocs de checkboxes
+
 - [ ] Liste A
 
 - [ ] Liste B (séparée par une ligne vide)
 
 ### Callout avec icône
+
 > [!tip] Conseil
 > Contenu du callout tip
 
 ### Image embarquée
+
 ![[test-image.png]]
 
 ### Lien interne
+
 [[Nom d'une note]]
 
 ## Standard Markdown

@@ -79,8 +79,10 @@ export class PrintManager {
 				// bundling them for mobile, where these modules do not exist.
 				const { tmpdir } = require("os") as typeof import("os");
 				const { join } = require("path") as typeof import("path");
-				const { writeFileSync, unlinkSync } = require("fs") as typeof import("fs");
-				const { spawn } = require("child_process") as typeof import("child_process");
+				const { writeFileSync, unlinkSync } =
+					require("fs") as typeof import("fs");
+				const { spawn } =
+					require("child_process") as typeof import("child_process");
 
 				// 2. Prepare a unique temporary file path
 				const fileName = `obsidian-print-${Date.now()}.html`;
@@ -123,7 +125,11 @@ export class PrintManager {
 						unlinkSync(savePath);
 					} catch (cleanupError) {
 						// Log cleanup failures for debugging, but don't show to user
-						console.warn("Failed to cleanup temporary print file:", savePath, cleanupError);
+						console.warn(
+							"Failed to cleanup temporary print file:",
+							savePath,
+							cleanupError,
+						);
 					}
 				}, TEMP_FILE_CLEANUP_DELAY_MS);
 			} catch (error) {

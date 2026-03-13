@@ -1,14 +1,10 @@
 import { App } from "obsidian";
-import {
-	switchToLightTheme,
-} from "../utils/themeSwitch.ts";
+import { switchToLightTheme } from "../utils/themeSwitch.ts";
 
 /**
  * Gets all header colors from the current theme, handling dark mode
  */
-export function getHeaderColors(
-	app: App,
-): Map<number, string> {
+export function getHeaderColors(app: App): Map<number, string> {
 	const css = getCustomCSS(app);
 	const headerColors = extractHeaderColors(css);
 
@@ -24,25 +20,18 @@ export function getHeaderColors(
 /**
  * Gets the InlineTitle color from the current theme, handling dark mode
  */
-export function getInlineTitleColor(
-	app: App,
-): string {
+export function getInlineTitleColor(app: App): string {
 	const css = getCustomCSS(app);
-	const inlineTitleColor =
-		extractInlineTitleColor(css);
+	const inlineTitleColor = extractInlineTitleColor(css);
 
 	if (inlineTitleColor) {
 		return getCSSVariableValue(inlineTitleColor);
 	}
 
 	// Fallback: check computed style
-	const inlineTitleElement =
-		document.querySelector(".inline-title");
+	const inlineTitleElement = document.querySelector(".inline-title");
 	if (inlineTitleElement) {
-		const computedColor =
-			window.getComputedStyle(
-				inlineTitleElement,
-			).color;
+		const computedColor = window.getComputedStyle(inlineTitleElement).color;
 		return rgbToHex(computedColor);
 	}
 
@@ -57,9 +46,7 @@ export function getInlineTitleColor(
 export function getCustomCSS(app: App): string {
 	const theme = app.customCss.theme;
 	return (
-		app.customCss.csscache.get(
-			`.obsidian/themes/${theme}/theme.css`,
-		) ?? ""
+		app.customCss.csscache.get(`.obsidian/themes/${theme}/theme.css`) ?? ""
 	);
 }
 
@@ -135,9 +122,7 @@ function extractInlineTitleColor(content: string): string | null {
  * @param variableName - CSS variable or color value
  * @returns Resolved hex color string
  */
-export function getCSSVariableValue(
-	variableName: string,
-): string {
+export function getCSSVariableValue(variableName: string): string {
 	const restoreTheme = switchToLightTheme();
 
 	try {
@@ -147,20 +132,15 @@ export function getCSSVariableValue(
 		try {
 			if (variableName.startsWith("var(")) {
 				temp.style.color = variableName;
-			} else if (
-				variableName.startsWith("#")
-			) {
+			} else if (variableName.startsWith("#")) {
 				return variableName;
-			} else if (
-				variableName.startsWith("rgb")
-			) {
+			} else if (variableName.startsWith("rgb")) {
 				return rgbToHex(variableName);
 			} else {
 				temp.style.color = variableName;
 			}
 
-			const computedColor =
-				window.getComputedStyle(temp).color;
+			const computedColor = window.getComputedStyle(temp).color;
 			return rgbToHex(computedColor);
 		} finally {
 			document.body.removeChild(temp);

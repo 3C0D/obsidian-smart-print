@@ -12,11 +12,11 @@ import { getMetadata, renderMetadata } from "./utils/metadata.ts";
 /**
  * Converts markdown content to HTML for printing.
  * Uses Obsidian's MarkdownRenderer API for reliable rendering.
- * 
+ *
  * This is the "standard" capture method that works for any file,
  * even if it's not currently open. However, it doesn't capture
  * dynamic content from plugins (Mermaid, Dataview, etc.).
- * 
+ *
  * @param app - Obsidian App instance
  * @param settings - Plugin settings
  * @param isSelection - Whether to print the selected text only (default: false)
@@ -46,7 +46,7 @@ export async function contentToHTML(
 	} else {
 		// Get the active file once to avoid multiple calls
 		const activeFile = app.workspace.getActiveFile();
-		
+
 		// If the target file is the active file (or no file specified),
 		// save it first to ensure we're printing the latest content
 		if (!file || file === activeFile) {
@@ -72,7 +72,7 @@ export async function contentToHTML(
 /**
  * Generates HTML content from markdown input.
  * Renders markdown using Obsidian's MarkdownRenderer API.
- * 
+ *
  * @param app - Obsidian App instance
  * @param settings - Plugin settings
  * @param input - TFile or markdown string to render
@@ -104,7 +104,8 @@ export async function generateHTML(
 		}
 
 		// Store title for later comparison if needed
-		const titleText = input instanceof TFile ? input.basename.toLowerCase().trim() : "";
+		const titleText =
+			input instanceof TFile ? input.basename.toLowerCase().trim() : "";
 
 		// Get the markdown content based on input type
 		let markdownContent: string;
@@ -176,7 +177,10 @@ export async function generateHTML(
 		// so we remove it to avoid duplication.
 		if (settings.printTitle && input instanceof TFile) {
 			const firstH1 = contentSizer.querySelector("h1:not(.inline-title)");
-			if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
+			if (
+				firstH1 &&
+				firstH1.textContent?.toLowerCase().trim() === titleText
+			) {
 				firstH1.remove();
 			}
 		}
@@ -188,4 +192,3 @@ export async function generateHTML(
 		return null;
 	}
 }
-

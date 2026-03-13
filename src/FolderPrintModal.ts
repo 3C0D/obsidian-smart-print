@@ -44,7 +44,9 @@ export class FolderPrintModal extends Modal {
 		const combineLabel = optionsContainer.createEl("label");
 		combineLabel.style.display = "block";
 		combineLabel.style.marginBottom = "10px";
-		const combineCheck = combineLabel.createEl("input", { type: "checkbox" });
+		const combineCheck = combineLabel.createEl("input", {
+			type: "checkbox",
+		});
 		combineCheck.checked = this.plugin.settings.combineFolderNotes;
 		combineLabel.appendText(" Combine notes");
 		combineCheck.addEventListener("change", async () => {

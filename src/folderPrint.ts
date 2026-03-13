@@ -4,16 +4,14 @@ import SmartPrintPlugin from "./main.ts";
 import { ERROR_MESSAGES } from "./constants.ts";
 import { isMobile } from "./utils/platform.ts";
 import { openPrintModal } from "./basicPrint/basicPrintPreview.ts";
-import {
-	generatePrintStyles,
-} from "./getStyles/generatePrintStyles.ts";
+import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
 import { PrintManager } from "./browserPrintManager.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
 
 /**
  * Gets the parent folder of the currently active file.
  * Returns null if the active file is in the vault root.
- * 
+ *
  * This is used when printing a folder via command palette,
  * where we need to determine which folder to print based on
  * the currently open file's location.
@@ -29,10 +27,7 @@ export async function getFolderByActiveFile(
 		const parentFolder = activeFile.parent;
 
 		// If file is in root folder, return null
-		if (
-			parentFolder instanceof TFolder &&
-			!parentFolder.isRoot()
-		) {
+		if (parentFolder instanceof TFolder && !parentFolder.isRoot()) {
 			return parentFolder;
 		}
 	}
@@ -51,7 +46,7 @@ export async function getFolderByActiveFile(
  * 4. Concatenate all files into a single master container.
  * 5. Apply invisible page breaks between files if 'combineFolderNotes' is false.
  * 6. Route to the correct print engine (Printd for mobile/basic, browser for desktop advanced).
- * 
+ *
  * Note: Currently only processes direct children, not subdirectories recursively.
  *
  * @param plugin - SmartPrintPlugin instance
@@ -64,8 +59,7 @@ export async function printFolder(
 	// 1. Identify which folder to print.
 	// If no folder is provided (e.g., from command palette),
 	// use the parent folder of the currently active file.
-	const activeFolder =
-		folder || (await getFolderByActiveFile(plugin));
+	const activeFolder = folder || (await getFolderByActiveFile(plugin));
 	if (!activeFolder) {
 		new Notice(ERROR_MESSAGES.FOLDER_NOT_FOUND);
 		return;
@@ -75,8 +69,7 @@ export async function printFolder(
 	// Note: This doesn't traverse subdirectories recursively.
 	// Non-markdown files (images, PDFs, etc.) are automatically excluded.
 	const files = activeFolder.children.filter(
-		(file) =>
-			file instanceof TFile && file.extension === "md",
+		(file) => file instanceof TFile && file.extension === "md",
 	) as TFile[];
 
 	if (files.length === 0) {
@@ -95,7 +88,7 @@ export async function printFolder(
 				plugin.settings,
 				() => resolve(true),
 				async () => await plugin.saveSettings(),
-				true // isFolderPrint = true
+				true, // isFolderPrint = true
 			).open();
 		});
 		if (!proceed) return;
@@ -109,17 +102,13 @@ export async function printFolder(
 		const file = files[i];
 		// Generate the standard HTML structure for a single file using Obsidian's API.
 		// This uses MarkdownRenderer, so dynamic content (Mermaid, Dataview) won't render.
-		const content = await generateHTML(
-			plugin.app,
-			plugin.settings,
-			file,
-		);
+		const content = await generateHTML(plugin.app, plugin.settings, file);
 		if (!content) {
 			continue;
 		}
-		
+
 		folderContent.append(content);
-		
+
 		// If combining notes is disabled, add an invisible page break after each file.
 		// This ensures each note starts on a new page when printed.
 		// The <hr> is hidden but triggers page-break-before in CSS.
@@ -145,11 +134,7 @@ export async function printFolder(
 	// Desktop can choose between browser print (better rendering) or Printd (faster).
 	if (isMobile() || !plugin.settings.useBrowserPrint) {
 		// Mobile or basic mode: use Electron/Printd in-app preview
-		await openPrintModal(
-			folderContent,
-			plugin.settings,
-			globalCSS,
-		);
+		await openPrintModal(folderContent, plugin.settings, globalCSS);
 	} else {
 		// Desktop with browser print enabled: create temp HTML file and open in browser
 		const printer = new PrintManager();
@@ -162,4 +147,3 @@ export async function printFolder(
 		await printer.browserPrint(html);
 	}
 }
-
