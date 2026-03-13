@@ -25,7 +25,8 @@ Smart Print automatically chooses the best rendering method for your content:
 - ✅ Dataview queries (when visible in preview)
 - ✅ Callouts with icons
 - ✅ Tables, lists, code blocks
-- ✅ Images and links
+- ✅ Images and links (images can be hidden via toggle)
+- ✅ Embedded images (converted to base64 for printing)
 - ✅ Nested checkboxes with proper indentation
 - ✅ Custom theme colors
 
@@ -37,7 +38,8 @@ Every print command opens a simple modal where you can:
 
 - **Quick toggles** for common options:
     - Include note title
-    - Show metadata
+    - Show metadata (displayed at the end of the document)
+    - Hide images
     - Page breaks at horizontal rules (`---`)
     - Print in color or black & white
 - **Font settings** with 20+ cross-platform font options
@@ -68,8 +70,8 @@ Every print command opens a simple modal where you can:
 **Quick customization** (in print modal):
 
 - Font family and size
-- Print title, metadata, page breaks
-- Color or black & white output
+- Print title, metadata (at end), images
+- Page breaks and color output
 
 **Advanced customization** (in plugin settings):
 
@@ -115,7 +117,8 @@ Every print command opens a simple modal where you can:
 ### Print Behavior
 
 - **Page breaks:** Treat horizontal rules (`---`) as page breaks
-- **Metadata display:** Include/exclude frontmatter in prints
+- **Metadata display:** Include/exclude frontmatter in prints (displayed at the end of the document)
+- **Hide images:** Toggle to exclude all images from print output
 - **Folder printing:** Combine all notes or separate pages
 - **Skip preview:** Print directly without preview window
 
@@ -144,6 +147,12 @@ Every print command opens a simple modal where you can:
 💡 **Folder printing:** Print entire folders with a dedicated modal for batch options
 
 💡 **Mobile friendly:** Full feature support on mobile devices with optimized interface
+
+💡 **Image control:** Use the "Hide images" toggle to print text-only versions of your notes
+
+💡 **Metadata placement:** When enabled, frontmatter is displayed at the end of the document with a "Frontmatter" label
+
+💡 **Embedded images:** The plugin automatically converts embedded images to base64 for reliable printing across all platforms
 
 ## Technical Details
 
