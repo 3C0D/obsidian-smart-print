@@ -440,6 +440,20 @@ export class PrintSettingTab extends PluginSettingTab {
 						}),
 				);
 		}
+
+		// ─── Debug settings ────────────────────────
+
+		new Setting(containerEl)
+			.setName("Debug mode")
+			.setDesc("Enable console logging for debugging purposes.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.debugMode)
+					.onChange(async (value) => {
+						this.plugin.settings.debugMode = value;
+						await this.plugin.saveSettings();
+					}),
+			);
 	}
 }
 

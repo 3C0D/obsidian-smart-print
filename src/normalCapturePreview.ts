@@ -127,6 +127,16 @@ export async function generateHTML(
 			markdownContent = markdownContent.replace(/^---[\s\S]*?---\n?/, "");
 		}
 
+		// Remove text embeds (![[note]]) when hideEmbeds is enabled.
+		// MarkdownRenderer does not render transclusions, so CSS cannot target them.
+		// We strip them from the source before rendering instead.
+		if (settings.hideEmbeds) {
+			markdownContent = markdownContent.replace(
+				/!\[\[(?!.*\.(png|jpg|jpeg|gif|svg|webp|bmp))[^\]]+\]\]/gi,
+				"",
+			);
+		}
+
 		// Convert Obsidian comments (%% ... %%) to inline code placeholders.
 		// Why: We use markdown code syntax (`text`) because HTML is escaped by the renderer.
 		// After rendering, we'll convert these back to styled spans with yellow background.

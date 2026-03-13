@@ -112,8 +112,7 @@ export async function generatePrintStyles(
 
 	// Hide metadata container when disabled
 	const metaCSS = !settings.showMetadata
-		? ".obsidian-print .metadata-container" +
-			" { display: none; }"
+		? ".obsidian-print .metadata-container" + " { display: none; }"
 		: "";
 
 	// Hide all images when enabled (useful for text-only prints)
