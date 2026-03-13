@@ -655,7 +655,7 @@ function addAutoSyncToggle(
 	setting.addToggle((toggle) =>
 		toggle
 			.setTooltip(
-				"When enabled, heading sizes (H1-H6) are automatically rescaled proportionally when the base font size changes.",
+				"All heading sizes automatically adjust when you change the base font size.",
 			)
 			.setValue(autoSyncEnabled)
 			.onChange(async (enabled) => {

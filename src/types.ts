@@ -91,7 +91,7 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
 	hasInitializedSizes: false,
 
 	// UI
-	showRibbonIcon: true,
+	showRibbonIcon: false,
 	showContextMenu: true,
 	useSubmenu: true,
 	useModal: true,

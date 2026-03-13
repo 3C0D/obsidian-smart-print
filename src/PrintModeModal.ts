@@ -40,8 +40,8 @@ export class PrintModeModal extends Modal {
 		const { contentEl } = this;
 
 		// Set modal size (larger for folder print)
-		this.modalEl.style.width = "500px";
-		this.modalEl.style.height = this.isFolderPrint ? "285px" : "280px";
+		this.modalEl.style.width = "600px";
+		this.modalEl.style.height = this.isFolderPrint ? "320px" : "280px";
 
 		contentEl.empty();
 
@@ -297,7 +297,7 @@ export class PrintModeModal extends Modal {
 		syncCheck.checked = this.settings.autoSyncHeadingSizes;
 		syncLabel.appendText("Scale headings with base size");
 		syncLabel.title =
-			"When enabled, heading sizes (H1-H6) are automatically rescaled proportionally when the base font size changes.";
+			"All heading sizes automatically adjust when you change the base font size.";
 		syncCheck.addEventListener("change", async () => {
 			this.settings.autoSyncHeadingSizes = syncCheck.checked;
 			if (syncCheck.checked) {

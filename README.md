@@ -2,18 +2,28 @@
 
 Enhanced and customizable printing for Obsidian notes, with intelligent rendering, live preview, and full control over fonts, headers, and styles.
 
+![Browser Print Preview](assets/Browser-print.png)
+
+**See the print quality:** [View print results gallery](examples/PRINT-RESULTS.md) | [View sample document](examples/sample.md)
+
 ## ⚠️ Desktop Only (Temporary)
 
-**This plugin is currently desktop-only.** Mobile support exists in the code but has not been tested or debugged, as the developer does not have access to a smartphone.
-
-**Calling all mobile developers!** If you have experience with Obsidian mobile development and would like to help fix and test the mobile functionality, contributions are very welcome. Please see the [Contributing](#contributing) section below.
+**This plugin is currently desktop-only.** Mobile support exists in the code but has not been tested or debugged.
 
 ## Quick Start
 
 1. **Install the plugin** and enable it
-2. **Click the print ribbon icon** or use the command palette
-3. **Adjust options** in the modal (optional)
-4. **Print!** The plugin automatically uses the best rendering method
+2. **Right-click in the editor** or on a file in the explorer
+3. **Select a print option** from the context menu
+4. **Adjust options** in the modal (optional)
+5. **Print!** The plugin automatically uses the best rendering method
+
+**Alternative ways to print:**
+
+- **Right-click on files/folders** → Print from explorer
+- **Right-click in editor** → Print note or selection
+- **Command palette** → Search "Smart Print"
+- **Ribbon icon** (optional, disabled by default) → Enable in settings
 
 ## Features
 
@@ -21,37 +31,38 @@ Enhanced and customizable printing for Obsidian notes, with intelligent renderin
 
 Smart Print automatically chooses the best rendering method for your content:
 
-- **Advanced DOM capture** for complex elements (Mermaid diagrams, Dataview queries, callouts, dynamic plugins)
-- **Automatic fallback** to standard rendering if needed
-- **No mode selection required** - just click Print!
+- **Advanced rendering** (with post-render for Mermaid, Dataview, LaTeX, etc.) - ⚠️ Only available when the document is visible in the editor
+- **Basic rendering** (no post-render) - Used for non-visible documents (other than the active note), selections, and folder prints. Also the only mode available on mobile
+- **Automatic fallback** - Seamlessly switches between modes based on context
 
-**What renders perfectly:**
+**What renders perfectly with advanced mode:**
 
 - ✅ Mermaid diagrams
-- ✅ Dataview queries (when visible in preview)
+- ✅ Dataview queries
 - ✅ Callouts with icons
 - ✅ Tables, lists, code blocks
-- ✅ Images and links (images can be hidden via toggle)
-- ✅ Embedded images (converted to base64 for printing)
+- ✅ Images and links
+- ✅ Embedded images
 - ✅ Nested checkboxes with proper indentation
 - ✅ Custom theme colors
+- ✅ Personalized styles with `.obsidian-print` CSS prefix
 
 ### 📋 Print Options Modal
 
-![Print Modal](assets/modal.png)
-
 Every print command opens a simple modal where you can:
 
-- **Quick toggles** for common options (adapts to document content):
-    - Include note title
-    - Show metadata (displayed at the end of the document)
-    - Hide images
-    - Hide embedded notes
-    - Page breaks at horizontal rules (`---`)
-    - Show Obsidian comments (`%% ... %%`)
-    - Print in color or black & white
+![Print Modal](assets/modal.png)
+
+- **Quick toggles** for common options. ⚠️ only relevant options are shown based on your document content:
+  - Include note title
+  - Show metadata (displayed at the end of the document)
+  - Hide images (only if document contains images)
+  - Hide embedded notes (only if document contains embeds)
+  - Page breaks at horizontal rules (`---`) (only if document contains horizontal rules)
+  - Show Obsidian comments (`%% ... %%`) (only if document contains comments)
+  - Print in color or black & white
 - **Font settings** with 20+ cross-platform font options
-- **Auto-sync heading sizes:** All heading sizes automatically adjust when you change the base font size
+- **Auto-sync heading sizes:** All heading sizes automatically adjust when you change the **font size**
 
 ### 🎯 Multiple Ways to Print
 
@@ -59,48 +70,25 @@ Every print command opens a simple modal where you can:
 
 - **Ribbon icon** → Print current note
 - **Command palette** → Search "Smart Print"
-    - "Current note" - Print with modal
-    - "Quick print" - Print immediately without modal
-    - "Selection" - Print selected text only
-    - "All notes in current folder" - Batch print
-- **Right-click** on files/folders → Print options
+  - "Current note" - Print with modal
+  - "Quick print" - Print immediately without modal
+  - "Selection" - Print selected text only
+  - "All notes in current folder" - Batch print
+- **Right-click** on files/folders in explorer → Print options
 - **Right-click** in editor → Print note or selection
 
 **What you can print:**
 
-- **Current note** (active document)
-- **Selected text only** (from editor)
-- **Any note** (from file explorer)
-- **All notes in a folder** (combined or separate pages)
+- **Current note** (active document) - Advanced rendering
+- **Selected text only** (from editor) - Basic rendering
+- **Any note** (from file explorer) - Advanced rendering if visible in editor, otherwise basic
+- **All notes in a folder** - Basic rendering because not visible
 
-### 🎨 Customization Options
+### 🌐 Browser-Based Printing in Desktop version
 
-**Quick customization** (in print modal):
-
-- Font family and size
-- Print title, metadata (at end), images, embeds
-- Page breaks, comments, and color output
-- Options automatically adapt to document content
-
-**Advanced customization** (in plugin settings):
-
-- Individual heading sizes and colors
-- Import colors from your current theme
-- Custom CSS with `.obsidian-print` prefix
-- Auto-sync heading sizes when base font changes
-- UI preferences (ribbon icon, context menus, modals)
-
-### 📱 Mobile Support
-
-- ⚠️ **Currently disabled** - Plugin is desktop-only until mobile code is tested and fixed
-- 🔧 **Help wanted** - Mobile developers welcome to contribute
-- 📝 Mobile code exists but needs testing (developer has no smartphone access)
-
-### 👀 Preview Before Printing
-
-- **Desktop:** Browser preview with full print options
-- **Mobile:** In-app preview with print dialog
-- **Tip:** Close the print dialog to keep the preview open, then press `Ctrl+P` (or `Cmd+P`) to reopen print options
+- **Opens in your default browser** for maximum compatibility and print options
+- **Print window appears automatically** when the browser window opens
+- **Tip:** Close the print window to view the preview window under, then press `Ctrl+P` (or `Cmd+P`) to reopen print window
 
 ## Settings Guide
 
@@ -117,11 +105,11 @@ Every print command opens a simple modal where you can:
 - **Import theme colors:** One-click import from your current theme (light mode)
 - **Print in color:** Toggle between color and black & white output
 - **Custom CSS:** Advanced styling with `.obsidian-print` prefix (desktop only)
-    - Create a `print.css` file in `.obsidian/snippets/`
-    - Use `.obsidian-print` as prefix for your selectors
-    - Example: `.obsidian-print a { color: blue; text-decoration: underline; }`
-    - No need for `!important` - your styles will apply automatically
-    - The "Print in color" toggle in the modal will still work as expected
+  - Create a `print.css` file in `.obsidian/snippets/`
+  - Use `.obsidian-print` as prefix for your selectors
+  - Example: `.obsidian-print a { color: blue; text-decoration: underline; }`
+  - No need for `!important` - your styles will apply automatically
+  - The "Print in color" toggle in the modal will still work as expected
 
 ### Print Behavior
 
@@ -140,8 +128,6 @@ Every print command opens a simple modal where you can:
 - **Show folder print options modal:** Display options when printing folders
 
 ## Tips & Tricks
-
-💡 **Best rendering:** The plugin automatically uses advanced DOM capture for the best results with complex content
 
 💡 **Theme integration:** Use "Get theme colors" in settings to match your Obsidian theme
 
@@ -163,6 +149,8 @@ Every print command opens a simple modal where you can:
 
 💡 **Embedded images:** The plugin automatically converts embedded images to base64 for reliable printing across all platforms
 
+💡 **Embedded files:** Embedded notes (`![[note]]`) are rendered inline with a subtle border and title for easy identification 
+
 💡 **Adaptive modal:** Print options automatically adapt to your document content - only relevant toggles are shown based on what's in your note
 
 ## Technical Details
@@ -175,50 +163,7 @@ Smart Print uses an intelligent capture strategy:
 2. **Falls back gracefully** - Uses standard Markdown rendering if DOM capture fails
 3. **Handles edge cases** - Special handling for selections and non-active files
 
-### Platform Support
-
-- **Desktop:** Full feature set with browser-based printing (Windows, macOS, Linux)
-- **Mobile:** Code exists but untested - currently disabled (help wanted!)
-
 ### Print Engines
 
 - **Browser print** (desktop): Opens in system browser for maximum compatibility and options
 - **Printd** (mobile/desktop): In-app printing with Electron/mobile print dialog
-
-## Troubleshooting
-
-**Dynamic content not rendering?**
-
-- Make sure the note is open in preview mode
-- For Dataview/MetaBind, ensure the plugin is enabled and content is visible
-
-**Wrong file printed from explorer?**
-
-- This is now fixed - the plugin correctly identifies the target file
-
-**Theme colors not applied?**
-
-- Use "Get theme colors" button in settings to import your theme's colors
-
-**Print dialog not appearing?**
-
-- Check that "Skip preview" is disabled in settings
-- On mobile, ensure you have print permissions
-
-## Contributing
-
-Contributions are welcome! Please check the [development documentation](docs/DEVELOPMENT.md) for details.
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Credits
-
-Developed with ❤️ for the Obsidian community
-
----
-
-**Version:** 1.0.0  
-**Minimum Obsidian version:** 1.4.0  
-**Tested on:** Obsidian 1.5.x, 1.6.x

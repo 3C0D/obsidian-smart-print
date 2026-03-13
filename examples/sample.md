@@ -1,8 +1,14 @@
-# Sample Document
-
-This document demonstrates the various Markdown and Obsidian features supported by the Smart Print Plugin.
-
 ---
+title: Sample Document
+author: Obsidian User
+date: 2023-06-15
+tags:
+  - sample
+  - markdown
+  - obsidian
+  - tag
+---
+mettre à jour parfoisThis document strates the various Markdown and Obsidian features supported by the Smart Print Plugin.
 
 ## Text Formatting
 
@@ -10,7 +16,7 @@ This document demonstrates the various Markdown and Obsidian features supported 
 - _Italic text_ for slight emphasis
 - ~~Strikethrough~~ for deleted content
 - ==Highlighted text== for important information
-- `inline code` for code snippets
+- `inline code` for codeC'est bizarre là. snippets
 
 ### CSS Snippet Override Example
 
@@ -20,11 +26,9 @@ The bold style above is overridden by the following snippet:
 /* Bold text */
 .obsidian-print strong,
 .obsidian-print b {
-	color: salmon;
+    color: salmon;
 }
 ```
-
----
 
 ## Math / LaTeX
 
@@ -35,7 +39,12 @@ $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 
----
+## Dataview
+
+```dataview
+LIST
+FROM #tag
+```
 
 ## Mermaid
 
@@ -46,17 +55,6 @@ graph TD
     B -->|No| D[Result 2]
 ```
 
----
-
-## Dataview
-
-```dataview
-LIST
-FROM #tag
-```
-
----
-
 ## Tables
 
 | Header 1 | Header 2 |
@@ -64,34 +62,30 @@ FROM #tag
 | Cell 1   | Cell 2   |
 | Cell 3   | Cell 4   |
 
----
-
 ## Lists
 
 ### Bullet and Numbered
 
 - Item 1
 - Item 2
-	- Nested item
+    - Nested item
 
 1. First item
 2. Second item
-	1. Nested number
+    1. Nested number
 
 ### Checkboxes
 
 - [ ] Parent task
-	- [ ] Sub-task 1
-	- [x] Sub-task 2
-		- [ ] Sub-sub-task
+    - [ ] Sub-task 1
+    - [x] Sub-task 2
+        - [ ] Sub-sub-task
 
 ### Separated Checkbox Blocks
 
 - [ ] List A
 
 - [ ] List B (separated by a blank line)
-
----
 
 ## Blockquotes
 
@@ -101,27 +95,29 @@ FROM #tag
 >
 > > And can be nested.
 
----
-
 ## Callout
 
 > [!tip] Tip
 > This is a tip callout with an icon.
 
----
-
 ## Embedded Image
 
-![[test-image.png]]
+![[Pasted image 20260313031134.png|200]]
 
----
+## External Image
+
+![Test image](https://picsum.photos/400/200)
 
 ## Internal Link
 
-[[Note Name]]
+[[Today]]
 
----
+## Embed file
+
+![[2026-03-12]]
 
 ## Comments
 
-%% This is a comment — visible when "Show Comments" is enabled in plugin settings %%
+This comment below is hidden unless "Show Comments" is enabled in the print modal.
+
+%% This is a hidden comment %%
