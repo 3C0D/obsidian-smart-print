@@ -13,6 +13,7 @@ import { isMobile } from "./utils/platform.ts";
 import { addFileMenuItems, addEditorMenuItems } from "./menuManager.ts";
 import { getBestContent, getBestPrintEngine } from "./captureStrategy.ts";
 import { PrintManager } from "./browserPrintManager.ts";
+import { scanContentFlags } from "./utils/contentScanner.ts";
 
 // Timing constants
 const RIBBON_ICON_DEBOUNCE_MS = 500; // Debounce delay for ribbon icon clicks to prevent double-printing
@@ -172,21 +173,11 @@ export default class SmartPrintPlugin extends Plugin {
 		// The modal allows users to adjust print settings (font, colors, etc.)
 		// before printing. If disabled, print immediately with saved settings.
 		if (this.settings.useModal) {
-			// Scan markdown content to detect images and embeds
-			const imagePattern = /!\[.*?\]\(.*?\)|!\[\[.*?\.(png|jpg|jpeg|gif|svg|webp|bmp)[^\]]+\]\]/i;
-			const embedPattern = /!\[\[(?!.*\.(png|jpg|jpeg|gif|svg|webp|bmp))[^\]]+\]\]/i;
 			const targetFile = file ?? this.app.workspace.getActiveFile();
-			let contentFlags = { hasImages: false, hasEmbeds: false, hasComments: false, hasMetadata: false, hasHrBreaks: false };
-			if (targetFile) {
-				const md = await this.app.vault.cachedRead(targetFile);
-				contentFlags = {
-					hasImages: imagePattern.test(md),
-					hasEmbeds: embedPattern.test(md),
-					hasComments: /%%[\s\S]+?%%/.test(md),
-					hasMetadata: /^---[\s\S]+?---/.test(md),
-					hasHrBreaks: /^[-*]{3,}\s*$/m.test(md.replace(/^---[\s\S]*?---\n?/, "")),
-				};
-			}
+			const contentFlags = await scanContentFlags(
+				this.app.vault,
+				targetFile ?? undefined,
+			);
 			
 			new PrintModeModal(
 				this,

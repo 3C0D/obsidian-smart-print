@@ -2,6 +2,12 @@
 
 Enhanced and customizable printing for Obsidian notes, with intelligent rendering, live preview, and full control over fonts, headers, and styles.
 
+## ⚠️ Desktop Only (Temporary)
+
+**This plugin is currently desktop-only.** Mobile support exists in the code but has not been tested or debugged, as the developer does not have access to a smartphone.
+
+**Calling all mobile developers!** If you have experience with Obsidian mobile development and would like to help fix and test the mobile functionality, contributions are very welcome. Please see the [Contributing](#contributing) section below.
+
 ## Quick Start
 
 1. **Install the plugin** and enable it
@@ -86,9 +92,9 @@ Every print command opens a simple modal where you can:
 
 ### 📱 Mobile Support
 
-- ✅ Full support on iOS and Android
-- ✅ Optimized for mobile printing
-- ✅ Streamlined interface on mobile devices
+- ⚠️ **Currently disabled** - Plugin is desktop-only until mobile code is tested and fixed
+- 🔧 **Help wanted** - Mobile developers welcome to contribute
+- 📝 Mobile code exists but needs testing (developer has no smartphone access)
 
 ### 👀 Preview Before Printing
 
@@ -171,9 +177,8 @@ Smart Print uses an intelligent capture strategy:
 
 ### Platform Support
 
-- **Desktop:** Full feature set with browser-based printing
-- **Mobile:** Optimized printing with in-app preview
-- **Cross-platform fonts:** Carefully selected fonts that work on all platforms
+- **Desktop:** Full feature set with browser-based printing (Windows, macOS, Linux)
+- **Mobile:** Code exists but untested - currently disabled (help wanted!)
 
 ### Print Engines
 

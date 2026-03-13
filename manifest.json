@@ -6,5 +6,5 @@
 	"description": "Print Obsidian notes directly in browser with advanced options and preview",
 	"author": "3C0D",
 	"authorUrl": "https://github.com/3C0D",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }

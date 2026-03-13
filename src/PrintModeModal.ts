@@ -3,6 +3,8 @@ import type { SmartPrintPluginSettings } from "./types.ts";
 import { validateFontSize, initializeFontSizes } from "./settings.ts";
 import type SmartPrintPlugin from "./main.ts";
 import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
+import { createCheckbox } from "./ui/checkboxHelper.ts";
+import type { ContentFlags } from "./utils/contentScanner.ts";
 
 /**
  * Simplified print options modal.
@@ -23,7 +25,13 @@ export class PrintModeModal extends Modal {
 		private onSubmit: () => void,
 		private saveSettings: () => Promise<void>,
 		private isFolderPrint: boolean = false,
-		private contentFlags: { hasImages: boolean; hasEmbeds: boolean; hasComments: boolean; hasMetadata: boolean; hasHrBreaks: boolean } = { hasImages: true, hasEmbeds: true, hasComments: true, hasMetadata: true, hasHrBreaks: true },
+		private contentFlags: ContentFlags = {
+			hasImages: true,
+			hasEmbeds: true,
+			hasComments: true,
+			hasMetadata: true,
+			hasHrBreaks: true,
+		},
 	) {
 		super(app);
 	}
@@ -86,62 +94,56 @@ export class PrintModeModal extends Modal {
 		// Print title checkbox.
 		// When enabled, displays the filename as a title at the top.
 		// Automatically removes duplicate H1 if it matches the filename.
-		const titleLabel = container.createEl("label");
-		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
-		titleCheck.checked = this.settings.printTitle;
-		titleLabel.appendText(" Show File Title");
-		titleLabel.title =
-			"Displays the filename as the document title.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)";
-		titleCheck.addEventListener("change", async () => {
-			this.settings.printTitle = titleCheck.checked;
-			await this.saveSettings();
-		});
+		createCheckbox(
+			container,
+			" Show File Title",
+			"Displays the filename as the document title.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)",
+			this.settings.printTitle,
+			async (checked) => {
+				this.settings.printTitle = checked;
+				await this.saveSettings();
+			},
+		);
 
 		// Metadata checkbox
 		if (this.contentFlags.hasMetadata) {
-			const metaLabel = container.createEl("label");
-			const metaCheck = metaLabel.createEl("input", {
-				type: "checkbox",
-			});
-			metaCheck.checked = this.settings.showMetadata;
-			metaLabel.appendText(" Show Metadata");
-			metaLabel.title =
-				"Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)";
-			metaCheck.addEventListener("change", async () => {
-				this.settings.showMetadata = metaCheck.checked;
-				await this.saveSettings();
-			});
+			createCheckbox(
+				container,
+				" Show Metadata",
+				"Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)",
+				this.settings.showMetadata,
+				async (checked) => {
+					this.settings.showMetadata = checked;
+					await this.saveSettings();
+				},
+			);
 		}
 
 		// Page breaks checkbox
 		if (this.contentFlags.hasHrBreaks) {
-			const breaksLabel = container.createEl("label");
-			const breaksCheck = breaksLabel.createEl("input", {
-				type: "checkbox",
-			});
-			breaksCheck.checked = this.settings.hrPageBreaks;
-			breaksLabel.appendText(" Page Breaks at ---");
-			breaksLabel.title =
-				"Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)";
-			breaksCheck.addEventListener("change", async () => {
-				this.settings.hrPageBreaks = breaksCheck.checked;
-				await this.saveSettings();
-			});
+			createCheckbox(
+				container,
+				" Page Breaks at ---",
+				"Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)",
+				this.settings.hrPageBreaks,
+				async (checked) => {
+					this.settings.hrPageBreaks = checked;
+					await this.saveSettings();
+				},
+			);
 		}
 
 		// Print in color checkbox
-		const colorLabel = container.createEl("label");
-		const colorCheck = colorLabel.createEl("input", {
-			type: "checkbox",
-		});
-		colorCheck.checked = this.settings.printInColor;
-		colorLabel.appendText(" Print in color");
-		colorLabel.title =
-			"Print with colors or force black & white output.\n\n(Selector: .obsidian-print *)";
-		colorCheck.addEventListener("change", async () => {
-			this.settings.printInColor = colorCheck.checked;
-			await this.saveSettings();
-		});
+		createCheckbox(
+			container,
+			" Print in color",
+			"Print with colors or force black & white output.\n\n(Selector: .obsidian-print *)",
+			this.settings.printInColor,
+			async (checked) => {
+				this.settings.printInColor = checked;
+				await this.saveSettings();
+			},
+		);
 
 		// Show comments checkbox with warning.
 		// Important: Enabling comments disables advanced rendering because
@@ -194,34 +196,30 @@ export class PrintModeModal extends Modal {
 
 		// Hide images checkbox
 		if (this.contentFlags.hasImages) {
-			const imagesLabel = container.createEl("label");
-			const imagesCheck = imagesLabel.createEl("input", {
-				type: "checkbox",
-			});
-			imagesCheck.checked = this.settings.hideImages;
-			imagesLabel.appendText(" Hide images");
-			imagesLabel.title =
-				"Hide all images from print output.\n\n(Selector: .obsidian-print img)";
-			imagesCheck.addEventListener("change", async () => {
-				this.settings.hideImages = imagesCheck.checked;
-				await this.saveSettings();
-			});
+			createCheckbox(
+				container,
+				" Hide images",
+				"Hide all images from print output.\n\n(Selector: .obsidian-print img)",
+				this.settings.hideImages,
+				async (checked) => {
+					this.settings.hideImages = checked;
+					await this.saveSettings();
+				},
+			);
 		}
 
 		// Hide embeds checkbox
 		if (this.contentFlags.hasEmbeds) {
-			const embedsLabel = container.createEl("label");
-			const embedsCheck = embedsLabel.createEl("input", {
-				type: "checkbox",
-			});
-			embedsCheck.checked = this.settings.hideEmbeds;
-			embedsLabel.appendText(" Hide embed files");
-			embedsLabel.title =
-				"Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .obsidian-print-embed)";
-			embedsCheck.addEventListener("change", async () => {
-				this.settings.hideEmbeds = embedsCheck.checked;
-				await this.saveSettings();
-			});
+			createCheckbox(
+				container,
+				" Hide embed files",
+				"Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .obsidian-print-embed)",
+				this.settings.hideEmbeds,
+				async (checked) => {
+					this.settings.hideEmbeds = checked;
+					await this.saveSettings();
+				},
+			);
 		}
 	}
 
