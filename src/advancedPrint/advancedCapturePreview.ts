@@ -118,6 +118,40 @@ export async function getRenderedContent(
 			}
 
 			const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
+			
+			// Flatten embedded notes: replace full preview structure with just content
+			clonedSizer.querySelectorAll(".internal-embed:not(.image-embed)").forEach((embed) => {
+				const embedEl = embed as HTMLElement;
+				const title = embedEl.querySelector(".embed-title")?.textContent ?? "";
+				const innerSizer = embedEl.querySelector(".markdown-preview-sizer");
+				
+				if (innerSizer) {
+					const wrapper = document.createElement("div");
+					wrapper.className = "obsidian-print-embed";
+					
+					if (title) {
+						const titleEl = document.createElement("div");
+						titleEl.className = "obsidian-print-embed-title";
+						titleEl.textContent = title;
+						wrapper.appendChild(titleEl);
+					}
+					
+					const content = document.createElement("div");
+					content.className = "obsidian-print-embed-content";
+					Array.from(innerSizer.childNodes).forEach((node) => {
+						content.appendChild(node.cloneNode(true));
+					});
+					wrapper.appendChild(content);
+					embedEl.replaceWith(wrapper);
+				}
+			});
+			
+			if (settings.debugMode) {
+				clonedSizer.querySelectorAll(".internal-embed:not(.image-embed)").forEach((el) => {
+					console.log("embed HTML:", el.innerHTML.substring(0, 500));
+				});
+			}
+			
 			container.appendChild(clonedSizer);
 
 			// Remove first H1 if it duplicates the file title (automatic behavior)

@@ -9,6 +9,7 @@ export interface SmartPrintPluginSettings {
 	/** Show Obsidian comments (%% ... %%) in print output */
 	showComments: boolean;
 	hideImages: boolean;
+	hideEmbeds: boolean;
 
 	// ─── Font settings ─────────────────────────
 	fontSize: string;
@@ -64,6 +65,7 @@ export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
 	printInColor: true,
 	showComments: false,
 	hideImages: false,
+	hideEmbeds: false,
 
 	// Font sizes
 	fontSize: "12px",

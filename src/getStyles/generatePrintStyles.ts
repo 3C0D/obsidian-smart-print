@@ -119,6 +119,10 @@ export async function generatePrintStyles(
 		? ".obsidian-print img { display: none; }"
 		: "";
 
+	const hideEmbedsCSS = settings.hideEmbeds
+		? ".obsidian-print .obsidian-print-embed { display: none; }"
+		: "";
+
 	// Final combined CSS
 	return `
 .obsidian-print {
@@ -130,6 +134,7 @@ ${headingsCSS}
 ${hrCSS}
 ${metaCSS}
 ${hideImagesCSS}
+${hideEmbedsCSS}
 ${pluginStyle}
 ${userStyle}
 ${bwCSS}

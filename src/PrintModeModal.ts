@@ -198,6 +198,20 @@ export class PrintModeModal extends Modal {
 			this.settings.hideImages = imagesCheck.checked;
 			await this.saveSettings();
 		});
+
+		// Hide embeds checkbox
+		const embedsLabel = container.createEl("label");
+		const embedsCheck = embedsLabel.createEl("input", {
+			type: "checkbox",
+		});
+		embedsCheck.checked = this.settings.hideEmbeds;
+		embedsLabel.appendText(" Hide embed files");
+		embedsLabel.title =
+			"Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .internal-embed:not(.image-embed))";
+		embedsCheck.addEventListener("change", async () => {
+			this.settings.hideEmbeds = embedsCheck.checked;
+			await this.saveSettings();
+		});
 	}
 
 	/**

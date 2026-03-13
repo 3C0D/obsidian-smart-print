@@ -370,6 +370,23 @@
 	font-size: 0.9em;
 }
 
+/* Embedded notes styling */
+.obsidian-print .obsidian-print-embed-content {
+	border-left: 2px solid #999;
+	padding-left: 1em;
+	margin: 0 0 0 0.5em;
+}
+
+.obsidian-print .obsidian-print-embed-title {
+	font-size: 0.85em;
+	color: #666;
+	margin-bottom: 0.3em;
+}
+
+.obsidian-print .internal-embed .inline-title {
+	display: none;
+}
+
 /* Print modal hint text */
 .print-modal-hint {
 	font-size: 12px;
