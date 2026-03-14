@@ -33,6 +33,7 @@ export class PrintModeModal extends Modal {
 			hasMetadata: true,
 			hasHrBreaks: true,
 		},
+		private modalTitle: string = "",
 	) {
 		super(app);
 	}
@@ -46,14 +47,15 @@ export class PrintModeModal extends Modal {
 
 		const title = contentEl.createEl("h2");
 		title.setText(
-			this.isFolderPrint ? "Folder Print Options " : "Print Options ",
+			this.modalTitle ||
+				(this.isFolderPrint
+					? "Folder Print Options "
+					: "Print Options "),
 		);
 
 		const hint = title.createEl("span");
 		hint.addClass("print-modal-hint");
 		hint.setText("(options adapt to document content)");
-
-
 
 		this.renderOptionsRow(contentEl);
 		this.renderFontRow(contentEl);

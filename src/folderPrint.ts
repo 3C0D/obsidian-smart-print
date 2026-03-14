@@ -90,6 +90,15 @@ export async function printFolder(
 				() => resolve(true),
 				async () => await plugin.saveSettings(),
 				true, // isFolderPrint = true
+				false, // isSelection = false
+				{
+					hasImages: true,
+					hasEmbeds: true,
+					hasComments: true,
+					hasMetadata: true,
+					hasHrBreaks: true,
+				}, // contentFlags
+				"Print Folder", // modalTitle
 			).open();
 		});
 		if (!proceed) return;
