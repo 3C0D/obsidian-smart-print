@@ -31,8 +31,8 @@ Enhanced and customizable printing for Obsidian notes, with intelligent renderin
 
 Smart Print automatically chooses the best rendering method for your content:
 
-- **Advanced rendering** (with post-render for Mermaid, Dataview, LaTeX, etc.) - ⚠️ Only available when the document is visible in the editor
-- **Basic rendering** (no post-render) - Used for non-visible documents (other than the active note), selections, and folder prints. Also the only mode available on mobile
+- **Advanced rendering** (with post-render for Mermaid, Dataview, LaTeX, etc.) - Used for the active note and selections (desktop only)
+- **Basic rendering** (no post-render) - Used for non-visible documents, folder prints, and all mobile printing
 - **Automatic fallback** - Seamlessly switches between modes based on context
 
 **What renders perfectly with advanced mode:**
@@ -80,7 +80,7 @@ Every print command opens a simple modal where you can:
 **What you can print:**
 
 - **Current note** (active document) - Advanced rendering
-- **Selected text only** (from editor) - Basic rendering
+- **Selected text only** (from editor) - Advanced rendering (desktop), basic rendering (mobile)
 - **Any note** (from file explorer) - Advanced rendering if visible in editor, otherwise basic
 - **All notes in a folder** - Basic rendering because not visible
 

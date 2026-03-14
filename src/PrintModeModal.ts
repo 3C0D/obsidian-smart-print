@@ -53,8 +53,8 @@ export class PrintModeModal extends Modal {
 		hint.addClass("print-modal-hint");
 		hint.setText("(options adapt to document content)");
 
-		// Warning for folder print or selection (no post-render)
-		if (this.isFolderPrint || this.isSelection) {
+		// Warning for folder print only (selection now uses advanced mode)
+		if (this.isFolderPrint) {
 			const warningEl = contentEl.createEl("div");
 			warningEl.setText(
 				"Note: No post-render (Mermaid, Dataview, LaTeX will not render)",
@@ -93,19 +93,16 @@ export class PrintModeModal extends Modal {
 		// Print title checkbox.
 		// When enabled, displays the filename as a title at the top.
 		// Automatically removes duplicate H1 if it matches the filename.
-		// Not shown for selection print (no file context)
-		if (!this.isSelection) {
-			createCheckbox(
-				container,
-				" Show File Title",
-				"Displays the filename as the document title.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)",
-				this.settings.printTitle,
-				async (checked) => {
-					this.settings.printTitle = checked;
-					await this.saveSettings();
-				},
-			);
-		}
+		createCheckbox(
+			container,
+			" Show File Title",
+			"Displays the filename as a title at the top.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)",
+			this.settings.printTitle,
+			async (checked) => {
+				this.settings.printTitle = checked;
+				await this.saveSettings();
+			},
+		);
 
 		// Metadata checkbox
 		if (this.contentFlags.hasMetadata) {
@@ -165,9 +162,9 @@ export class PrintModeModal extends Modal {
 			commentsLabel.title =
 				"Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)";
 
-			// Warning only for non-folder print and non-selection (folder/selection already has warning at top)
+			// Warning only for non-folder print (selection now uses advanced mode)
 			let warningEl: HTMLElement | null = null;
-			if (!this.isFolderPrint && !this.isSelection) {
+			if (!this.isFolderPrint) {
 				warningEl = commentsWrapper.createEl("span");
 				warningEl.setText("(No post-render)");
 				warningEl.style.display =
@@ -185,8 +182,8 @@ export class PrintModeModal extends Modal {
 
 			commentsCheck.addEventListener("change", async () => {
 				this.settings.showComments = commentsCheck.checked;
-				// Only show warning for non-folder print and non-selection
-				if (!this.isFolderPrint && !this.isSelection && warningEl) {
+				// Only show warning for non-folder print
+				if (!this.isFolderPrint && warningEl) {
 					warningEl.style.display =
 						commentsCheck.checked && !Platform.isMobile
 							? "block"

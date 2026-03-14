@@ -1,4 +1,4 @@
-import { App, TFile } from "obsidian";
+import { App, MarkdownView, TFile } from "obsidian";
 import type { SmartPrintPluginSettings } from "./types.ts";
 import { getRenderedContent } from "./advancedPrint/advancedCapturePreview.ts";
 import { contentToHTML } from "./normalCapturePreview.ts";
@@ -25,15 +25,6 @@ export async function getBestContent(
 	isSelection: boolean = false,
 	file?: TFile,
 ): Promise<HTMLElement | null> {
-	// Selection always uses standard capture because DOM selection
-	// can be unreliable with complex nested elements.
-	if (isSelection) {
-		const content = await contentToHTML(app, settings, true, undefined);
-		// Convert app:// protocol images to base64 for print compatibility
-		if (content) await inlineImages(content);
-		return content;
-	}
-
 	// Check if we can use advanced DOM capture.
 	// Requirements:
 	// 1. File must be currently active (DOM only exists for active preview)
@@ -41,6 +32,33 @@ export async function getBestContent(
 	const activeFile = app.workspace.getActiveFile();
 	const canUseAdvanced =
 		(!file || file.path === activeFile?.path) && !settings.showComments;
+
+	// Handle selection mode using temporary file approach for advanced capture.
+	if (isSelection) {
+		const { captureSelectionAdvanced } = await import(
+			"./utils/tempFileCapture.ts"
+		);
+		const { isMobile } = await import("./utils/platform.ts");
+		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+		const md = activeView?.editor.getSelection();
+		const originalTitle = activeFile?.basename;
+		if (md && canUseAdvanced && !isMobile()) {
+			const content = await captureSelectionAdvanced(
+				app,
+				settings,
+				md,
+				originalTitle,
+			);
+			if (content) {
+				await inlineImages(content);
+				return content;
+			}
+		}
+		// Fallback to standard capture
+		const content = await contentToHTML(app, settings, true, undefined);
+		if (content) await inlineImages(content);
+		return content;
+	}
 
 	if (!canUseAdvanced) {
 		if (settings.debugMode) {
@@ -60,7 +78,7 @@ export async function getBestContent(
 		if (settings.debugMode) {
 			console.log("Attempting advanced DOM capture");
 		}
-		const content = await getRenderedContent(app, settings, isSelection);
+		const content = await getRenderedContent(app, settings);
 		if (content) {
 			if (settings.debugMode) {
 				console.log("Advanced DOM capture successful");
