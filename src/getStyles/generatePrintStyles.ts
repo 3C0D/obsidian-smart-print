@@ -131,6 +131,12 @@ export async function generatePrintStyles(
     font-size: ${settings.fontSize};
     font-family: ${fontFamily};
 }
+
+/* Force consistent width regardless of Obsidian window size */
+.obsidian-print .markdown-preview-sizer {
+    max-width: 100% !important;
+    width: 100% !important;
+}
 ${titleCSS}
 ${headingsCSS}
 ${hrCSS}

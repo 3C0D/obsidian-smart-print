@@ -4,8 +4,15 @@
 		min-height: 0 !important;
 		padding: 0 !important;
 	}
+
+	/* Force consistent width regardless of Obsidian window size */
+	.obsidian-print .markdown-preview-sizer {
+		max-width: 100% !important;
+		width: 100% !important;
+	}
 }
 
+/* Desktop preview styles */
 @media screen {
 	.obsidian-print {
 		max-width: 800px;

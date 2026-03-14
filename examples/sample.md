@@ -8,7 +8,8 @@ tags:
   - obsidian
   - tag
 ---
-mettre à jour parfoisThis document strates the various Markdown and Obsidian features supported by the Smart Print Plugin.
+
+This document strates the various Markdown and Obsidian features supported by the Smart Print Plugin.
 
 ## Text Formatting
 
