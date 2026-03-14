@@ -82,7 +82,7 @@ Every print command opens a simple modal where you can:
 - **Current note** (active document) - Advanced rendering
 - **Selected text only** (from editor) - Advanced rendering (desktop), basic rendering (mobile)
 - **Any note** (from file explorer) - Advanced rendering if visible in editor, otherwise basic
-- **All notes in a folder** - Basic rendering because not visible
+- **All notes in a folder** - Advanced rendering (desktop), basic rendering (mobile)
 
 ### 🌐 Browser-Based Printing in Desktop version
 

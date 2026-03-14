@@ -1,5 +1,6 @@
 import { TFile, TFolder, Notice } from "obsidian";
 import { generateHTML } from "./normalCapturePreview.ts";
+import { captureSelectionAdvanced } from "./utils/tempFileCapture.ts";
 import SmartPrintPlugin from "./main.ts";
 import { ERROR_MESSAGES } from "./constants.ts";
 import { isMobile } from "./utils/platform.ts";
@@ -98,11 +99,25 @@ export async function printFolder(
 	// Each file is rendered separately and then appended to this container.
 	const folderContent = createDiv();
 
+	// Show notice for large folder prints using advanced mode
+	if (!isMobile() && files.length > 3) {
+		new Notice(
+			`Rendering ${files.length} files with advanced mode, please wait...`,
+		);
+	}
+
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
-		// Generate the standard HTML structure for a single file using Obsidian's API.
-		// This uses MarkdownRenderer, so dynamic content (Mermaid, Dataview) won't render.
-		const content = await generateHTML(plugin.app, plugin.settings, file);
+		// Use advanced rendering on desktop, basic rendering on mobile
+		const markdownContent = await plugin.app.vault.cachedRead(file);
+		const content = isMobile()
+			? await generateHTML(plugin.app, plugin.settings, file)
+			: await captureSelectionAdvanced(
+					plugin.app,
+					plugin.settings,
+					markdownContent,
+					file.basename,
+				);
 		if (!content) {
 			continue;
 		}

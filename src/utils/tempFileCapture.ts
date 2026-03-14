@@ -23,9 +23,10 @@ export async function captureSelectionAdvanced(
 		// Open in background leaf
 		leaf = app.workspace.getLeaf("tab");
 		await leaf.openFile(tempFile);
+		app.workspace.setActiveLeaf(leaf, { focus: true });
 
 		// Wait for initial render
-		await new Promise((resolve) => setTimeout(resolve, 500));
+		await new Promise((resolve) => setTimeout(resolve, 800));
 
 		// Capture using advanced mode (disable printTitle for temp file)
 		const content = await getRenderedContent(

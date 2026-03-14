@@ -53,20 +53,7 @@ export class PrintModeModal extends Modal {
 		hint.addClass("print-modal-hint");
 		hint.setText("(options adapt to document content)");
 
-		// Warning for folder print only (selection now uses advanced mode)
-		if (this.isFolderPrint) {
-			const warningEl = contentEl.createEl("div");
-			warningEl.setText(
-				"Note: No post-render (Mermaid, Dataview, LaTeX will not render)",
-			);
-			warningEl.style.fontSize = "11px";
-			warningEl.style.color = "var(--text-muted)";
-			warningEl.style.backgroundColor = "rgba(255, 200, 200, 0.15)";
-			warningEl.style.padding = "3px 8px";
-			warningEl.style.borderRadius = "3px";
-			warningEl.style.marginBottom = "12px";
-			warningEl.style.fontStyle = "italic";
-		}
+
 
 		this.renderOptionsRow(contentEl);
 		this.renderFontRow(contentEl);
