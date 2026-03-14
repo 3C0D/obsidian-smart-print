@@ -12,7 +12,13 @@ export async function captureSelectionAdvanced(
 	markdownContent: string,
 	originalTitle?: string,
 ): Promise<HTMLElement | null> {
-	const tempPath = `_smart-print-temp-${Date.now()}.md`;
+	const tmpDir = "_smart-print-tmp";
+	try {
+		await app.vault.createFolder(tmpDir);
+	} catch {
+		// Folder already exists
+	}
+	const tempPath = `${tmpDir}/temp-${Date.now()}.md`;
 	let tempFile: TFile | null = null;
 	let leaf = null;
 
