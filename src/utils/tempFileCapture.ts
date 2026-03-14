@@ -35,10 +35,10 @@ export async function captureSelectionAdvanced(
 		await new Promise((resolve) => setTimeout(resolve, 800));
 
 		// Capture using advanced mode (disable printTitle for temp file)
-		const content = await getRenderedContent(
-			app,
-			{ ...settings, printTitle: false },
-		);
+		const content = await getRenderedContent(app, {
+			...settings,
+			printTitle: false,
+		});
 
 		if (content) {
 			// Remove temp file title injected by Obsidian
@@ -60,6 +60,17 @@ export async function captureSelectionAdvanced(
 	} finally {
 		// Always clean up
 		if (leaf) leaf.detach();
-		if (tempFile) await app.vault.delete(tempFile);
+		if (tempFile) {
+			await app.vault.delete(tempFile);
+			const tmpFolder =
+				app.vault.getAbstractFileByPath("_smart-print-tmp");
+			if (tmpFolder) {
+				try {
+					await app.vault.delete(tmpFolder);
+				} catch {
+					// Folder not empty, leave it
+				}
+			}
+		}
 	}
 }

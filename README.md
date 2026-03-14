@@ -32,7 +32,7 @@ Enhanced and customizable printing for Obsidian notes, with intelligent renderin
 Smart Print automatically chooses the best rendering method for your content:
 
 - **Advanced rendering** (with post-render for Mermaid, Dataview, LaTeX, etc.) - Used for the active note and selections (desktop only)
-- **Basic rendering** (no post-render) - Used for non-visible documents, folder prints, and all mobile printing
+- **Basic rendering** (no post-render) - Used for non-visible documents and all mobile printing
 - **Automatic fallback** - Seamlessly switches between modes based on context
 
 **What renders perfectly with advanced mode:**
@@ -74,6 +74,7 @@ Every print command opens a simple modal where you can:
   - "Quick print" - Print immediately without modal
   - "Selection" - Print selected text only
   - "All notes in current folder" - Batch print
+
 - **Right-click** on files/folders in explorer → Print options
 - **Right-click** in editor → Print note or selection
 
@@ -129,6 +130,10 @@ Every print command opens a simple modal where you can:
 
 ## Tips & Tricks
 
+💡 **Temporary files:** During advanced rendering of selections and folder prints, a temporary `_smart-print-tmp` folder is created at the vault root and automatically deleted after use
+
+💡 **Show comments:** Enabling "Show comments" for Obsidian comments (`%% ... %%`) switches to basic rendering since comments are stripped by Obsidian before the preview DOM is built
+
 💡 **Theme integration:** Use "Get theme colors" in settings to match your Obsidian theme
 
 💡 **Auto-sync workflow:** Enable "Auto-sync heading sizes" for consistent typography – all headings automatically scale when you change the base font size
@@ -149,7 +154,7 @@ Every print command opens a simple modal where you can:
 
 💡 **Embedded images:** The plugin automatically converts embedded images to base64 for reliable printing across all platforms
 
-💡 **Embedded files:** Embedded notes (`![[note]]`) are rendered inline with a subtle border and title for easy identification 
+💡 **Embedded files:** Embedded notes (`![[note]]`) are rendered inline with a subtle border and title for easy identification
 
 💡 **Adaptive modal:** Print options automatically adapt to your document content - only relevant toggles are shown based on what's in your note
 
@@ -161,7 +166,7 @@ Smart Print uses an intelligent capture strategy:
 
 1. **Tries advanced DOM capture** - Captures the live preview exactly as you see it
 2. **Falls back gracefully** - Uses standard Markdown rendering if DOM capture fails
-3. **Handles edge cases** - Special handling for selections and non-active files
+3. **Handles edge cases** - Special handling for selections, folder prints, and non-active files via temporary file capture
 
 ### Print Engines
 
