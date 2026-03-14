@@ -137,6 +137,7 @@ export async function generatePrintStyles(
     max-width: 100% !important;
     width: 100% !important;
 }
+
 ${titleCSS}
 ${headingsCSS}
 ${hrCSS}

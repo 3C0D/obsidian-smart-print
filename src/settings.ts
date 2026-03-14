@@ -4,10 +4,7 @@ import {
 	getPrintSnippet,
 	isPrintSnippetEnabled,
 } from "./getStyles/generatePrintStyles.ts";
-import {
-	getHeaderColors,
-	getInlineTitleColor,
-} from "./getStyles/importThemeHeaders.ts";
+import { getThemeColors } from "./getStyles/importThemeHeaders.ts";
 import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
 import { ERROR_MESSAGES } from "./constants.ts";
 import { isMobile } from "./utils/platform.ts";
@@ -261,11 +258,7 @@ export class PrintSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Import theme colors")
 			.setDesc(
-				"Import all heading colors and inline" +
-					" title color from your current theme" +
-					" (using light mode values). ⚠️ For" +
-					" inline title: ensure to have an" +
-					" open markdown view.",
+				"Import all heading colors and inline title color from your current theme (using light mode values).",
 			)
 			.addButton((button) =>
 				button
@@ -514,26 +507,20 @@ export async function initializeThemeColors(
 	app: App,
 	plugin: SmartPrintPlugin,
 ): Promise<void> {
-	const headers = getHeaderColors(app);
-	const hColors = [
-		"h1Color",
-		"h2Color",
-		"h3Color",
-		"h4Color",
-		"h5Color",
-		"h6Color",
-	] as const;
+	const colors = await getThemeColors(app);
 
-	hColors.forEach((hColor, index) => {
-		const realColor = headers.get(index + 1) ?? "#000000";
-		plugin.settings[hColor] = realColor;
-	});
-
-	const inlineTitleColor = getInlineTitleColor(app);
-	plugin.settings.inlineTitleColor = inlineTitleColor;
+	plugin.settings.h1Color = colors.h1;
+	plugin.settings.h2Color = colors.h2;
+	plugin.settings.h3Color = colors.h3;
+	plugin.settings.h4Color = colors.h4;
+	plugin.settings.h5Color = colors.h5;
+	plugin.settings.h6Color = colors.h6;
+	plugin.settings.inlineTitleColor = colors.inlineTitle;
 
 	plugin.settings.hasInitializedColors = true;
 	await plugin.saveSettings();
+
+	(app as any).setting.open();
 }
 
 /**
