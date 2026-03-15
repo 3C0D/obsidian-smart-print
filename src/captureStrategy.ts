@@ -35,9 +35,8 @@ export async function getBestContent(
 
 	// Handle selection mode using temporary file approach for advanced capture.
 	if (isSelection) {
-		const { captureSelectionAdvanced } = await import(
-			"./utils/tempFileCapture.ts"
-		);
+		const { captureSelectionAdvanced } =
+			await import("./utils/tempFileCapture.ts");
 		const { isMobile } = await import("./utils/platform.ts");
 		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
 		const md = activeView?.editor.getSelection();
@@ -48,6 +47,7 @@ export async function getBestContent(
 				settings,
 				md,
 				originalTitle,
+				true,
 			);
 			if (content) {
 				await inlineImages(content);

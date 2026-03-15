@@ -109,10 +109,7 @@ export async function getRenderedContent(
 			clonedSizer
 				.querySelectorAll(".internal-embed:not(.image-embed)")
 				.forEach((el) => {
-					console.log(
-						"embed HTML:",
-						el.innerHTML.substring(0, 500),
-					);
+					console.log("embed HTML:", el.innerHTML.substring(0, 500));
 				});
 		}
 
@@ -194,7 +191,9 @@ export async function getRenderedContent(
 					".markdown-preview-sizer",
 				);
 				if (sizer) {
-					renderMetadata(metadata, sizer as HTMLElement);
+					const tempDiv = document.createElement("div");
+					renderMetadata(metadata, tempDiv);
+					sizer.insertBefore(tempDiv.firstChild!, sizer.firstChild);
 				}
 			}
 		}

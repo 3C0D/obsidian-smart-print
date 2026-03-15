@@ -8,6 +8,7 @@ import { openPrintModal } from "./basicPrint/basicPrintPreview.ts";
 import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
 import { PrintManager } from "./browserPrintManager.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
+import { inlineImages } from "./utils/inlineImages.ts";
 
 /**
  * Gets the parent folder of the currently active file.
@@ -130,6 +131,8 @@ export async function printFolder(
 		if (!content) {
 			continue;
 		}
+
+		await inlineImages(content);
 
 		folderContent.append(content);
 

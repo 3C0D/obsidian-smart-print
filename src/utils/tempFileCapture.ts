@@ -11,6 +11,7 @@ export async function captureSelectionAdvanced(
 	settings: SmartPrintPluginSettings,
 	markdownContent: string,
 	originalTitle?: string,
+	isSelection: boolean = false,
 ): Promise<HTMLElement | null> {
 	const tmpDir = "_smart-print-tmp";
 	try {
@@ -21,6 +22,9 @@ export async function captureSelectionAdvanced(
 	const tempPath = `${tmpDir}/temp-${Date.now()}.md`;
 	let tempFile: TFile | null = null;
 	let leaf = null;
+
+	// Save original file reference before opening temp file
+	const originalFile = app.workspace.getActiveFile();
 
 	try {
 		// Create temp file with selected content
@@ -52,6 +56,31 @@ export async function captureSelectionAdvanced(
 					titleEl.className = "inline-title";
 					titleEl.textContent = originalTitle;
 					sizer.insertBefore(titleEl, sizer.firstChild);
+				}
+			}
+
+			// Inject metadata from original file (only for selection mode)
+			if (
+				content &&
+				settings.showMetadata &&
+				isSelection &&
+				originalFile
+			) {
+				const { getMetadata, renderMetadata } =
+					await import("./metadata.ts");
+				const metadata = getMetadata(app, originalFile);
+				if (metadata) {
+					const sizer = content.querySelector(
+						".markdown-preview-sizer",
+					);
+					if (sizer) {
+						const tempDiv = document.createElement("div");
+						renderMetadata(metadata, tempDiv);
+						sizer.insertBefore(
+							tempDiv.firstChild!,
+							sizer.firstChild,
+						);
+					}
 				}
 			}
 		}
