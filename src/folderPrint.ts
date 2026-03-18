@@ -119,15 +119,29 @@ export async function printFolder(
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
 		// Use advanced rendering on desktop, basic rendering on mobile
-		const markdownContent = await plugin.app.vault.cachedRead(file);
-		const content = isMobile()
-			? await generateHTML(plugin.app, plugin.settings, file)
-			: await captureSelectionAdvanced(
+		let content = null;
+		if (isMobile()) {
+			content = await generateHTML(plugin.app, plugin.settings, file);
+		} else {
+			// Try to capture from an already-open leaf first (most efficient)
+			const { captureFromOpenLeaf } =
+				await import("./utils/captureFromOpenLeaf.ts");
+			content = await captureFromOpenLeaf(
+				plugin.app,
+				plugin.settings,
+				file.path,
+			);
+			// If file not open in any leaf, create temp file for advanced capture
+			if (!content) {
+				const markdownContent = await plugin.app.vault.cachedRead(file);
+				content = await captureSelectionAdvanced(
 					plugin.app,
 					plugin.settings,
 					markdownContent,
 					file.basename,
 				);
+			}
+		}
 		if (!content) {
 			continue;
 		}

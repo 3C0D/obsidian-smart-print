@@ -89,17 +89,34 @@ export async function getBestContent(
 		}
 	} catch (error) {
 		if (settings.debugMode) {
-			console.warn(
-				"Advanced DOM capture failed, falling back to standard:",
-				error,
-			);
+			console.warn("Advanced DOM capture failed, falling back:", error);
 		}
 	} finally {
 		// Always restore the original theme, even if capture fails.
 		restoreTheme();
 	}
 
-	// Fallback to standard HTML generation.
+	// Secondary fallback: try to capture from an already-open leaf.
+	// Handles the case where focus shifted away from MarkdownView (e.g., file explorer click)
+	// but the file is still open in another leaf.
+	// Note: canUseAdvanced=true implies the file is active, so it must be in some leaf.
+	if (file) {
+		if (settings.debugMode) {
+			console.log("Attempting capture from open leaf");
+		}
+		const { captureFromOpenLeaf } =
+			await import("./utils/captureFromOpenLeaf.ts");
+		const content = await captureFromOpenLeaf(app, settings, file.path);
+		if (content) {
+			if (settings.debugMode) {
+				console.log("Capture from open leaf successful");
+			}
+			await inlineImages(content);
+			return content;
+		}
+	}
+
+	// Last resort: standard HTML generation.
 	// This uses Obsidian's MarkdownRenderer API, which is more reliable
 	// but doesn't capture dynamic content from plugins.
 	if (settings.debugMode) {
