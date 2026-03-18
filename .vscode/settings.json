@@ -1,4 +1,4 @@
 {
 	"npm.packageManager": "yarn",
-	"typescript.preferences.includePackageJsonAutoImports": "off"
+	"js/ts.preferences.includePackageJsonAutoImports": "off"
 }
