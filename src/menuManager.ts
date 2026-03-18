@@ -3,6 +3,71 @@ import SmartPrintPlugin from "./main.ts";
 import { printFolder } from "./folderPrint.ts";
 
 /**
+ * Shared menu key for reading mode context menu.
+ * Multiple plugins can add items to the same menu using this convention.
+ */
+const SHARED_READING_MENU_KEY = "_sharedReadingMenu";
+
+/**
+ * Registers all context menus for the plugin.
+ * Handles both file explorer context menu, editor context menu,
+ * and reading mode context menu.
+ * Respects showContextMenu setting.
+ */
+export function registerMenus(plugin: SmartPrintPlugin): void {
+	// Register file explorer context menu (right-click on files/folders).
+	// This adds print options when users right-click on files or folders
+	// in the file explorer sidebar.
+	plugin.registerEvent(
+		plugin.app.workspace.on("file-menu", (menu, file, source) => {
+			if (!plugin.settings.showContextMenu) return;
+			if (file instanceof TFile || file instanceof TFolder) {
+				addFileMenuItems(plugin, menu, file, source);
+			}
+		}),
+	);
+
+	// Register editor context menu (right-click inside the editor).
+	// This adds print options when users right-click within the note content,
+	// allowing them to print the current note or selected text.
+	plugin.registerEvent(
+		plugin.app.workspace.on("editor-menu", (menu) => {
+			if (!plugin.settings.showContextMenu) return;
+			addEditorMenuItems(plugin, menu);
+		}),
+	);
+
+	// Reading mode context menu (right-click in reading mode).
+	// Uses shared menu pattern to allow multiple plugins to add items.
+	plugin.app.workspace.onLayoutReady(() => {
+		plugin.registerDomEvent(document, "contextmenu", (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+			// Check if we're in reading mode (reading view)
+			if (!target.closest(".markdown-preview-view")) return;
+			// Don't show menu if there's text selection
+			if (window.getSelection()?.toString()) return;
+
+			e.preventDefault();
+			const w = window as any;
+
+			if (w[SHARED_READING_MENU_KEY]) {
+				addReadingModeMenuItems(plugin, w[SHARED_READING_MENU_KEY]);
+				return;
+			}
+
+			w[SHARED_READING_MENU_KEY] = new Menu();
+			setTimeout(() => {
+				const menu = w[SHARED_READING_MENU_KEY];
+				delete w[SHARED_READING_MENU_KEY];
+				menu.showAtMouseEvent(e);
+			}, 0);
+
+			addReadingModeMenuItems(plugin, w[SHARED_READING_MENU_KEY]);
+		});
+	});
+}
+
+/**
  * Adds print items to the file explorer menu.
  *
  * Behavior varies based on context:
@@ -116,4 +181,20 @@ export function addEditorMenuItems(plugin: SmartPrintPlugin, menu: Menu): void {
 				.onClick(async () => await plugin.handlePrint(true));
 		});
 	}
+}
+
+/**
+ * Adds print items to the reading mode context menu.
+ * Provides option to print the current note when right-clicking
+ * in reading mode without text selection.
+ */
+export function addReadingModeMenuItems(
+	plugin: SmartPrintPlugin,
+	menu: Menu,
+): void {
+	menu.addItem((item) => {
+		item.setTitle("Print note")
+			.setIcon("printer")
+			.onClick(async () => await plugin.handlePrint(false));
+	});
 }

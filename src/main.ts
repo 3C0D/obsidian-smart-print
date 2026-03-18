@@ -1,4 +1,4 @@
-import { Plugin, TFile, TFolder, debounce } from "obsidian";
+import { Plugin, TFile, debounce } from "obsidian";
 import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from "./types.ts";
 import { printFolder } from "./folderPrint.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
@@ -10,7 +10,7 @@ import {
 import { openPrintModal, directPrint } from "./basicPrint/basicPrintPreview.ts";
 import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
 import { isMobile } from "./utils/platform.ts";
-import { addFileMenuItems, addEditorMenuItems } from "./menuManager.ts";
+import { registerMenus } from "./menuManager.ts";
 import { getBestContent, getBestPrintEngine } from "./captureStrategy.ts";
 import { PrintManager } from "./browserPrintManager.ts";
 import { scanContentFlags } from "./utils/contentScanner.ts";
@@ -41,7 +41,7 @@ export default class SmartPrintPlugin extends Plugin {
 		}
 
 		this.registerCommands();
-		this.registerMenus();
+		registerMenus(this);
 		this.updateRibbonIcon();
 		this.addSettingTab(new PrintSettingTab(this.app, this));
 	}
@@ -118,46 +118,8 @@ export default class SmartPrintPlugin extends Plugin {
 		});
 	}
 
-	// ─── Context Menus ─────────────────────────────────
-
-	/**
-	 * Registers context menu items for files, folders,
-	 * and the editor. Respects showContextMenu and
-	 * useSubmenu settings.
-	 */
-	private registerMenus(): void {
-		// Register file explorer context menu (right-click on files/folders).
-		// This adds print options when users right-click on files or folders
-		// in the file explorer sidebar.
-		this.registerEvent(
-			this.app.workspace.on("file-menu", (menu, file, source) => {
-				if (!this.settings.showContextMenu) return;
-				if (file instanceof TFile || file instanceof TFolder) {
-					addFileMenuItems(this, menu, file, source);
-				}
-			}),
-		);
-
-		// Register editor context menu (right-click inside the editor).
-		// This adds print options when users right-click within the note content,
-		// allowing them to print the current note or selected text.
-		this.registerEvent(
-			this.app.workspace.on("editor-menu", (menu) => {
-				if (!this.settings.showContextMenu) return;
-				addEditorMenuItems(this, menu);
-			}),
-		);
-	}
-
 	// ─── Print Logic ───────────────────────────────────
 
-	/**
-	 * Main print entry point with unified capture strategy.
-	 * Uses best available capture method automatically.
-	 *
-	 * @param isSelection - Print selected text only
-	 * @param file - Specific file to print
-	 */
 	public async handlePrint(isSelection = false, file?: TFile): Promise<void> {
 		const mobile = isMobile();
 
@@ -197,13 +159,6 @@ export default class SmartPrintPlugin extends Plugin {
 		}
 	}
 
-	/**
-	 * Unified print method using best capture strategy.
-	 * Automatically selects best capture method and print engine.
-	 *
-	 * @param isSelection - Print selected text only
-	 * @param file - Specific file to print
-	 */
 	async unifiedPrint(isSelection = false, file?: TFile): Promise<void> {
 		// 1. Capture content using the best available method.
 		// This tries advanced DOM capture first (for Mermaid, Dataview, etc.),
