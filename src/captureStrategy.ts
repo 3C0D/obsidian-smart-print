@@ -30,8 +30,8 @@ export async function getBestContent(
 	// 1. File must be currently active (DOM only exists for active preview)
 	// 2. showComments must be disabled (comments are already stripped from DOM)
 	const activeFile = app.workspace.getActiveFile();
-	const canUseAdvanced =
-		(!file || file.path === activeFile?.path) && !settings.showComments;
+	const isActiveFile = file ? file.path === activeFile?.path : true;
+	const canUseAdvanced = isActiveFile && !settings.showComments;
 
 	// Handle selection mode using temporary file approach for advanced capture.
 	if (isSelection) {
