@@ -76,10 +76,13 @@ export async function captureSelectionAdvanced(
 					if (sizer) {
 						const tempDiv = document.createElement("div");
 						renderMetadata(metadata, tempDiv);
-						sizer.insertBefore(
-							tempDiv.firstChild!,
-							sizer.firstChild,
-						);
+						const inlineTitle = sizer.querySelector(".inline-title");
+						const metaEl = tempDiv.firstChild as HTMLElement;
+						if (inlineTitle) {
+						inlineTitle.insertAdjacentElement("afterend", metaEl);
+						} else {
+						sizer.prepend(metaEl);
+						}
 					}
 				}
 			}

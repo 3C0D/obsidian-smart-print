@@ -88,19 +88,19 @@ export async function generateHTML(
 	try {
 		const contentSizer = content.createDiv("markdown-preview-sizer");
 
-		// Add metadata if enabled
-		if (settings.showMetadata) {
-			const metadata = getMetadata(app, input);
-			if (metadata) {
-				renderMetadata(metadata, contentSizer);
-			}
-		}
-
 		// Handle title if requested
 		if (settings.printTitle && input instanceof TFile) {
-			const titleEl = contentSizer.createEl("h1");
-			titleEl.textContent = input.basename;
-			titleEl.addClass("inline-title");
+		const titleEl = contentSizer.createEl("h1");
+		titleEl.textContent = input.basename;
+		titleEl.addClass("inline-title");
+		}
+
+		// Add metadata if enabled
+		if (settings.showMetadata) {
+		const metadata = getMetadata(app, input);
+		if (metadata) {
+		renderMetadata(metadata, contentSizer);
+		}
 		}
 
 		// Store title for later comparison if needed

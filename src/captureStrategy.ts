@@ -61,11 +61,29 @@ export async function getBestContent(
 	}
 
 	if (!canUseAdvanced) {
+		if (!settings.showComments) {
+			const targetFile = file ?? activeFile;
+			if (targetFile) {
+				const { captureFromOpenLeaf } =
+					await import("./utils/captureFromOpenLeaf.ts");
+				const content = await captureFromOpenLeaf(
+					app,
+					settings,
+					targetFile.path,
+					true,
+				);
+				if (content) {
+					if (settings.debugMode)
+						console.log("Capture from open leaf successful");
+					await inlineImages(content);
+					return content;
+				}
+			}
+		}
 		if (settings.debugMode) {
 			console.log("File is not active, using standard renderer");
 		}
 		const content = await contentToHTML(app, settings, isSelection, file);
-		// Convert app:// protocol images to base64 for print compatibility
 		if (content) await inlineImages(content);
 		return content;
 	}

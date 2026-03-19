@@ -193,7 +193,13 @@ export async function getRenderedContent(
 				if (sizer) {
 					const tempDiv = document.createElement("div");
 					renderMetadata(metadata, tempDiv);
-					sizer.insertBefore(tempDiv.firstChild!, sizer.firstChild);
+					const metaEl = tempDiv.firstChild as HTMLElement;
+					const inlineTitle = sizer.querySelector(".inline-title");
+					if (inlineTitle) {
+							inlineTitle.insertAdjacentElement("afterend", metaEl);
+						} else {
+							sizer.prepend(metaEl);
+						}
 				}
 			}
 		}

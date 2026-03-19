@@ -130,6 +130,7 @@ export async function printFolder(
 				plugin.app,
 				plugin.settings,
 				file.path,
+				true,
 			);
 			// If file not open in any leaf, create temp file for advanced capture
 			if (!content) {
