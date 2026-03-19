@@ -379,7 +379,7 @@
 
 /* Embedded notes styling */
 .obsidian-print .obsidian-print-embed-content {
-	border-left: 2px solid #999;
+	border-left: 2px solid #bbb;
 	padding-left: 1em;
 	margin: 0 0 0 0.5em;
 }
