@@ -118,13 +118,18 @@ export async function getBestContent(
 	// Handles the case where focus shifted away from MarkdownView (e.g., file explorer click)
 	// but the file is still open in another leaf.
 	// Note: canUseAdvanced=true implies the file is active, so it must be in some leaf.
-	if (file) {
+	const targetFile = file ?? activeFile;
+	if (targetFile) {
 		if (settings.debugMode) {
 			console.log("Attempting capture from open leaf");
 		}
 		const { captureFromOpenLeaf } =
 			await import("./utils/captureFromOpenLeaf.ts");
-		const content = await captureFromOpenLeaf(app, settings, file.path);
+		const content = await captureFromOpenLeaf(
+			app,
+			settings,
+			targetFile.path,
+		);
 		if (content) {
 			if (settings.debugMode) {
 				console.log("Capture from open leaf successful");

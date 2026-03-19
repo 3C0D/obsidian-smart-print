@@ -328,6 +328,7 @@ export class PrintModeModal extends Modal {
 			combineLabel.style.display = "flex";
 			combineLabel.style.alignItems = "center";
 			combineLabel.style.gap = "5px";
+			combineLabel.style.padding = "2px 6px";
 			const combineCheck = combineLabel.createEl("input", {
 				type: "checkbox",
 			});
@@ -335,11 +336,34 @@ export class PrintModeModal extends Modal {
 			combineLabel.appendText(" Combine notes");
 			combineLabel.title =
 				"When enabled, all notes are printed continuously.\nWhen disabled, each note starts on a new page.\n\n(Invisible <hr> elements with page-break-before: always)";
+
+			// Apply initial visual state
+			this.updateCombineStyle(combineLabel, combineCheck);
+
 			combineCheck.addEventListener("change", async () => {
 				this.settings.combineFolderNotes = combineCheck.checked;
+				this.updateCombineStyle(combineLabel, combineCheck);
 				await this.saveSettings();
 			});
 		}
+	}
+
+	/**
+	 * Apply visual feedback for combine checkbox.
+	 */
+	private updateCombineStyle(
+		combineLabel: HTMLElement,
+		combineCheck: HTMLInputElement,
+	): void {
+		const checked = combineCheck.checked;
+		combineLabel.style.outline = checked
+			? "1px solid rgba(255, 150, 150, 0.4)"
+			: "";
+		combineLabel.style.borderRadius = checked ? "4px" : "";
+		combineLabel.style.backgroundColor = checked
+			? "rgba(255, 100, 100, 0.15)"
+			: "";
+		combineLabel.style.transition = "all 0.2s";
 	}
 
 	onClose(): void {
