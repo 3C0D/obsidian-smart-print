@@ -131,7 +131,7 @@ Every print command opens a simple modal where you can:
 
 ## Tips & Tricks
 
-💡 **Temporary files:** During advanced rendering of selections and folder prints, a temporary `_smart-print-tmp` folder is created at the vault root and automatically deleted after use
+💡 **Temporary files:** During advanced rendering of selections, and as a fallback for folder prints when a file isn't open in any editor leaf, a temporary `_smart-print-tmp` folder is created at the vault root and automatically deleted after use
 
 💡 **Show comments:** Enabling "Show comments" for Obsidian comments (`%% ... %%`) switches to basic rendering since comments are stripped by Obsidian before the preview DOM is built
 
