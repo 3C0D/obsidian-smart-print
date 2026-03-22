@@ -54,7 +54,7 @@ Every print command opens a simple modal where you can:
 ![Print Modal](assets/modal.png)
 
 - **Quick toggles** for common options. ⚠️ only relevant options are shown based on your document content:
-  - Include note title
+  - Include note title (if the document has an H1 identical to the filename, it's automatically hidden to avoid duplication)
   - Use H1 as title (only if document contains an H1 different from the filename)
   - Show metadata (displayed at the end of the document)
   - Hide images (only if document contains images)
@@ -135,7 +135,7 @@ Every print command opens a simple modal where you can:
 
 💡 **Show comments:** Enabling "Show comments" for Obsidian comments (`%% ... %%`) switches to basic rendering since comments are stripped by Obsidian before the preview DOM is built
 
-💡 **Rich print titles:** Obsidian filenames can't contain special characters like `:`, `?`, `/`, etc. To print with a more expressive title, add an H1 at the top of your note (e.g., `# My Report: 2024 Results`) and enable "Use H1 as title" in the print modal — the H1 will replace the filename as the document title, and won't appear twice in the output
+💡 **Rich print titles:** Obsidian filenames can't contain special characters like `:`, `?`, `/`, etc. To print with a more expressive title, add an H1 at the top of your note (e.g., `# My Report: 2024 Results`) and enable "Use H1 as title" in the print modal — the H1 will replace the filename as the document title
 
 💡 **Theme integration:** Use "Get theme colors" in settings to match your Obsidian theme
 
