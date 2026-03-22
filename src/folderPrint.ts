@@ -79,6 +79,20 @@ export async function printFolder(
 		return;
 	}
 
+	// Check if any file has an H1 different from its filename
+	let anyFileHasH1 = false;
+	for (const file of files) {
+		const md = await plugin.app.vault.cachedRead(file);
+		const h1Match = md.match(/^#\s+(.+)/m);
+		if (
+			h1Match &&
+			h1Match[1].trim().toLowerCase() !== file.basename.toLowerCase()
+		) {
+			anyFileHasH1 = true;
+			break;
+		}
+	}
+
 	// 3. Show options modal if enabled in settings.
 	// This allows users to adjust print settings (fonts, colors, etc.)
 	// before printing the entire folder.
@@ -98,6 +112,7 @@ export async function printFolder(
 					hasComments: true,
 					hasMetadata: true,
 					hasHrBreaks: true,
+					hasH1: anyFileHasH1,
 				}, // contentFlags
 				"Print Folder", // modalTitle
 			).open();

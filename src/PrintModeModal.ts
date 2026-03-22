@@ -32,6 +32,7 @@ export class PrintModeModal extends Modal {
 			hasComments: true,
 			hasMetadata: true,
 			hasHrBreaks: true,
+			hasH1: true,
 		},
 		private modalTitle: string = "",
 	) {
@@ -79,19 +80,48 @@ export class PrintModeModal extends Modal {
 		container.style.gap = "20px";
 		container.style.marginBottom = "15px";
 
-		// Print title checkbox.
-		// When enabled, displays the filename as a title at the top.
-		// Automatically removes duplicate H1 if it matches the filename.
-		createCheckbox(
-			container,
-			" Show File Title",
-			"Displays the filename as a title at the top.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)",
-			this.settings.printTitle,
-			async (checked) => {
-				this.settings.printTitle = checked;
-				await this.saveSettings();
-			},
-		);
+		// Show File Title - manual to allow sub-option
+		const titleWrapper = container.createDiv();
+		titleWrapper.style.display = "flex";
+		titleWrapper.style.flexDirection = "column";
+		titleWrapper.style.gap = "3px";
+
+		const titleLabel = titleWrapper.createEl("label");
+		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
+		titleCheck.checked = this.settings.printTitle;
+		titleLabel.appendText(" Show File Title");
+		titleLabel.title =
+			"Displays the filename as a title at the top.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)";
+
+		// Sub-option: replace title with H1 content
+		const h1SubOption = titleWrapper.createEl("label");
+		h1SubOption.style.display =
+			this.settings.printTitle && this.contentFlags.hasH1
+				? "flex"
+				: "none";
+		h1SubOption.style.alignItems = "center";
+		h1SubOption.style.gap = "4px";
+		h1SubOption.style.paddingLeft = "18px";
+		h1SubOption.style.fontSize = "11px";
+		h1SubOption.style.opacity = "0.8";
+
+		const h1Check = h1SubOption.createEl("input", { type: "checkbox" });
+		h1Check.checked = this.settings.replaceTitleWithH1;
+		h1SubOption.appendText(" Use H1 as title instead");
+		h1SubOption.title =
+			"Replace the filename title with the first H1 heading found in the note.";
+
+		titleCheck.addEventListener("change", async () => {
+			this.settings.printTitle = titleCheck.checked;
+			h1SubOption.style.display =
+				titleCheck.checked && this.contentFlags.hasH1 ? "flex" : "none";
+			await this.saveSettings();
+		});
+
+		h1Check.addEventListener("change", async () => {
+			this.settings.replaceTitleWithH1 = h1Check.checked;
+			await this.saveSettings();
+		});
 
 		// Metadata checkbox
 		if (this.contentFlags.hasMetadata) {

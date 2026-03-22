@@ -1,4 +1,4 @@
-import { Plugin, TFile, debounce } from "obsidian";
+import { Plugin, TFile, debounce, MarkdownView } from "obsidian";
 import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from "./types.ts";
 import { printFolder } from "./folderPrint.ts";
 import { PrintModeModal } from "./PrintModeModal.ts";
@@ -136,9 +136,19 @@ export default class SmartPrintPlugin extends Plugin {
 		// before printing. If disabled, print immediately with saved settings.
 		if (this.settings.useModal) {
 			const targetFile = file ?? this.app.workspace.getActiveFile();
+
+			// For selections, get the selected content to scan for H1
+			let selectionContent: string | undefined;
+			if (isSelection) {
+				const activeView =
+					this.app.workspace.getActiveViewOfType(MarkdownView);
+				selectionContent = activeView?.editor.getSelection();
+			}
+
 			const contentFlags = await scanContentFlags(
 				this.app.vault,
 				targetFile ?? undefined,
+				selectionContent,
 			);
 
 			new PrintModeModal(

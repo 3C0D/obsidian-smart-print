@@ -45,11 +45,22 @@ export async function captureSelectionAdvanced(
 		});
 
 		if (content) {
-			// Remove temp file title injected by Obsidian
-			content.querySelector(".inline-title")?.remove();
+			// Handle replaceTitleWithH1 for selections: replace inline title with H1 content, then remove H1
+			if (settings.replaceTitleWithH1 && originalTitle) {
+				const sizer = content.querySelector(".markdown-preview-sizer");
+				const firstH1 = sizer?.querySelector("h1");
+				const inlineTitle = sizer?.querySelector(".inline-title");
 
-			// Inject original title if requested
-			if (settings.printTitle && originalTitle) {
+				if (firstH1) {
+					// Replace inline title with H1 content (or originalTitle as fallback), then remove H1
+					if (inlineTitle) {
+						inlineTitle.textContent =
+							firstH1.textContent ?? originalTitle ?? "";
+					}
+					firstH1.remove();
+				}
+			} else if (settings.printTitle && originalTitle) {
+				// Original behavior: inject title as new element
 				const sizer = content.querySelector(".markdown-preview-sizer");
 				if (sizer) {
 					const titleEl = document.createElement("h1");
@@ -76,12 +87,16 @@ export async function captureSelectionAdvanced(
 					if (sizer) {
 						const tempDiv = document.createElement("div");
 						renderMetadata(metadata, tempDiv);
-						const inlineTitle = sizer.querySelector(".inline-title");
+						const inlineTitle =
+							sizer.querySelector(".inline-title");
 						const metaEl = tempDiv.firstChild as HTMLElement;
 						if (inlineTitle) {
-						inlineTitle.insertAdjacentElement("afterend", metaEl);
+							inlineTitle.insertAdjacentElement(
+								"afterend",
+								metaEl,
+							);
 						} else {
-						sizer.prepend(metaEl);
+							sizer.prepend(metaEl);
 						}
 					}
 				}

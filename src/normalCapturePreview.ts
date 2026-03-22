@@ -8,6 +8,7 @@ import {
 } from "obsidian";
 import type { SmartPrintPluginSettings } from "./types.ts";
 import { getMetadata, renderMetadata } from "./utils/metadata.ts";
+import { extractFirstH1 } from "./utils/h1Utils.ts";
 
 /**
  * Converts markdown content to HTML for printing.
@@ -88,26 +89,7 @@ export async function generateHTML(
 	try {
 		const contentSizer = content.createDiv("markdown-preview-sizer");
 
-		// Handle title if requested
-		if (settings.printTitle && input instanceof TFile) {
-		const titleEl = contentSizer.createEl("h1");
-		titleEl.textContent = input.basename;
-		titleEl.addClass("inline-title");
-		}
-
-		// Add metadata if enabled
-		if (settings.showMetadata) {
-		const metadata = getMetadata(app, input);
-		if (metadata) {
-		renderMetadata(metadata, contentSizer);
-		}
-		}
-
-		// Store title for later comparison if needed
-		const titleText =
-			input instanceof TFile ? input.basename.toLowerCase().trim() : "";
-
-		// Get the markdown content based on input type
+		// Get the markdown content first (needed before title block)
 		let markdownContent: string;
 		let sourcePath: string;
 
@@ -117,6 +99,33 @@ export async function generateHTML(
 		} else {
 			markdownContent = String(input);
 			sourcePath = app.workspace.getActiveFile()?.path ?? "";
+		}
+
+		// Store title for later comparison if needed
+		const titleText =
+			input instanceof TFile ? input.basename.toLowerCase().trim() : "";
+
+		// Handle title if requested
+		if (settings.printTitle && input instanceof TFile) {
+			const titleEl = contentSizer.createEl("h1");
+			titleEl.addClass("inline-title");
+
+			if (settings.replaceTitleWithH1) {
+				// Extract first H1 from markdown before rendering
+				const { h1Text, stripped } = extractFirstH1(markdownContent);
+				titleEl.textContent = h1Text ?? input.basename;
+				if (h1Text) markdownContent = stripped;
+			} else {
+				titleEl.textContent = input.basename;
+			}
+		}
+
+		// Add metadata if enabled
+		if (settings.showMetadata) {
+			const metadata = getMetadata(app, input);
+			if (metadata) {
+				renderMetadata(metadata, contentSizer);
+			}
 		}
 
 		// Strip frontmatter before rendering.
@@ -185,7 +194,12 @@ export async function generateHTML(
 		// Why: When printTitle is enabled, we add an inline title at the top.
 		// If the note's first heading is identical to the filename, it's redundant,
 		// so we remove it to avoid duplication.
-		if (settings.printTitle && input instanceof TFile) {
+		// Note: Skip this if replaceTitleWithH1 is active, as H1 is already removed before rendering.
+		if (
+			settings.printTitle &&
+			input instanceof TFile &&
+			!settings.replaceTitleWithH1
+		) {
 			const firstH1 = contentSizer.querySelector("h1:not(.inline-title)");
 			if (
 				firstH1 &&

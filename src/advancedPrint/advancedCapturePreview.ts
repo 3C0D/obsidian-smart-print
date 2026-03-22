@@ -116,18 +116,30 @@ export async function getRenderedContent(
 		container.appendChild(clonedSizer);
 
 		// Remove first H1 if it duplicates the file title (automatic behavior)
+		// or replace title with H1 content if that setting is enabled
 		if (settings.printTitle) {
 			const activeFile = app.workspace.getActiveFile();
 			if (activeFile) {
-				const titleText = activeFile.basename.toLowerCase().trim();
+				const inlineTitle = clonedSizer.querySelector(".inline-title");
 				const firstH1 = clonedSizer.querySelector(
 					"h1:not(.inline-title)",
 				);
-				if (
-					firstH1 &&
-					firstH1.textContent?.toLowerCase().trim() === titleText
-				) {
+
+				if (settings.replaceTitleWithH1 && firstH1) {
+					// Replace inline title text with H1 content, then remove H1
+					if (inlineTitle) {
+						inlineTitle.textContent =
+							firstH1.textContent ?? activeFile.basename;
+					}
 					firstH1.remove();
+				} else if (firstH1) {
+					// Original behavior: remove H1 only if it matches filename
+					const titleText = activeFile.basename.toLowerCase().trim();
+					if (
+						firstH1.textContent?.toLowerCase().trim() === titleText
+					) {
+						firstH1.remove();
+					}
 				}
 			}
 		}
@@ -196,10 +208,10 @@ export async function getRenderedContent(
 					const metaEl = tempDiv.firstChild as HTMLElement;
 					const inlineTitle = sizer.querySelector(".inline-title");
 					if (inlineTitle) {
-							inlineTitle.insertAdjacentElement("afterend", metaEl);
-						} else {
-							sizer.prepend(metaEl);
-						}
+						inlineTitle.insertAdjacentElement("afterend", metaEl);
+					} else {
+						sizer.prepend(metaEl);
+					}
 				}
 			}
 		}

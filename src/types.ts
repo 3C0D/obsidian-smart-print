@@ -1,6 +1,7 @@
 export interface SmartPrintPluginSettings {
 	// ─── Content options ───────────────────────
 	printTitle: boolean;
+	replaceTitleWithH1: boolean;
 	showMetadata: boolean;
 	hrPageBreaks: boolean;
 	combineFolderNotes: boolean;
@@ -59,6 +60,7 @@ export interface SmartPrintPluginSettings {
 export const DEFAULT_SETTINGS: SmartPrintPluginSettings = {
 	// Content
 	printTitle: true,
+	replaceTitleWithH1: false,
 	showMetadata: false,
 	hrPageBreaks: false,
 	combineFolderNotes: false,
