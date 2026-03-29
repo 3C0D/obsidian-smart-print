@@ -10,6 +10,6 @@ export function extractFirstH1(markdown: string): {
 	if (!match) return { h1Text: null, stripped: markdown };
 	return {
 		h1Text: match[1].trim(),
-		stripped: markdown.replace(/^#\s+.+\n?/m, ""),
+		stripped: markdown.replace(/^#\s+.+\n?/m, '')
 	};
 }

@@ -1,7 +1,7 @@
-import { App, Notice, type PluginManifest } from "obsidian";
-import type { SmartPrintPluginSettings } from "../types.ts";
-import { FONT_OPTIONS } from "./fontOptions.ts";
-import { ERROR_MESSAGES } from "../constants.ts";
+import { App, Notice, type PluginManifest } from 'obsidian';
+import type { SmartPrintPluginSettings } from '../types.ts';
+import { FONT_OPTIONS } from './fontOptions.ts';
+import { ERROR_MESSAGES } from '../constants.ts';
 
 /**
  * Generates CSS styles for printing by combining:
@@ -17,12 +17,12 @@ import { ERROR_MESSAGES } from "../constants.ts";
 export async function generatePrintStyles(
 	app: App,
 	manifest: PluginManifest,
-	settings: SmartPrintPluginSettings,
+	settings: SmartPrintPluginSettings
 ): Promise<string> {
 	const adapter = app.vault.adapter;
 
 	// Read plugin stylesheet
-	let pluginStyle = "";
+	let pluginStyle = '';
 	if (manifest.dir) {
 		// Use string interpolation instead of Node.js path.join()
 		// Obsidian vault paths always use forward slashes
@@ -39,8 +39,8 @@ export async function generatePrintStyles(
 	// Read user print stylesheet (optional)
 	const userStyle =
 		getPrintSnippet(app) && isPrintSnippetEnabled(app)
-			? (getPrintSnippetValue(app) ?? "")
-			: "";
+			? (getPrintSnippetValue(app) ?? '')
+			: '';
 
 	// Generate CSS for headings with sizes and colors from settings
 	const titleCSS = settings.printTitle
@@ -55,7 +55,7 @@ export async function generatePrintStyles(
     display: none;
 }`;
 
-	const headingsCSS = ["h1", "h2", "h3", "h4", "h5", "h6"]
+	const headingsCSS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 		.map((tag) => {
 			const sizeKey = `${tag}Size` as keyof SmartPrintPluginSettings;
 			const colorKey = `${tag}Color` as keyof SmartPrintPluginSettings;
@@ -65,7 +65,7 @@ export async function generatePrintStyles(
 				` color: ${settings[colorKey]}; }`
 			);
 		})
-		.join("\n");
+		.join('\n');
 
 	// Black & white override: disable all colors
 	const bwCSS = !settings.printInColor
@@ -100,30 +100,28 @@ export async function generatePrintStyles(
     stroke: black !important;
 }
 `
-		: "";
+		: '';
 
 	const fontFamily = getFontFamily(settings.printFontFamily);
 
 	const hrCSS = settings.hrPageBreaks
-		? ".obsidian-print hr {" +
-			" page-break-before: always;" +
-			" border: none; }"
-		: "";
+		? '.obsidian-print hr {' + ' page-break-before: always;' + ' border: none; }'
+		: '';
 
 	// Hide metadata container when disabled
 	const metaCSS = !settings.showMetadata
-		? ".obsidian-print .metadata-container" + " { display: none; }"
-		: "";
+		? '.obsidian-print .metadata-container' + ' { display: none; }'
+		: '';
 
 	// Hide all images when enabled (useful for text-only prints)
 	const hideImagesCSS = settings.hideImages
-		? ".obsidian-print img { display: none; }"
-		: "";
+		? '.obsidian-print img { display: none; }'
+		: '';
 
 	// Hide embedded notes when enabled (excludes image embeds)
 	const hideEmbedsCSS = settings.hideEmbeds
-		? ".obsidian-print .obsidian-print-embed { display: none; }"
-		: "";
+		? '.obsidian-print .obsidian-print-embed { display: none; }'
+		: '';
 
 	// Final combined CSS
 	return `
@@ -160,14 +158,14 @@ export function getFontFamily(fontKey?: string): string {
 }
 
 function getPrintSnippetValue(app: App): string | undefined {
-	const printCssPath = ".obsidian/snippets/print.css";
+	const printCssPath = '.obsidian/snippets/print.css';
 	return app.customCss.csscache.get(printCssPath);
 }
 
 export function isPrintSnippetEnabled(app: App): boolean {
-	return app.customCss.enabledSnippets.has("print");
+	return app.customCss.enabledSnippets.has('print');
 }
 
 export function getPrintSnippet(app: App): boolean {
-	return app.customCss.snippets.contains("print");
+	return app.customCss.snippets.contains('print');
 }

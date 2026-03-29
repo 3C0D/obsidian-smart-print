@@ -1,14 +1,7 @@
-import {
-	MarkdownRenderer,
-	TFile,
-	Component,
-	Notice,
-	App,
-	MarkdownView,
-} from "obsidian";
-import type { SmartPrintPluginSettings } from "./types.ts";
-import { getMetadata, renderMetadata } from "./utils/metadata.ts";
-import { extractFirstH1 } from "./utils/h1Utils.ts";
+import { MarkdownRenderer, TFile, Component, Notice, App, MarkdownView } from 'obsidian';
+import type { SmartPrintPluginSettings } from './types.ts';
+import { getMetadata, renderMetadata } from './utils/metadata.ts';
+import { extractFirstH1 } from './utils/h1Utils.ts';
 
 /**
  * Converts markdown content to HTML for printing.
@@ -28,18 +21,18 @@ export async function contentToHTML(
 	app: App,
 	settings: SmartPrintPluginSettings,
 	isSelection: boolean = false,
-	file?: TFile,
+	file?: TFile
 ): Promise<HTMLElement | null> {
 	if (isSelection) {
 		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
 		if (!activeView) {
-			new Notice("No active note.");
+			new Notice('No active note.');
 			return null;
 		}
 
 		const selection = activeView.editor.getSelection();
 		if (!selection) {
-			new Notice("No text selected.");
+			new Notice('No text selected.');
 			return null;
 		}
 
@@ -62,7 +55,7 @@ export async function contentToHTML(
 		}
 
 		if (!file) {
-			new Notice("No note to print.");
+			new Notice('No note to print.');
 			return null;
 		}
 
@@ -82,12 +75,12 @@ export async function contentToHTML(
 export async function generateHTML(
 	app: App,
 	settings: SmartPrintPluginSettings,
-	input: TFile | string,
+	input: TFile | string
 ): Promise<HTMLElement | null> {
-	const content = createDiv("markdown-preview-view");
+	const content = createDiv('markdown-preview-view');
 
 	try {
-		const contentSizer = content.createDiv("markdown-preview-sizer");
+		const contentSizer = content.createDiv('markdown-preview-sizer');
 
 		// Get the markdown content first (needed before title block)
 		let markdownContent: string;
@@ -98,17 +91,17 @@ export async function generateHTML(
 			sourcePath = input.path;
 		} else {
 			markdownContent = String(input);
-			sourcePath = app.workspace.getActiveFile()?.path ?? "";
+			sourcePath = app.workspace.getActiveFile()?.path ?? '';
 		}
 
 		// Store title for later comparison if needed
 		const titleText =
-			input instanceof TFile ? input.basename.toLowerCase().trim() : "";
+			input instanceof TFile ? input.basename.toLowerCase().trim() : '';
 
 		// Handle title if requested
 		if (settings.printTitle && input instanceof TFile) {
-			const titleEl = contentSizer.createEl("h1");
-			titleEl.addClass("inline-title");
+			const titleEl = contentSizer.createEl('h1');
+			titleEl.addClass('inline-title');
 
 			if (settings.replaceTitleWithH1) {
 				// Extract first H1 from markdown before rendering
@@ -132,8 +125,8 @@ export async function generateHTML(
 		// Why: Obsidian's MarkdownRenderer rejects raw frontmatter with a boolean error
 		// because frontmatter should be processed separately (we handle it via addMetadataToContent).
 		// This prevents rendering errors while preserving metadata display when enabled.
-		if (typeof markdownContent === "string") {
-			markdownContent = markdownContent.replace(/^---[\s\S]*?---\n?/, "");
+		if (typeof markdownContent === 'string') {
+			markdownContent = markdownContent.replace(/^---[\s\S]*?---\n?/, '');
 		}
 
 		// Remove text embeds (![[note]]) when hideEmbeds is enabled.
@@ -142,7 +135,7 @@ export async function generateHTML(
 		if (settings.hideEmbeds) {
 			markdownContent = markdownContent.replace(
 				/!\[\[(?!.*\.(png|jpg|jpeg|gif|svg|webp|bmp))[^\]]+\]\]/gi,
-				"",
+				''
 			);
 		}
 
@@ -152,7 +145,7 @@ export async function generateHTML(
 		if (settings.showComments) {
 			markdownContent = markdownContent.replace(
 				/%%(.+?)%%/gs,
-				(_, content) => `\`[comment: ${content.trim()}]\``,
+				(_, content) => `\`[comment: ${content.trim()}]\``
 			);
 		}
 
@@ -167,7 +160,7 @@ export async function generateHTML(
 				markdownContent,
 				contentSizer,
 				sourcePath,
-				component,
+				component
 			);
 		} finally {
 			// Always unload the component to prevent memory leaks.
@@ -178,13 +171,13 @@ export async function generateHTML(
 		// We replace the `<code>[comment: ...]</code>` elements created by the
 		// renderer with styled spans that have a yellow background.
 		if (settings.showComments) {
-			contentSizer.querySelectorAll("code").forEach((code) => {
-				if (code.textContent?.startsWith("[comment: ")) {
-					const span = document.createElement("span");
-					span.className = "obsidian-comment";
+			contentSizer.querySelectorAll('code').forEach((code) => {
+				if (code.textContent?.startsWith('[comment: ')) {
+					const span = document.createElement('span');
+					span.className = 'obsidian-comment';
 					span.textContent = code.textContent
-						.replace("[comment: ", "")
-						.replace(/\]$/, "");
+						.replace('[comment: ', '')
+						.replace(/\]$/, '');
 					code.replaceWith(span);
 				}
 			});
@@ -200,19 +193,16 @@ export async function generateHTML(
 			input instanceof TFile &&
 			!settings.replaceTitleWithH1
 		) {
-			const firstH1 = contentSizer.querySelector("h1:not(.inline-title)");
-			if (
-				firstH1 &&
-				firstH1.textContent?.toLowerCase().trim() === titleText
-			) {
+			const firstH1 = contentSizer.querySelector('h1:not(.inline-title)');
+			if (firstH1 && firstH1.textContent?.toLowerCase().trim() === titleText) {
 				firstH1.remove();
 			}
 		}
 
 		return content;
 	} catch (error) {
-		new Notice("Failed to generate preview content.");
-		console.error("Preview generation error:", error);
+		new Notice('Failed to generate preview content.');
+		console.error('Preview generation error:', error);
 		return null;
 	}
 }

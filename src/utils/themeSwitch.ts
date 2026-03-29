@@ -21,15 +21,15 @@
  * ```
  */
 export function switchToLightTheme(): () => void {
-	const wasInDarkMode = document.body.classList.contains("theme-dark");
+	const wasInDarkMode = document.body.classList.contains('theme-dark');
 
 	if (wasInDarkMode) {
-		document.body.classList.replace("theme-dark", "theme-light");
+		document.body.classList.replace('theme-dark', 'theme-light');
 	}
 
 	return () => {
 		if (wasInDarkMode) {
-			document.body.classList.replace("theme-light", "theme-dark");
+			document.body.classList.replace('theme-light', 'theme-dark');
 		}
 	};
 }

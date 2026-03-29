@@ -1,7 +1,7 @@
-import { Notice } from "obsidian";
-import { isMobile } from "./utils/platform.ts";
-import { Printd } from "printd";
-import { ERROR_MESSAGES } from "./constants.ts";
+import { Notice } from 'obsidian';
+import { isMobile } from './utils/platform.ts';
+import { Printd } from 'printd';
+import { ERROR_MESSAGES } from './constants.ts';
 
 // Timing constants for browser print operations
 const TEMP_FILE_CLEANUP_DELAY_MS = 5000; // Delay before cleaning up temporary print files (allows browser to open the file)
@@ -18,11 +18,11 @@ export class PrintManager {
 		content: HTMLElement,
 		styles: string,
 		isAdvanced: boolean = false,
-		filePath?: string,
+		filePath?: string
 	): string {
-		const fileName = filePath || "Untitled";
-		const title = isAdvanced ? "⚡" : "";
-		const favicon = "🖨️";
+		const fileName = filePath || 'Untitled';
+		const title = isAdvanced ? '⚡' : '';
+		const favicon = '🖨️';
 
 		return `<!DOCTYPE html>
     <html>
@@ -61,14 +61,14 @@ export class PrintManager {
 			try {
 				const printd = new Printd();
 				const parser = new DOMParser();
-				const doc = parser.parseFromString(html, "text/html");
-				const styles = Array.from(doc.querySelectorAll("style"))
-					.map((s) => s.textContent || "")
-					.join("\n");
+				const doc = parser.parseFromString(html, 'text/html');
+				const styles = Array.from(doc.querySelectorAll('style'))
+					.map((s) => s.textContent || '')
+					.join('\n');
 				const body = doc.body;
 				printd.print(body, [styles]);
 			} catch (error) {
-				console.error("Failed to print on mobile:", error);
+				console.error('Failed to print on mobile:', error);
 				new Notice(ERROR_MESSAGES.PREPARE_CONTENT_FAILED);
 			}
 		} else {
@@ -77,12 +77,12 @@ export class PrintManager {
 				// 1. Lazy load Node.js modules exclusively on desktop
 				// We use require() inside this block to prevent ESbuild from
 				// bundling them for mobile, where these modules do not exist.
-				const { tmpdir } = require("os") as typeof import("os");
-				const { join } = require("path") as typeof import("path");
+				const { tmpdir } = require('os') as typeof import('os');
+				const { join } = require('path') as typeof import('path');
 				const { writeFileSync, unlinkSync } =
-					require("fs") as typeof import("fs");
+					require('fs') as typeof import('fs');
 				const { spawn } =
-					require("child_process") as typeof import("child_process");
+					require('child_process') as typeof import('child_process');
 
 				// 2. Prepare a unique temporary file path
 				const fileName = `obsidian-print-${Date.now()}.html`;
@@ -95,23 +95,23 @@ export class PrintManager {
 				// Using spawn() instead of exec() prevents shell injection vulnerabilities
 				// because arguments are passed as an array, not interpolated into a string.
 				let childProcess;
-				if (process.platform === "win32") {
+				if (process.platform === 'win32') {
 					// Windows: Use 'cmd /c start "" "path"'
-					childProcess = spawn("cmd", ["/c", "start", "", savePath], {
+					childProcess = spawn('cmd', ['/c', 'start', '', savePath], {
 						detached: true,
-						stdio: "ignore",
+						stdio: 'ignore'
 					});
-				} else if (process.platform === "darwin") {
+				} else if (process.platform === 'darwin') {
 					// macOS: Use 'open path'
-					childProcess = spawn("open", [savePath], {
+					childProcess = spawn('open', [savePath], {
 						detached: true,
-						stdio: "ignore",
+						stdio: 'ignore'
 					});
 				} else {
 					// Linux: Use 'xdg-open path'
-					childProcess = spawn("xdg-open", [savePath], {
+					childProcess = spawn('xdg-open', [savePath], {
 						detached: true,
-						stdio: "ignore",
+						stdio: 'ignore'
 					});
 				}
 
@@ -126,14 +126,14 @@ export class PrintManager {
 					} catch (cleanupError) {
 						// Log cleanup failures for debugging, but don't show to user
 						console.warn(
-							"Failed to cleanup temporary print file:",
+							'Failed to cleanup temporary print file:',
 							savePath,
-							cleanupError,
+							cleanupError
 						);
 					}
 				}, TEMP_FILE_CLEANUP_DELAY_MS);
 			} catch (error) {
-				console.error("Failed to initialize desktop print:", error);
+				console.error('Failed to initialize desktop print:', error);
 				new Notice(ERROR_MESSAGES.PRINT_DIALOG_FAILED_DETAILS);
 			}
 		}

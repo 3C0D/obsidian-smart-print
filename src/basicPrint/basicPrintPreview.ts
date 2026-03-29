@@ -1,6 +1,6 @@
-import { Printd } from "printd";
-import type { SmartPrintPluginSettings } from "../types.ts";
-import { switchToLightTheme } from "../utils/themeSwitch.ts";
+import { Printd } from 'printd';
+import type { SmartPrintPluginSettings } from '../types.ts';
+import { switchToLightTheme } from '../utils/themeSwitch.ts';
 
 /**
  * Opens a preview window then allows the user to print.
@@ -12,16 +12,16 @@ import { switchToLightTheme } from "../utils/themeSwitch.ts";
 export async function openPrintModal(
 	content: HTMLElement,
 	settings: SmartPrintPluginSettings,
-	cssString: string,
+	cssString: string
 ): Promise<void> {
 	const styleManager = new PrintStyleManager(settings);
 	const printContent = styleManager.prepareForPrint(content);
 
 	const preview = new PrintPreview();
 	preview.createPreview(printContent, cssString, {
-		width: "90%",
-		height: "90%",
-		scale: 1,
+		width: '90%',
+		height: '90%',
+		scale: 1
 	});
 }
 
@@ -37,7 +37,7 @@ export async function openPrintModal(
 export async function directPrint(
 	content: HTMLElement,
 	settings: SmartPrintPluginSettings,
-	cssString: string,
+	cssString: string
 ): Promise<void> {
 	const restoreTheme = switchToLightTheme();
 
@@ -45,15 +45,15 @@ export async function directPrint(
 		const styleManager = new PrintStyleManager(settings);
 		const printContent = styleManager.prepareForPrint(content);
 
-		const htmlElement = document.createElement("html");
-		const headElement = document.createElement("head");
-		const bodyElement = document.createElement("body");
+		const htmlElement = document.createElement('html');
+		const headElement = document.createElement('head');
+		const bodyElement = document.createElement('body');
 
-		const styleElement = document.createElement("style");
+		const styleElement = document.createElement('style');
 		styleElement.textContent = cssString;
 		headElement.appendChild(styleElement);
 
-		bodyElement.className = "obsidian-print";
+		bodyElement.className = 'obsidian-print';
 		bodyElement.appendChild(printContent);
 
 		htmlElement.appendChild(headElement);
@@ -87,13 +87,13 @@ class PrintPreview {
 	createPreview(
 		element: HTMLElement,
 		globalCss: string,
-		options: PrintPreviewOptions = {},
+		options: PrintPreviewOptions = {}
 	): void {
 		// Switch to light theme for print rendering
 		this.restoreTheme = switchToLightTheme();
 
-		this.previewWindow = document.createElement("div");
-		this.previewWindow.className = "print-preview-window";
+		this.previewWindow = document.createElement('div');
+		this.previewWindow.className = 'print-preview-window';
 
 		const containerStyles = `
 .print-preview-window {
@@ -107,8 +107,8 @@ class PrintPreview {
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
     z-index: 9999;
     overflow: auto;
-    width: ${options.width || "80%"};
-    height: ${options.height || "80%"};
+    width: ${options.width || '80%'};
+    height: ${options.height || '80%'};
     scrollbar-width: thin;
 }
 .print-preview-controls {
@@ -150,33 +150,33 @@ class PrintPreview {
 }
         `;
 
-		const style = document.createElement("style");
-		style.textContent = globalCss + "\n" + containerStyles;
+		const style = document.createElement('style');
+		style.textContent = globalCss + '\n' + containerStyles;
 
-		const controls = document.createElement("div");
-		controls.className = "print-preview-controls";
+		const controls = document.createElement('div');
+		controls.className = 'print-preview-controls';
 
-		const printButton = document.createElement("button");
-		printButton.textContent = "Print";
+		const printButton = document.createElement('button');
+		printButton.textContent = 'Print';
 		printButton.onclick = (): void => {
 			this.printd.print(element, [globalCss]);
 			this.close();
 		};
 
-		const closeButton = document.createElement("button");
-		closeButton.textContent = "Close";
+		const closeButton = document.createElement('button');
+		closeButton.textContent = 'Close';
 		closeButton.onclick = (): void => this.close();
 
 		controls.append(printButton, closeButton);
 
-		const contentContainer = document.createElement("div");
-		contentContainer.className = "print-preview-content";
+		const contentContainer = document.createElement('div');
+		contentContainer.className = 'print-preview-content';
 
 		// Create a self-sizing page with 20px padding
-		const page = document.createElement("div");
-		page.className = "print-preview-page";
-		const pageContent = document.createElement("div");
-		pageContent.className = "print-preview-page-content";
+		const page = document.createElement('div');
+		page.className = 'print-preview-page';
+		const pageContent = document.createElement('div');
+		pageContent.className = 'print-preview-page-content';
 		pageContent.appendChild(element.cloneNode(true));
 		page.appendChild(pageContent);
 		contentContainer.appendChild(page);
@@ -186,7 +186,7 @@ class PrintPreview {
 
 		if (options.scale) {
 			contentContainer.style.transform = `scale(${options.scale})`;
-			contentContainer.style.transformOrigin = "top center";
+			contentContainer.style.transformOrigin = 'top center';
 		}
 	}
 
@@ -213,7 +213,7 @@ export class PrintStyleManager {
 	 */
 	prepareForPrint(content: HTMLElement): HTMLElement {
 		const printContent = content.cloneNode(true) as HTMLElement;
-		printContent.classList.add("obsidian-print");
+		printContent.classList.add('obsidian-print');
 
 		// Note: settings parameter available for future use
 		// Currently used for potential print customizations

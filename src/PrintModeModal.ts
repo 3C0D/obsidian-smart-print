@@ -1,10 +1,10 @@
-import { Modal, App, Platform } from "obsidian";
-import type { SmartPrintPluginSettings } from "./types.ts";
-import { validateFontSize, initializeFontSizes } from "./settings.ts";
-import type SmartPrintPlugin from "./main.ts";
-import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
-import { createCheckbox } from "./ui/checkboxHelper.ts";
-import type { ContentFlags } from "./utils/contentScanner.ts";
+import { Modal, App, Platform } from 'obsidian';
+import type { SmartPrintPluginSettings } from './types.ts';
+import { validateFontSize, initializeFontSizes } from './settings.ts';
+import type SmartPrintPlugin from './main.ts';
+import { FONT_OPTIONS } from './getStyles/fontOptions.ts';
+import { createCheckbox } from './ui/checkboxHelper.ts';
+import type { ContentFlags } from './utils/contentScanner.ts';
 
 /**
  * Simplified print options modal.
@@ -32,9 +32,9 @@ export class PrintModeModal extends Modal {
 			hasComments: true,
 			hasMetadata: true,
 			hasHrBreaks: true,
-			hasH1: true,
+			hasH1: true
 		},
-		private modalTitle: string = "",
+		private modalTitle: string = ''
 	) {
 		super(app);
 	}
@@ -42,21 +42,19 @@ export class PrintModeModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 
-		this.modalEl.addClass("smart-print-modal");
+		this.modalEl.addClass('smart-print-modal');
 
 		contentEl.empty();
 
-		const title = contentEl.createEl("h2");
+		const title = contentEl.createEl('h2');
 		title.setText(
 			this.modalTitle ||
-				(this.isFolderPrint
-					? "Folder Print Options "
-					: "Print Options "),
+				(this.isFolderPrint ? 'Folder Print Options ' : 'Print Options ')
 		);
 
-		const hint = title.createEl("span");
-		hint.addClass("print-modal-hint");
-		hint.setText("(options adapt to document content)");
+		const hint = title.createEl('span');
+		hint.addClass('print-modal-hint');
+		hint.setText('(options adapt to document content)');
 
 		this.renderOptionsRow(contentEl);
 		this.renderFontRow(contentEl);
@@ -75,50 +73,48 @@ export class PrintModeModal extends Modal {
 	 */
 	private renderOptionsRow(contentEl: HTMLElement): void {
 		const container = contentEl.createDiv();
-		container.style.display = "flex";
-		container.style.justifyContent = "center";
-		container.style.gap = "20px";
-		container.style.marginBottom = "15px";
+		container.style.display = 'flex';
+		container.style.justifyContent = 'center';
+		container.style.gap = '20px';
+		container.style.marginBottom = '15px';
 
 		// Show File Title - manual to allow sub-option
 		const titleWrapper = container.createDiv();
-		titleWrapper.style.display = "flex";
-		titleWrapper.style.flexDirection = "column";
-		titleWrapper.style.gap = "3px";
+		titleWrapper.style.display = 'flex';
+		titleWrapper.style.flexDirection = 'column';
+		titleWrapper.style.gap = '3px';
 
-		const titleLabel = titleWrapper.createEl("label");
-		const titleCheck = titleLabel.createEl("input", { type: "checkbox" });
+		const titleLabel = titleWrapper.createEl('label');
+		const titleCheck = titleLabel.createEl('input', { type: 'checkbox' });
 		titleCheck.checked = this.settings.printTitle;
-		titleLabel.appendText(" Show File Title");
+		titleLabel.appendText(' Show File Title');
 		titleLabel.title =
-			"Displays the filename as a title at the top.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)";
+			'Displays the filename as a title at the top.\nAutomatically hides first H1 if it matches the filename.\n\n(Class: .inline-title)';
 
 		// Sub-option: replace title with H1 content
-		const h1SubOption = titleWrapper.createEl("label");
+		const h1SubOption = titleWrapper.createEl('label');
 		h1SubOption.style.display =
-			this.settings.printTitle && this.contentFlags.hasH1
-				? "flex"
-				: "none";
-		h1SubOption.style.alignItems = "center";
-		h1SubOption.style.gap = "4px";
-		h1SubOption.style.paddingLeft = "18px";
-		h1SubOption.style.fontSize = "11px";
-		h1SubOption.style.opacity = "0.8";
+			this.settings.printTitle && this.contentFlags.hasH1 ? 'flex' : 'none';
+		h1SubOption.style.alignItems = 'center';
+		h1SubOption.style.gap = '4px';
+		h1SubOption.style.paddingLeft = '18px';
+		h1SubOption.style.fontSize = '11px';
+		h1SubOption.style.opacity = '0.8';
 
-		const h1Check = h1SubOption.createEl("input", { type: "checkbox" });
+		const h1Check = h1SubOption.createEl('input', { type: 'checkbox' });
 		h1Check.checked = this.settings.replaceTitleWithH1;
-		h1SubOption.appendText(" Use H1 as title instead");
+		h1SubOption.appendText(' Use H1 as title instead');
 		h1SubOption.title =
-			"Replace the filename title with the first H1 heading found in the note.";
+			'Replace the filename title with the first H1 heading found in the note.';
 
-		titleCheck.addEventListener("change", async () => {
+		titleCheck.addEventListener('change', async () => {
 			this.settings.printTitle = titleCheck.checked;
 			h1SubOption.style.display =
-				titleCheck.checked && this.contentFlags.hasH1 ? "flex" : "none";
+				titleCheck.checked && this.contentFlags.hasH1 ? 'flex' : 'none';
 			await this.saveSettings();
 		});
 
-		h1Check.addEventListener("change", async () => {
+		h1Check.addEventListener('change', async () => {
 			this.settings.replaceTitleWithH1 = h1Check.checked;
 			await this.saveSettings();
 		});
@@ -127,13 +123,13 @@ export class PrintModeModal extends Modal {
 		if (this.contentFlags.hasMetadata) {
 			createCheckbox(
 				container,
-				" Show Metadata",
-				"Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)",
+				' Show Metadata',
+				'Display frontmatter metadata at the top of the document.\n\n(Class: .custom-metadata-container)',
 				this.settings.showMetadata,
 				async (checked) => {
 					this.settings.showMetadata = checked;
 					await this.saveSettings();
-				},
+				}
 			);
 		}
 
@@ -141,26 +137,26 @@ export class PrintModeModal extends Modal {
 		if (this.contentFlags.hasHrBreaks) {
 			createCheckbox(
 				container,
-				" Page Breaks at ---",
-				"Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)",
+				' Page Breaks at ---',
+				'Each horizontal rule (---) triggers a page break when printing.\n\n(Selector: .obsidian-print hr)',
 				this.settings.hrPageBreaks,
 				async (checked) => {
 					this.settings.hrPageBreaks = checked;
 					await this.saveSettings();
-				},
+				}
 			);
 		}
 
 		// Print in color checkbox
 		createCheckbox(
 			container,
-			" Print in color",
-			"Print with colors or force black & white output.\n\n(Selector: .obsidian-print *)",
+			' Print in color',
+			'Print with colors or force black & white output.\n\n(Selector: .obsidian-print *)',
 			this.settings.printInColor,
 			async (checked) => {
 				this.settings.printInColor = checked;
 				await this.saveSettings();
-			},
+			}
 		);
 
 		// Show comments checkbox with warning.
@@ -168,45 +164,41 @@ export class PrintModeModal extends Modal {
 		// comments are already stripped from the DOM in preview mode.
 		if (this.contentFlags.hasComments) {
 			const commentsWrapper = container.createDiv();
-			commentsWrapper.style.display = "flex";
-			commentsWrapper.style.flexDirection = "column";
-			commentsWrapper.style.gap = "3px";
+			commentsWrapper.style.display = 'flex';
+			commentsWrapper.style.flexDirection = 'column';
+			commentsWrapper.style.gap = '3px';
 
-			const commentsLabel = commentsWrapper.createEl("label");
-			const commentsCheck = commentsLabel.createEl("input", {
-				type: "checkbox",
+			const commentsLabel = commentsWrapper.createEl('label');
+			const commentsCheck = commentsLabel.createEl('input', {
+				type: 'checkbox'
 			});
 			commentsCheck.checked = this.settings.showComments;
-			commentsLabel.appendText(" Show comments");
+			commentsLabel.appendText(' Show comments');
 			commentsLabel.title =
-				"Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)";
+				'Show Obsidian comments (%% ... %%) in print output.\n⚠ Enabling this disables advanced rendering (Mermaid, LaTeX, Dataview).\n\n(Class: .obsidian-comment)';
 
 			// Warning only for non-folder print (selection now uses advanced mode)
 			let warningEl: HTMLElement | null = null;
 			if (!this.isFolderPrint) {
-				warningEl = commentsWrapper.createEl("span");
-				warningEl.setText("(No post-render)");
+				warningEl = commentsWrapper.createEl('span');
+				warningEl.setText('(No post-render)');
 				warningEl.style.display =
-					this.settings.showComments && !Platform.isMobile
-						? "block"
-						: "none";
-				warningEl.style.fontSize = "10px";
-				warningEl.style.paddingLeft = "16px";
-				warningEl.style.color = "#a0522d";
-				warningEl.style.backgroundColor = "#fdf6ec";
-				warningEl.style.borderRadius = "3px";
-				warningEl.style.padding = "1px 5px";
-				warningEl.style.border = "1px solid #e8c97a";
+					this.settings.showComments && !Platform.isMobile ? 'block' : 'none';
+				warningEl.style.fontSize = '10px';
+				warningEl.style.paddingLeft = '16px';
+				warningEl.style.color = '#a0522d';
+				warningEl.style.backgroundColor = '#fdf6ec';
+				warningEl.style.borderRadius = '3px';
+				warningEl.style.padding = '1px 5px';
+				warningEl.style.border = '1px solid #e8c97a';
 			}
 
-			commentsCheck.addEventListener("change", async () => {
+			commentsCheck.addEventListener('change', async () => {
 				this.settings.showComments = commentsCheck.checked;
 				// Only show warning for non-folder print
 				if (!this.isFolderPrint && warningEl) {
 					warningEl.style.display =
-						commentsCheck.checked && !Platform.isMobile
-							? "block"
-							: "none";
+						commentsCheck.checked && !Platform.isMobile ? 'block' : 'none';
 				}
 				await this.saveSettings();
 			});
@@ -216,13 +208,13 @@ export class PrintModeModal extends Modal {
 		if (this.contentFlags.hasImages) {
 			createCheckbox(
 				container,
-				" Hide images",
-				"Hide all images from print output.\n\n(Selector: .obsidian-print img)",
+				' Hide images',
+				'Hide all images from print output.\n\n(Selector: .obsidian-print img)',
 				this.settings.hideImages,
 				async (checked) => {
 					this.settings.hideImages = checked;
 					await this.saveSettings();
-				},
+				}
 			);
 		}
 
@@ -230,13 +222,13 @@ export class PrintModeModal extends Modal {
 		if (this.contentFlags.hasEmbeds) {
 			createCheckbox(
 				container,
-				" Hide embed files",
-				"Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .obsidian-print-embed)",
+				' Hide embed files',
+				'Hide embedded notes (![[note]]) from print output.\n\n(Selector: .obsidian-print .obsidian-print-embed)',
 				this.settings.hideEmbeds,
 				async (checked) => {
 					this.settings.hideEmbeds = checked;
 					await this.saveSettings();
-				},
+				}
 			);
 		}
 	}
@@ -251,49 +243,49 @@ export class PrintModeModal extends Modal {
 	 */
 	private renderFontRow(contentEl: HTMLElement): void {
 		const container = contentEl.createDiv();
-		container.style.display = "flex";
-		container.style.justifyContent = "center";
-		container.style.alignItems = "center";
-		container.style.gap = "15px";
-		container.style.marginBottom = "20px";
+		container.style.display = 'flex';
+		container.style.justifyContent = 'center';
+		container.style.alignItems = 'center';
+		container.style.gap = '15px';
+		container.style.marginBottom = '20px';
 
 		// Font family dropdown
-		const fontLabel = container.createEl("label");
-		fontLabel.style.display = "flex";
-		fontLabel.style.alignItems = "center";
-		fontLabel.style.gap = "5px";
-		fontLabel.appendText("Font:");
+		const fontLabel = container.createEl('label');
+		fontLabel.style.display = 'flex';
+		fontLabel.style.alignItems = 'center';
+		fontLabel.style.gap = '5px';
+		fontLabel.appendText('Font:');
 
-		const fontSelect = fontLabel.createEl("select");
-		fontSelect.style.minWidth = "120px";
+		const fontSelect = fontLabel.createEl('select');
+		fontSelect.style.minWidth = '120px';
 
 		FONT_OPTIONS.forEach((option) => {
-			const optEl = fontSelect.createEl("option");
+			const optEl = fontSelect.createEl('option');
 			optEl.value = option.value;
 			optEl.textContent = option.label;
 		});
 
 		fontSelect.value = this.settings.printFontFamily;
-		fontSelect.addEventListener("change", async () => {
+		fontSelect.addEventListener('change', async () => {
 			this.settings.printFontFamily = fontSelect.value;
 			await this.saveSettings();
 		});
 
 		// Font size input
-		const sizeLabel = container.createEl("label");
-		sizeLabel.style.display = "flex";
-		sizeLabel.style.alignItems = "center";
-		sizeLabel.style.gap = "5px";
-		sizeLabel.appendText("Size:");
+		const sizeLabel = container.createEl('label');
+		sizeLabel.style.display = 'flex';
+		sizeLabel.style.alignItems = 'center';
+		sizeLabel.style.gap = '5px';
+		sizeLabel.appendText('Size:');
 
-		const sizeInput = sizeLabel.createEl("input");
-		sizeInput.type = "number";
-		sizeInput.style.width = "60px";
-		sizeInput.min = "8";
-		sizeInput.max = "72";
-		sizeInput.value = this.settings.fontSize.replace("px", "");
-		sizeInput.addEventListener("change", async () => {
-			const value = validateFontSize(sizeInput.value, "12px");
+		const sizeInput = sizeLabel.createEl('input');
+		sizeInput.type = 'number';
+		sizeInput.style.width = '60px';
+		sizeInput.min = '8';
+		sizeInput.max = '72';
+		sizeInput.value = this.settings.fontSize.replace('px', '');
+		sizeInput.addEventListener('change', async () => {
+			const value = validateFontSize(sizeInput.value, '12px');
 			this.settings.fontSize = value;
 
 			if (this.settings.autoSyncHeadingSizes) {
@@ -303,20 +295,20 @@ export class PrintModeModal extends Modal {
 		});
 
 		// Auto-sync toggle
-		const syncLabel = container.createEl("label");
-		syncLabel.style.display = "flex";
-		syncLabel.style.alignItems = "center";
-		syncLabel.style.gap = "5px";
-		syncLabel.style.fontSize = "12px";
+		const syncLabel = container.createEl('label');
+		syncLabel.style.display = 'flex';
+		syncLabel.style.alignItems = 'center';
+		syncLabel.style.gap = '5px';
+		syncLabel.style.fontSize = '12px';
 
-		const syncCheck = syncLabel.createEl("input", {
-			type: "checkbox",
+		const syncCheck = syncLabel.createEl('input', {
+			type: 'checkbox'
 		});
 		syncCheck.checked = this.settings.autoSyncHeadingSizes;
-		syncLabel.appendText("Scale headings with font size");
+		syncLabel.appendText('Scale headings with font size');
 		syncLabel.title =
-			"All heading sizes automatically adjust when you change the base font size.";
-		syncCheck.addEventListener("change", async () => {
+			'All heading sizes automatically adjust when you change the base font size.';
+		syncCheck.addEventListener('change', async () => {
 			this.settings.autoSyncHeadingSizes = syncCheck.checked;
 			if (syncCheck.checked) {
 				await initializeFontSizes(this.plugin);
@@ -335,17 +327,17 @@ export class PrintModeModal extends Modal {
 	 */
 	private renderButtons(contentEl: HTMLElement): void {
 		const container = contentEl.createDiv();
-		container.style.display = "flex";
-		container.style.justifyContent = "center";
-		container.style.alignItems = "center";
-		container.style.gap = "15px";
-		container.style.marginTop = "20px";
+		container.style.display = 'flex';
+		container.style.justifyContent = 'center';
+		container.style.alignItems = 'center';
+		container.style.gap = '15px';
+		container.style.marginTop = '20px';
 
-		const printBtn = container.createEl("button");
-		printBtn.style.width = "150px";
-		printBtn.style.color = "var(--text-accent)";
-		printBtn.setText("Print");
-		printBtn.addEventListener("click", () => {
+		const printBtn = container.createEl('button');
+		printBtn.style.width = '150px';
+		printBtn.style.color = 'var(--text-accent)';
+		printBtn.setText('Print');
+		printBtn.addEventListener('click', () => {
 			this.close();
 			this.onSubmit();
 		});
@@ -354,23 +346,23 @@ export class PrintModeModal extends Modal {
 		// When enabled, all notes print continuously.
 		// When disabled, each note starts on a new page.
 		if (this.isFolderPrint) {
-			const combineLabel = container.createEl("label");
-			combineLabel.style.display = "flex";
-			combineLabel.style.alignItems = "center";
-			combineLabel.style.gap = "5px";
-			combineLabel.style.padding = "2px 6px";
-			const combineCheck = combineLabel.createEl("input", {
-				type: "checkbox",
+			const combineLabel = container.createEl('label');
+			combineLabel.style.display = 'flex';
+			combineLabel.style.alignItems = 'center';
+			combineLabel.style.gap = '5px';
+			combineLabel.style.padding = '2px 6px';
+			const combineCheck = combineLabel.createEl('input', {
+				type: 'checkbox'
 			});
 			combineCheck.checked = this.settings.combineFolderNotes;
-			combineLabel.appendText(" Combine notes");
+			combineLabel.appendText(' Combine notes');
 			combineLabel.title =
-				"When enabled, all notes are printed continuously.\nWhen disabled, each note starts on a new page.\n\n(Invisible <hr> elements with page-break-before: always)";
+				'When enabled, all notes are printed continuously.\nWhen disabled, each note starts on a new page.\n\n(Invisible <hr> elements with page-break-before: always)';
 
 			// Apply initial visual state
 			this.updateCombineStyle(combineLabel, combineCheck);
 
-			combineCheck.addEventListener("change", async () => {
+			combineCheck.addEventListener('change', async () => {
 				this.settings.combineFolderNotes = combineCheck.checked;
 				this.updateCombineStyle(combineLabel, combineCheck);
 				await this.saveSettings();
@@ -383,17 +375,13 @@ export class PrintModeModal extends Modal {
 	 */
 	private updateCombineStyle(
 		combineLabel: HTMLElement,
-		combineCheck: HTMLInputElement,
+		combineCheck: HTMLInputElement
 	): void {
 		const checked = combineCheck.checked;
-		combineLabel.style.outline = checked
-			? "1px solid rgba(255, 150, 150, 0.4)"
-			: "";
-		combineLabel.style.borderRadius = checked ? "4px" : "";
-		combineLabel.style.backgroundColor = checked
-			? "rgba(255, 100, 100, 0.15)"
-			: "";
-		combineLabel.style.transition = "all 0.2s";
+		combineLabel.style.outline = checked ? '1px solid rgba(255, 150, 150, 0.4)' : '';
+		combineLabel.style.borderRadius = checked ? '4px' : '';
+		combineLabel.style.backgroundColor = checked ? 'rgba(255, 100, 100, 0.15)' : '';
+		combineLabel.style.transition = 'all 0.2s';
 	}
 
 	onClose(): void {

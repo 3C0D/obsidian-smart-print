@@ -1,6 +1,6 @@
-import { App, MarkdownView, Notice } from "obsidian";
-import type { SmartPrintPluginSettings } from "../types.ts";
-import { getMetadata, renderMetadata } from "../utils/metadata.ts";
+import { App, MarkdownView, Notice } from 'obsidian';
+import type { SmartPrintPluginSettings } from '../types.ts';
+import { getMetadata, renderMetadata } from '../utils/metadata.ts';
 
 // Timing constants for content capture and stabilization
 const MODE_SWITCH_DELAY_MS = 300; // Delay after switching editor modes to ensure DOM updates
@@ -9,7 +9,7 @@ const CONTENT_STABILITY_CHECK_INTERVAL_MS = 100; // How often to check for stabi
 const CONTENT_STABILITY_TIMEOUT_MS = 5000; // Maximum wait time for content to stabilize
 const MUTATION_OBSERVER_INITIAL_DELAY_MS = 500; // Initial delay before starting mutation observation
 
-declare module "obsidian" {
+declare module 'obsidian' {
 	interface WorkspaceLeaf {
 		rebuildView(): void;
 	}
@@ -21,51 +21,47 @@ declare module "obsidian" {
  */
 export async function getRenderedContent(
 	app: App,
-	settings: SmartPrintPluginSettings,
+	settings: SmartPrintPluginSettings
 ): Promise<HTMLElement | null> {
 	const activeView = app.workspace.getActiveViewOfType(MarkdownView);
 	if (!activeView) return null;
 
 	// Get preview container
 	const previewEl = activeView.contentEl.querySelector(
-		".markdown-preview-view",
+		'.markdown-preview-view'
 	) as HTMLElement;
 	if (!previewEl) {
-		new Notice("No preview element found");
+		new Notice('No preview element found');
 		return null;
 	}
 
-	const wasInEditMode = activeView.getMode() === "source";
+	const wasInEditMode = activeView.getMode() === 'source';
 
 	try {
 		// Force a complete re-render
 		if (wasInEditMode) {
-			await activeView.setState({ mode: "preview" }, { history: false });
+			await activeView.setState({ mode: 'preview' }, { history: false });
 		} else {
 			// If already in preview, toggle modes to force refresh
-			await activeView.setState({ mode: "source" }, { history: false });
-			await new Promise((resolve) =>
-				setTimeout(resolve, MODE_SWITCH_DELAY_MS),
-			);
-			await activeView.setState({ mode: "preview" }, { history: false });
+			await activeView.setState({ mode: 'source' }, { history: false });
+			await new Promise((resolve) => setTimeout(resolve, MODE_SWITCH_DELAY_MS));
+			await activeView.setState({ mode: 'preview' }, { history: false });
 		}
 
 		// Set styles for full content capture
-		previewEl.style.height = "auto";
-		previewEl.style.overflow = "visible";
-		previewEl.style.maxHeight = "none";
+		previewEl.style.height = 'auto';
+		previewEl.style.overflow = 'visible';
+		previewEl.style.maxHeight = 'none';
 
 		// Wait for content to stabilize
 		await waitForStableContent(app, previewEl);
 
 		// Create container and clone content
-		const container = createDiv("markdown-preview-view");
+		const container = createDiv('markdown-preview-view');
 
-		const originalSizer = previewEl.querySelector(
-			".markdown-preview-sizer",
-		);
+		const originalSizer = previewEl.querySelector('.markdown-preview-sizer');
 		if (!originalSizer) {
-			throw new Error("No markdown-preview-sizer found");
+			throw new Error('No markdown-preview-sizer found');
 		}
 
 		const clonedSizer = originalSizer.cloneNode(true) as HTMLElement;
@@ -75,28 +71,25 @@ export async function getRenderedContent(
 		// like an independent page. We extract the content and rebuild it as a simple
 		// inline block to prevent layout issues during printing.
 		clonedSizer
-			.querySelectorAll(".internal-embed:not(.image-embed)")
+			.querySelectorAll('.internal-embed:not(.image-embed)')
 			.forEach((embed) => {
 				const embedEl = embed as HTMLElement;
-				const title =
-					embedEl.querySelector(".embed-title")?.textContent ?? "";
-				const innerSizer = embedEl.querySelector(
-					".markdown-preview-sizer",
-				);
+				const title = embedEl.querySelector('.embed-title')?.textContent ?? '';
+				const innerSizer = embedEl.querySelector('.markdown-preview-sizer');
 
 				if (innerSizer) {
-					const wrapper = document.createElement("div");
-					wrapper.className = "obsidian-print-embed";
+					const wrapper = document.createElement('div');
+					wrapper.className = 'obsidian-print-embed';
 
 					if (title) {
-						const titleEl = document.createElement("div");
-						titleEl.className = "obsidian-print-embed-title";
+						const titleEl = document.createElement('div');
+						titleEl.className = 'obsidian-print-embed-title';
 						titleEl.textContent = title;
 						wrapper.appendChild(titleEl);
 					}
 
-					const content = document.createElement("div");
-					content.className = "obsidian-print-embed-content";
+					const content = document.createElement('div');
+					content.className = 'obsidian-print-embed-content';
 					Array.from(innerSizer.childNodes).forEach((node) => {
 						content.appendChild(node.cloneNode(true));
 					});
@@ -107,9 +100,9 @@ export async function getRenderedContent(
 
 		if (settings.debugMode) {
 			clonedSizer
-				.querySelectorAll(".internal-embed:not(.image-embed)")
+				.querySelectorAll('.internal-embed:not(.image-embed)')
 				.forEach((el) => {
-					console.log("embed HTML:", el.innerHTML.substring(0, 500));
+					console.log('embed HTML:', el.innerHTML.substring(0, 500));
 				});
 		}
 
@@ -120,10 +113,8 @@ export async function getRenderedContent(
 		if (settings.printTitle) {
 			const activeFile = app.workspace.getActiveFile();
 			if (activeFile) {
-				const inlineTitle = clonedSizer.querySelector(".inline-title");
-				const firstH1 = clonedSizer.querySelector(
-					"h1:not(.inline-title)",
-				);
+				const inlineTitle = clonedSizer.querySelector('.inline-title');
+				const firstH1 = clonedSizer.querySelector('h1:not(.inline-title)');
 
 				if (settings.replaceTitleWithH1 && firstH1) {
 					// Replace inline title text with H1 content, then remove H1
@@ -135,9 +126,7 @@ export async function getRenderedContent(
 				} else if (firstH1) {
 					// Original behavior: remove H1 only if it matches filename
 					const titleText = activeFile.basename.toLowerCase().trim();
-					if (
-						firstH1.textContent?.toLowerCase().trim() === titleText
-					) {
+					if (firstH1.textContent?.toLowerCase().trim() === titleText) {
 						firstH1.remove();
 					}
 				}
@@ -145,16 +134,16 @@ export async function getRenderedContent(
 		}
 
 		if (settings.debugMode) {
-			document.querySelectorAll("style").forEach((style, i) => {
+			document.querySelectorAll('style').forEach((style, i) => {
 				if (
-					style.textContent?.includes("MJX") ||
-					style.textContent?.includes("mjx")
+					style.textContent?.includes('MJX') ||
+					style.textContent?.includes('mjx')
 				) {
 					console.log(
 						`Style[${i}] id:`,
 						style.id,
-						"length:",
-						style.textContent.length,
+						'length:',
+						style.textContent.length
 					);
 				}
 			});
@@ -162,28 +151,28 @@ export async function getRenderedContent(
 
 		// Copy MathJax global SVG font cache (required for math rendering)
 		const mjxDefs = document.querySelector(
-			'svg[style*="display: none"] defs, #MJX-SVG-global-cache',
+			'svg[style*="display: none"] defs, #MJX-SVG-global-cache'
 		);
 		if (mjxDefs) {
 			const defsContainer = document.createElementNS(
-				"http://www.w3.org/2000/svg",
-				"svg",
+				'http://www.w3.org/2000/svg',
+				'svg'
 			);
-			defsContainer.style.display = "none";
+			defsContainer.style.display = 'none';
 			defsContainer.appendChild(mjxDefs.cloneNode(true));
 			container.insertBefore(defsContainer, container.firstChild);
 		}
 
 		// Inject MathJax CHTML styles required for math rendering
-		const mjxStyles = document.getElementById("MJX-CHTML-styles");
+		const mjxStyles = document.getElementById('MJX-CHTML-styles');
 		if (mjxStyles) {
-			const styleEl = document.createElement("style");
+			const styleEl = document.createElement('style');
 			styleEl.textContent = mjxStyles.textContent;
 			container.insertBefore(styleEl, container.firstChild);
 		}
 
 		// Add Mermaid diagram styles
-		const mermaidStyle = document.createElement("style");
+		const mermaidStyle = document.createElement('style');
 		mermaidStyle.textContent = `
 			.mermaid {
 				background: white;
@@ -199,16 +188,14 @@ export async function getRenderedContent(
 		if (settings.showMetadata) {
 			const metadata = getMetadata(app, app.workspace.getActiveFile()!);
 			if (metadata) {
-				const sizer = container.querySelector(
-					".markdown-preview-sizer",
-				);
+				const sizer = container.querySelector('.markdown-preview-sizer');
 				if (sizer) {
-					const tempDiv = document.createElement("div");
+					const tempDiv = document.createElement('div');
 					renderMetadata(metadata, tempDiv);
 					const metaEl = tempDiv.firstChild as HTMLElement;
-					const inlineTitle = sizer.querySelector(".inline-title");
+					const inlineTitle = sizer.querySelector('.inline-title');
 					if (inlineTitle) {
-						inlineTitle.insertAdjacentElement("afterend", metaEl);
+						inlineTitle.insertAdjacentElement('afterend', metaEl);
 					} else {
 						sizer.prepend(metaEl);
 					}
@@ -219,7 +206,7 @@ export async function getRenderedContent(
 		return container;
 	} finally {
 		if (wasInEditMode) {
-			await activeView.setState({ mode: "source" }, { history: false });
+			await activeView.setState({ mode: 'source' }, { history: false });
 		}
 		activeView.leaf.rebuildView();
 	}
@@ -229,10 +216,7 @@ export async function getRenderedContent(
  * Waits for content to be fully rendered and stable
  * Uses MutationObserver to track DOM changes and ensures content is ready
  */
-async function waitForStableContent(
-	app: App,
-	element: HTMLElement,
-): Promise<void> {
+async function waitForStableContent(app: App, element: HTMLElement): Promise<void> {
 	// Wait for Obsidian's layout to be ready
 	if (app.workspace?.onLayoutReady) {
 		await new Promise<void>((resolve) => {
@@ -254,7 +238,7 @@ async function waitForStableContent(
 				childList: true,
 				subtree: true,
 				attributes: true,
-				characterData: true,
+				characterData: true
 			});
 
 			// Check stability every 100ms

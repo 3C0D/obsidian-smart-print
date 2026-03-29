@@ -1,14 +1,14 @@
-import { TFile, TFolder, Notice } from "obsidian";
-import { generateHTML } from "./normalCapturePreview.ts";
-import { captureSelectionAdvanced } from "./utils/tempFileCapture.ts";
-import SmartPrintPlugin from "./main.ts";
-import { ERROR_MESSAGES } from "./constants.ts";
-import { isMobile } from "./utils/platform.ts";
-import { openPrintModal } from "./basicPrint/basicPrintPreview.ts";
-import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
-import { PrintManager } from "./browserPrintManager.ts";
-import { PrintModeModal } from "./PrintModeModal.ts";
-import { inlineImages } from "./utils/inlineImages.ts";
+import { TFile, TFolder, Notice } from 'obsidian';
+import { generateHTML } from './normalCapturePreview.ts';
+import { captureSelectionAdvanced } from './utils/tempFileCapture.ts';
+import SmartPrintPlugin from './main.ts';
+import { ERROR_MESSAGES } from './constants.ts';
+import { isMobile } from './utils/platform.ts';
+import { openPrintModal } from './basicPrint/basicPrintPreview.ts';
+import { generatePrintStyles } from './getStyles/generatePrintStyles.ts';
+import { PrintManager } from './browserPrintManager.ts';
+import { PrintModeModal } from './PrintModeModal.ts';
+import { inlineImages } from './utils/inlineImages.ts';
 
 /**
  * Gets the parent folder of the currently active file.
@@ -21,7 +21,7 @@ import { inlineImages } from "./utils/inlineImages.ts";
  * @returns Parent folder or null
  */
 export async function getFolderByActiveFile(
-	plugin: SmartPrintPlugin,
+	plugin: SmartPrintPlugin
 ): Promise<TFolder | null> {
 	const activeFile = plugin.app.workspace.getActiveFile();
 
@@ -56,7 +56,7 @@ export async function getFolderByActiveFile(
  */
 export async function printFolder(
 	plugin: SmartPrintPlugin,
-	folder?: TFolder,
+	folder?: TFolder
 ): Promise<void> {
 	// 1. Identify which folder to print.
 	// If no folder is provided (e.g., from command palette),
@@ -71,7 +71,7 @@ export async function printFolder(
 	// Note: This doesn't traverse subdirectories recursively.
 	// Non-markdown files (images, PDFs, etc.) are automatically excluded.
 	const files = activeFolder.children.filter(
-		(file) => file instanceof TFile && file.extension === "md",
+		(file) => file instanceof TFile && file.extension === 'md'
 	) as TFile[];
 
 	if (files.length === 0) {
@@ -84,10 +84,7 @@ export async function printFolder(
 	for (const file of files) {
 		const md = await plugin.app.vault.cachedRead(file);
 		const h1Match = md.match(/^#\s+(.+)/m);
-		if (
-			h1Match &&
-			h1Match[1].trim().toLowerCase() !== file.basename.toLowerCase()
-		) {
+		if (h1Match && h1Match[1].trim().toLowerCase() !== file.basename.toLowerCase()) {
 			anyFileHasH1 = true;
 			break;
 		}
@@ -112,9 +109,9 @@ export async function printFolder(
 					hasComments: true,
 					hasMetadata: true,
 					hasHrBreaks: true,
-					hasH1: anyFileHasH1,
+					hasH1: anyFileHasH1
 				}, // contentFlags
-				"Print Folder", // modalTitle
+				'Print Folder' // modalTitle
 			).open();
 		});
 		if (!proceed) return;
@@ -126,9 +123,7 @@ export async function printFolder(
 
 	// Show notice for large folder prints using advanced mode
 	if (!isMobile() && files.length > 3) {
-		new Notice(
-			`Rendering ${files.length} files with advanced mode, please wait...`,
-		);
+		new Notice(`Rendering ${files.length} files with advanced mode, please wait...`);
 	}
 
 	for (let i = 0; i < files.length; i++) {
@@ -140,12 +135,12 @@ export async function printFolder(
 		} else {
 			// Try to capture from an already-open leaf first (most efficient)
 			const { captureFromOpenLeaf } =
-				await import("./utils/captureFromOpenLeaf.ts");
+				await import('./utils/captureFromOpenLeaf.ts');
 			content = await captureFromOpenLeaf(
 				plugin.app,
 				plugin.settings,
 				file.path,
-				true,
+				true
 			);
 			// If file not open in any leaf, create temp file for advanced capture
 			if (!content) {
@@ -154,7 +149,7 @@ export async function printFolder(
 					plugin.app,
 					plugin.settings,
 					markdownContent,
-					file.basename,
+					file.basename
 				);
 			}
 		}
@@ -170,11 +165,11 @@ export async function printFolder(
 		// This ensures each note starts on a new page when printed.
 		// The <hr> is hidden but triggers page-break-before in CSS.
 		if (!plugin.settings.combineFolderNotes && i < files.length - 1) {
-			const pageBreak = folderContent.createEl("hr");
-			pageBreak.style.pageBreakBefore = "always";
-			pageBreak.style.border = "none";
-			pageBreak.style.margin = "0";
-			pageBreak.style.visibility = "hidden";
+			const pageBreak = folderContent.createEl('hr');
+			pageBreak.style.pageBreakBefore = 'always';
+			pageBreak.style.border = 'none';
+			pageBreak.style.margin = '0';
+			pageBreak.style.visibility = 'hidden';
 		}
 	}
 
@@ -183,7 +178,7 @@ export async function printFolder(
 	const globalCSS = await generatePrintStyles(
 		plugin.app,
 		plugin.manifest,
-		plugin.settings,
+		plugin.settings
 	);
 
 	// 6. Route to the appropriate print engine.
@@ -199,7 +194,7 @@ export async function printFolder(
 			folderContent,
 			globalCSS,
 			false,
-			activeFolder.name,
+			activeFolder.name
 		);
 		await printer.browserPrint(html);
 	}

@@ -13,14 +13,14 @@ export function createCheckbox(
 	labelText: string,
 	title: string,
 	checked: boolean,
-	onChange: (checked: boolean) => Promise<void>,
+	onChange: (checked: boolean) => Promise<void>
 ): void {
-	const label = container.createEl("label");
-	const checkbox = label.createEl("input", { type: "checkbox" });
+	const label = container.createEl('label');
+	const checkbox = label.createEl('input', { type: 'checkbox' });
 	checkbox.checked = checked;
 	label.appendText(labelText);
 	label.title = title;
-	checkbox.addEventListener("change", async () => {
+	checkbox.addEventListener('change', async () => {
 		await onChange(checkbox.checked);
 	});
 }

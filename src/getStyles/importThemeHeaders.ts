@@ -1,6 +1,6 @@
-import { App, MarkdownView, TFile } from "obsidian";
-import { switchToLightTheme } from "../utils/themeSwitch.ts";
-import { rgbToHex } from "../utils/colorUtils.ts";
+import { App, MarkdownView, TFile } from 'obsidian';
+import { switchToLightTheme } from '../utils/themeSwitch.ts';
+import { rgbToHex } from '../utils/colorUtils.ts';
 
 const TEMP_HEADERS_MD = `# Header 1
 ## Header 2
@@ -23,10 +23,10 @@ export async function getThemeColors(app: App): Promise<{
 	h6: string;
 	inlineTitle: string;
 }> {
-	const tmpDir = "_smart-print-tmp";
+	const tmpDir = '_smart-print-tmp';
 	const tempPath = `${tmpDir}/headers-${Date.now()}.md`;
 	let tempFile: TFile | null = null;
-	let leaf = app.workspace.getLeaf("tab");
+	let leaf = app.workspace.getLeaf('tab');
 	const restoreTheme = switchToLightTheme();
 
 	try {
@@ -39,7 +39,7 @@ export async function getThemeColors(app: App): Promise<{
 		tempFile = await app.vault.create(tempPath, TEMP_HEADERS_MD);
 
 		// Open the temp file in reading mode (preview)
-		await leaf.openFile(tempFile, { state: { mode: "preview" } });
+		await leaf.openFile(tempFile, { state: { mode: 'preview' } });
 		app.workspace.setActiveLeaf(leaf, { focus: true });
 
 		// Wait for rendering
@@ -47,27 +47,25 @@ export async function getThemeColors(app: App): Promise<{
 
 		const view = leaf.view as MarkdownView;
 		// Ensure reading mode
-		await view.setState({ mode: "preview" }, { history: false });
+		await view.setState({ mode: 'preview' }, { history: false });
 		await new Promise((resolve) => setTimeout(resolve, 500));
 
-		const previewEl = view.contentEl.querySelector(
-			".markdown-preview-view",
-		);
+		const previewEl = view.contentEl.querySelector('.markdown-preview-view');
 
 		const getColor = (selector: string): string => {
 			const el = previewEl?.querySelector(selector);
-			if (!el) return "#000000";
+			if (!el) return '#000000';
 			return rgbToHex(window.getComputedStyle(el).color);
 		};
 
 		return {
-			h1: getColor("h1"),
-			h2: getColor("h2"),
-			h3: getColor("h3"),
-			h4: getColor("h4"),
-			h5: getColor("h5"),
-			h6: getColor("h6"),
-			inlineTitle: getColor(".inline-title") || getColor("h1"),
+			h1: getColor('h1'),
+			h2: getColor('h2'),
+			h3: getColor('h3'),
+			h4: getColor('h4'),
+			h5: getColor('h5'),
+			h6: getColor('h6'),
+			inlineTitle: getColor('.inline-title') || getColor('h1')
 		};
 	} finally {
 		restoreTheme();
@@ -93,7 +91,7 @@ export async function getThemeColors(app: App): Promise<{
 export function getHeaderColors(app: App): Map<number, string> {
 	// This function is kept for backward compatibility but will return empty
 	// if called synchronously. Use getThemeColors for async color extraction.
-	console.warn("getHeaderColors is deprecated. Use getThemeColors instead.");
+	console.warn('getHeaderColors is deprecated. Use getThemeColors instead.');
 	return new Map();
 }
 
@@ -102,8 +100,6 @@ export function getHeaderColors(app: App): Map<number, string> {
  * @deprecated Use getThemeColors instead for more reliable results.
  */
 export function getInlineTitleColor(app: App): string {
-	console.warn(
-		"getInlineTitleColor is deprecated. Use getThemeColors instead.",
-	);
-	return "#000000";
+	console.warn('getInlineTitleColor is deprecated. Use getThemeColors instead.');
+	return '#000000';
 }

@@ -1,6 +1,6 @@
-import { App, TFile } from "obsidian";
-import type { SmartPrintPluginSettings } from "../types.ts";
-import { getRenderedContent } from "../advancedPrint/advancedCapturePreview.ts";
+import { App, TFile } from 'obsidian';
+import type { SmartPrintPluginSettings } from '../types.ts';
+import { getRenderedContent } from '../advancedPrint/advancedCapturePreview.ts';
 
 /**
  * Renders selected markdown via advanced capture by creating a temporary file.
@@ -11,9 +11,9 @@ export async function captureSelectionAdvanced(
 	settings: SmartPrintPluginSettings,
 	markdownContent: string,
 	originalTitle?: string,
-	isSelection: boolean = false,
+	isSelection: boolean = false
 ): Promise<HTMLElement | null> {
-	const tmpDir = "_smart-print-tmp";
+	const tmpDir = '_smart-print-tmp';
 	try {
 		await app.vault.createFolder(tmpDir);
 	} catch {
@@ -31,7 +31,7 @@ export async function captureSelectionAdvanced(
 		tempFile = await app.vault.create(tempPath, markdownContent);
 
 		// Open in background leaf
-		leaf = app.workspace.getLeaf("tab");
+		leaf = app.workspace.getLeaf('tab');
 		await leaf.openFile(tempFile);
 		app.workspace.setActiveLeaf(leaf, { focus: true });
 
@@ -41,60 +41,48 @@ export async function captureSelectionAdvanced(
 		// Capture using advanced mode (disable printTitle for temp file)
 		const content = await getRenderedContent(app, {
 			...settings,
-			printTitle: false,
+			printTitle: false
 		});
 
 		if (content) {
 			// Handle replaceTitleWithH1 for selections: replace inline title with H1 content, then remove H1
 			if (settings.replaceTitleWithH1 && originalTitle) {
-				const sizer = content.querySelector(".markdown-preview-sizer");
-				const firstH1 = sizer?.querySelector("h1");
-				const inlineTitle = sizer?.querySelector(".inline-title");
+				const sizer = content.querySelector('.markdown-preview-sizer');
+				const firstH1 = sizer?.querySelector('h1');
+				const inlineTitle = sizer?.querySelector('.inline-title');
 
 				if (firstH1) {
 					// Replace inline title with H1 content (or originalTitle as fallback), then remove H1
 					if (inlineTitle) {
 						inlineTitle.textContent =
-							firstH1.textContent ?? originalTitle ?? "";
+							firstH1.textContent ?? originalTitle ?? '';
 					}
 					firstH1.remove();
 				}
 			} else if (settings.printTitle && originalTitle) {
 				// Original behavior: inject title as new element
-				const sizer = content.querySelector(".markdown-preview-sizer");
+				const sizer = content.querySelector('.markdown-preview-sizer');
 				if (sizer) {
-					const titleEl = document.createElement("h1");
-					titleEl.className = "inline-title";
+					const titleEl = document.createElement('h1');
+					titleEl.className = 'inline-title';
 					titleEl.textContent = originalTitle;
 					sizer.insertBefore(titleEl, sizer.firstChild);
 				}
 			}
 
 			// Inject metadata from original file (only for selection mode)
-			if (
-				content &&
-				settings.showMetadata &&
-				isSelection &&
-				originalFile
-			) {
-				const { getMetadata, renderMetadata } =
-					await import("./metadata.ts");
+			if (content && settings.showMetadata && isSelection && originalFile) {
+				const { getMetadata, renderMetadata } = await import('./metadata.ts');
 				const metadata = getMetadata(app, originalFile);
 				if (metadata) {
-					const sizer = content.querySelector(
-						".markdown-preview-sizer",
-					);
+					const sizer = content.querySelector('.markdown-preview-sizer');
 					if (sizer) {
-						const tempDiv = document.createElement("div");
+						const tempDiv = document.createElement('div');
 						renderMetadata(metadata, tempDiv);
-						const inlineTitle =
-							sizer.querySelector(".inline-title");
+						const inlineTitle = sizer.querySelector('.inline-title');
 						const metaEl = tempDiv.firstChild as HTMLElement;
 						if (inlineTitle) {
-							inlineTitle.insertAdjacentElement(
-								"afterend",
-								metaEl,
-							);
+							inlineTitle.insertAdjacentElement('afterend', metaEl);
 						} else {
 							sizer.prepend(metaEl);
 						}
@@ -109,8 +97,7 @@ export async function captureSelectionAdvanced(
 		if (leaf) leaf.detach();
 		if (tempFile) {
 			await app.vault.delete(tempFile);
-			const tmpFolder =
-				app.vault.getAbstractFileByPath("_smart-print-tmp");
+			const tmpFolder = app.vault.getAbstractFileByPath('_smart-print-tmp');
 			if (tmpFolder) {
 				try {
 					await app.vault.delete(tmpFolder);

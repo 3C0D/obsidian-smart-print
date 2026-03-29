@@ -1,19 +1,19 @@
-import { Plugin, TFile, debounce, MarkdownView } from "obsidian";
-import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from "./types.ts";
-import { printFolder } from "./folderPrint.ts";
-import { PrintModeModal } from "./PrintModeModal.ts";
+import { Plugin, TFile, debounce, MarkdownView } from 'obsidian';
+import { DEFAULT_SETTINGS, type SmartPrintPluginSettings } from './types.ts';
+import { printFolder } from './folderPrint.ts';
+import { PrintModeModal } from './PrintModeModal.ts';
 import {
 	initializeThemeColors,
 	initializeFontSizes,
-	PrintSettingTab,
-} from "./settings.ts";
-import { openPrintModal, directPrint } from "./basicPrint/basicPrintPreview.ts";
-import { generatePrintStyles } from "./getStyles/generatePrintStyles.ts";
-import { isMobile } from "./utils/platform.ts";
-import { registerMenus } from "./menuManager.ts";
-import { getBestContent, getBestPrintEngine } from "./captureStrategy.ts";
-import { PrintManager } from "./browserPrintManager.ts";
-import { scanContentFlags } from "./utils/contentScanner.ts";
+	PrintSettingTab
+} from './settings.ts';
+import { openPrintModal, directPrint } from './basicPrint/basicPrintPreview.ts';
+import { generatePrintStyles } from './getStyles/generatePrintStyles.ts';
+import { isMobile } from './utils/platform.ts';
+import { registerMenus } from './menuManager.ts';
+import { getBestContent, getBestPrintEngine } from './captureStrategy.ts';
+import { PrintManager } from './browserPrintManager.ts';
+import { scanContentFlags } from './utils/contentScanner.ts';
 
 // Timing constants
 const RIBBON_ICON_DEBOUNCE_MS = 500; // Debounce delay for ribbon icon clicks to prevent double-printing
@@ -77,14 +77,10 @@ export default class SmartPrintPlugin extends Plugin {
 				await this.handlePrint();
 			},
 			RIBBON_ICON_DEBOUNCE_MS,
-			true,
+			true
 		);
 
-		this.ribbonIconEl = this.addRibbonIcon(
-			"printer",
-			"Print note",
-			debouncedPrint,
-		);
+		this.ribbonIconEl = this.addRibbonIcon('printer', 'Print note', debouncedPrint);
 	}
 
 	// ─── Commands ──────────────────────────────────────
@@ -94,27 +90,27 @@ export default class SmartPrintPlugin extends Plugin {
 	 */
 	private registerCommands(): void {
 		this.addCommand({
-			id: "print-note",
-			name: "Current note",
-			callback: async () => await this.handlePrint(),
+			id: 'print-note',
+			name: 'Current note',
+			callback: async () => await this.handlePrint()
 		});
 
 		this.addCommand({
-			id: "quick-print-note",
-			name: "Quick print (no modal)",
-			callback: async () => await this.unifiedPrint(),
+			id: 'quick-print-note',
+			name: 'Quick print (no modal)',
+			callback: async () => await this.unifiedPrint()
 		});
 
 		this.addCommand({
-			id: "print-selection",
-			name: "Selection (basic print)",
-			callback: async () => await this.handlePrint(true),
+			id: 'print-selection',
+			name: 'Selection (basic print)',
+			callback: async () => await this.handlePrint(true)
 		});
 
 		this.addCommand({
-			id: "print-folder-notes",
-			name: "All notes in current folder",
-			callback: async () => await printFolder(this),
+			id: 'print-folder-notes',
+			name: 'All notes in current folder',
+			callback: async () => await printFolder(this)
 		});
 	}
 
@@ -140,15 +136,14 @@ export default class SmartPrintPlugin extends Plugin {
 			// For selections, get the selected content to scan for H1
 			let selectionContent: string | undefined;
 			if (isSelection) {
-				const activeView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
+				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 				selectionContent = activeView?.editor.getSelection();
 			}
 
 			const contentFlags = await scanContentFlags(
 				this.app.vault,
 				targetFile ?? undefined,
-				selectionContent,
+				selectionContent
 			);
 
 			new PrintModeModal(
@@ -162,7 +157,7 @@ export default class SmartPrintPlugin extends Plugin {
 				false,
 				isSelection,
 				contentFlags,
-				isSelection ? "Print Selection" : "Print Note",
+				isSelection ? 'Print Selection' : 'Print Note'
 			).open();
 		} else {
 			await this.unifiedPrint(isSelection, file);
@@ -173,12 +168,7 @@ export default class SmartPrintPlugin extends Plugin {
 		// 1. Capture content using the best available method.
 		// This tries advanced DOM capture first (for Mermaid, Dataview, etc.),
 		// then falls back to standard Markdown rendering if needed.
-		const content = await getBestContent(
-			this.app,
-			this.settings,
-			isSelection,
-			file,
-		);
+		const content = await getBestContent(this.app, this.settings, isSelection, file);
 		if (!content) return;
 
 		// 2. Generate CSS styles for the print output.
@@ -186,7 +176,7 @@ export default class SmartPrintPlugin extends Plugin {
 		const globalCSS = await generatePrintStyles(
 			this.app,
 			this.manifest,
-			this.settings,
+			this.settings
 		);
 
 		// 3. Select the appropriate print engine based on platform and settings.
@@ -194,16 +184,14 @@ export default class SmartPrintPlugin extends Plugin {
 		// Printd (mobile/desktop): Uses in-app print dialog.
 		const engine = getBestPrintEngine(this.settings, isMobile());
 
-		if (engine === "browser") {
+		if (engine === 'browser') {
 			// Browser print: Create temporary HTML file and open in default browser.
 			// This provides better text rendering and more print options.
 			const filePath =
-				file?.path ??
-				this.app.workspace.getActiveFile()?.path ??
-				"Untitled";
+				file?.path ?? this.app.workspace.getActiveFile()?.path ?? 'Untitled';
 			const printer = new PrintManager();
 			await printer.browserPrint(
-				printer.createPrintableHtml(content, globalCSS, true, filePath),
+				printer.createPrintableHtml(content, globalCSS, true, filePath)
 			);
 		} else {
 			// Printd: Use in-app printing with Electron/mobile print dialog.
@@ -219,7 +207,7 @@ export default class SmartPrintPlugin extends Plugin {
 	async loadSettings(): Promise<void> {
 		this.settings = {
 			...DEFAULT_SETTINGS,
-			...(await this.loadData()),
+			...(await this.loadData())
 		};
 	}
 

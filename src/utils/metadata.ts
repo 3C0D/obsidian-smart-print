@@ -1,4 +1,4 @@
-import { App, TFile } from "obsidian";
+import { App, TFile } from 'obsidian';
 
 /**
  * Renders metadata (frontmatter) as HTML elements.
@@ -9,22 +9,20 @@ import { App, TFile } from "obsidian";
  */
 export function renderMetadata(
 	metadata: Record<string, any>,
-	container: HTMLElement,
+	container: HTMLElement
 ): void {
 	if (!metadata || Object.keys(metadata).length === 0) {
 		return;
 	}
 
-	const metadataContainer = container.createDiv("custom-metadata-container");
-	const metadataContent = metadataContainer.createDiv(
-		"custom-metadata-content",
-	);
+	const metadataContainer = container.createDiv('custom-metadata-container');
+	const metadataContent = metadataContainer.createDiv('custom-metadata-content');
 
 	Object.entries(metadata).forEach(([key, value]) => {
-		const line = metadataContent.createDiv("custom-metadata-line");
+		const line = metadataContent.createDiv('custom-metadata-line');
 		const displayValue = Array.isArray(value)
-			? value.join(", ")
-			: typeof value === "object" && value !== null
+			? value.join(', ')
+			: typeof value === 'object' && value !== null
 				? JSON.stringify(value)
 				: String(value);
 		line.setText(`${key}: ${displayValue}`);
@@ -38,10 +36,7 @@ export function renderMetadata(
  * @param input - TFile or string (uses active file if string)
  * @returns Metadata object or null
  */
-export function getMetadata(
-	app: App,
-	input: TFile | string,
-): Record<string, any> | null {
+export function getMetadata(app: App, input: TFile | string): Record<string, any> | null {
 	let file: TFile | null = null;
 
 	if (input instanceof TFile) {

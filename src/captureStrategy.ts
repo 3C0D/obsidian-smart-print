@@ -1,9 +1,9 @@
-import { App, MarkdownView, TFile } from "obsidian";
-import type { SmartPrintPluginSettings } from "./types.ts";
-import { getRenderedContent } from "./advancedPrint/advancedCapturePreview.ts";
-import { contentToHTML } from "./normalCapturePreview.ts";
-import { switchToLightTheme } from "./utils/themeSwitch.ts";
-import { inlineImages } from "./utils/inlineImages.ts";
+import { App, MarkdownView, TFile } from 'obsidian';
+import type { SmartPrintPluginSettings } from './types.ts';
+import { getRenderedContent } from './advancedPrint/advancedCapturePreview.ts';
+import { contentToHTML } from './normalCapturePreview.ts';
+import { switchToLightTheme } from './utils/themeSwitch.ts';
+import { inlineImages } from './utils/inlineImages.ts';
 
 /**
  * Unified content capture strategy.
@@ -23,7 +23,7 @@ export async function getBestContent(
 	app: App,
 	settings: SmartPrintPluginSettings,
 	isSelection: boolean = false,
-	file?: TFile,
+	file?: TFile
 ): Promise<HTMLElement | null> {
 	// Check if we can use advanced DOM capture.
 	// Requirements:
@@ -35,9 +35,8 @@ export async function getBestContent(
 
 	// Handle selection mode using temporary file approach for advanced capture.
 	if (isSelection) {
-		const { captureSelectionAdvanced } =
-			await import("./utils/tempFileCapture.ts");
-		const { isMobile } = await import("./utils/platform.ts");
+		const { captureSelectionAdvanced } = await import('./utils/tempFileCapture.ts');
+		const { isMobile } = await import('./utils/platform.ts');
 		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
 		const md = activeView?.editor.getSelection();
 		const originalTitle = activeFile?.basename;
@@ -47,7 +46,7 @@ export async function getBestContent(
 				settings,
 				md,
 				originalTitle,
-				true,
+				true
 			);
 			if (content) {
 				await inlineImages(content);
@@ -65,23 +64,23 @@ export async function getBestContent(
 			const targetFile = file ?? activeFile;
 			if (targetFile) {
 				const { captureFromOpenLeaf } =
-					await import("./utils/captureFromOpenLeaf.ts");
+					await import('./utils/captureFromOpenLeaf.ts');
 				const content = await captureFromOpenLeaf(
 					app,
 					settings,
 					targetFile.path,
-					true,
+					true
 				);
 				if (content) {
 					if (settings.debugMode)
-						console.log("Capture from open leaf successful");
+						console.log('Capture from open leaf successful');
 					await inlineImages(content);
 					return content;
 				}
 			}
 		}
 		if (settings.debugMode) {
-			console.log("File is not active, using standard renderer");
+			console.log('File is not active, using standard renderer');
 		}
 		const content = await contentToHTML(app, settings, isSelection, file);
 		if (content) await inlineImages(content);
@@ -94,12 +93,12 @@ export async function getBestContent(
 	const restoreTheme = switchToLightTheme();
 	try {
 		if (settings.debugMode) {
-			console.log("Attempting advanced DOM capture");
+			console.log('Attempting advanced DOM capture');
 		}
 		const content = await getRenderedContent(app, settings);
 		if (content) {
 			if (settings.debugMode) {
-				console.log("Advanced DOM capture successful");
+				console.log('Advanced DOM capture successful');
 			}
 			// Convert app:// protocol images to base64 for print compatibility
 			await inlineImages(content);
@@ -107,7 +106,7 @@ export async function getBestContent(
 		}
 	} catch (error) {
 		if (settings.debugMode) {
-			console.warn("Advanced DOM capture failed, falling back:", error);
+			console.warn('Advanced DOM capture failed, falling back:', error);
 		}
 	} finally {
 		// Always restore the original theme, even if capture fails.
@@ -121,18 +120,13 @@ export async function getBestContent(
 	const targetFile = file ?? activeFile;
 	if (targetFile) {
 		if (settings.debugMode) {
-			console.log("Attempting capture from open leaf");
+			console.log('Attempting capture from open leaf');
 		}
-		const { captureFromOpenLeaf } =
-			await import("./utils/captureFromOpenLeaf.ts");
-		const content = await captureFromOpenLeaf(
-			app,
-			settings,
-			targetFile.path,
-		);
+		const { captureFromOpenLeaf } = await import('./utils/captureFromOpenLeaf.ts');
+		const content = await captureFromOpenLeaf(app, settings, targetFile.path);
 		if (content) {
 			if (settings.debugMode) {
-				console.log("Capture from open leaf successful");
+				console.log('Capture from open leaf successful');
 			}
 			await inlineImages(content);
 			return content;
@@ -143,7 +137,7 @@ export async function getBestContent(
 	// This uses Obsidian's MarkdownRenderer API, which is more reliable
 	// but doesn't capture dynamic content from plugins.
 	if (settings.debugMode) {
-		console.log("Using standard HTML renderer");
+		console.log('Using standard HTML renderer');
 	}
 	const content = await contentToHTML(app, settings, isSelection, file);
 	// Convert app:// protocol images to base64 for print compatibility
@@ -166,13 +160,13 @@ export async function getBestContent(
  */
 export function getBestPrintEngine(
 	settings: SmartPrintPluginSettings,
-	isMobile: boolean,
-): "browser" | "printd" {
+	isMobile: boolean
+): 'browser' | 'printd' {
 	// Mobile always uses Printd (no Node.js modules)
 	if (isMobile) {
-		return "printd";
+		return 'printd';
 	}
 
 	// Desktop: respect user preference
-	return settings.useBrowserPrint ? "browser" : "printd";
+	return settings.useBrowserPrint ? 'browser' : 'printd';
 }

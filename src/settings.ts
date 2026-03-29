@@ -1,13 +1,13 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
-import SmartPrintPlugin from "./main.ts";
+import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+import SmartPrintPlugin from './main.ts';
 import {
 	getPrintSnippet,
-	isPrintSnippetEnabled,
-} from "./getStyles/generatePrintStyles.ts";
-import { getThemeColors } from "./getStyles/importThemeHeaders.ts";
-import { FONT_OPTIONS } from "./getStyles/fontOptions.ts";
-import { ERROR_MESSAGES } from "./constants.ts";
-import { isMobile } from "./utils/platform.ts";
+	isPrintSnippetEnabled
+} from './getStyles/generatePrintStyles.ts';
+import { getThemeColors } from './getStyles/importThemeHeaders.ts';
+import { FONT_OPTIONS } from './getStyles/fontOptions.ts';
+import { ERROR_MESSAGES } from './constants.ts';
+import { isMobile } from './utils/platform.ts';
 
 export class PrintSettingTab extends PluginSettingTab {
 	plugin: SmartPrintPlugin;
@@ -23,49 +23,49 @@ export class PrintSettingTab extends PluginSettingTab {
 
 		const mobile = isMobile();
 
-		containerEl.createEl("p", {
-			text: "💡 Tip: Some of these settings can be changed interactively in the print modal before each print.",
-			cls: "setting-item-description",
+		containerEl.createEl('p', {
+			text: '💡 Tip: Some of these settings can be changed interactively in the print modal before each print.',
+			cls: 'setting-item-description'
 		});
 
 		// ═══════════════════════════════════════════
 		// Content Options
 		// ═══════════════════════════════════════════
 
-		containerEl.createEl("h3", { text: "Content Options" });
+		containerEl.createEl('h3', { text: 'Content Options' });
 
 		new Setting(containerEl)
-			.setName("Print note title")
-			.setDesc("Include the note title in the printout.")
+			.setName('Print note title')
+			.setDesc('Include the note title in the printout.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.printTitle)
 					.onChange(async (value) => {
 						this.plugin.settings.printTitle = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Show metadata")
-			.setDesc("Include the note metadata in the" + " printout.")
+			.setName('Show metadata')
+			.setDesc('Include the note metadata in the' + ' printout.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.showMetadata)
 					.onChange(async (value) => {
 						this.plugin.settings.showMetadata = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Show comments")
+			.setName('Show comments')
 			.setDesc(
-				"Display Obsidian comments (%% ... %%)" +
-					" in the printout. Comments will appear" +
-					" with a yellow background." +
-					" ⚠ Warning: Enabling this disables advanced" +
-					" rendering (Mermaid, LaTeX, Dataview will not render).",
+				'Display Obsidian comments (%% ... %%)' +
+					' in the printout. Comments will appear' +
+					' with a yellow background.' +
+					' ⚠ Warning: Enabling this disables advanced' +
+					' rendering (Mermaid, LaTeX, Dataview will not render).'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -73,39 +73,39 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.showComments = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Hide images")
-			.setDesc("Hide all images from print output.")
+			.setName('Hide images')
+			.setDesc('Hide all images from print output.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.hideImages)
 					.onChange(async (value) => {
 						this.plugin.settings.hideImages = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Hide embedded notes")
-			.setDesc("Hide embedded notes (![[note]]) from print output.")
+			.setName('Hide embedded notes')
+			.setDesc('Hide embedded notes (![[note]]) from print output.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.hideEmbeds)
 					.onChange(async (value) => {
 						this.plugin.settings.hideEmbeds = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Treat horizontal lines as page breaks")
+			.setName('Treat horizontal lines as page breaks')
 			.setDesc(
-				"Enable this option to interpret" +
-					" horizontal lines (---) as" +
-					" page breaks",
+				'Enable this option to interpret' +
+					' horizontal lines (---) as' +
+					' page breaks'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -113,16 +113,16 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.hrPageBreaks = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Combine folder notes")
+			.setName('Combine folder notes')
 			.setDesc(
-				"When printing a folder, combine all" +
-					" notes into a single document. If" +
-					" disabled, each note will start on" +
-					" a new page.",
+				'When printing a folder, combine all' +
+					' notes into a single document. If' +
+					' disabled, each note will start on' +
+					' a new page.'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -130,15 +130,15 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.combineFolderNotes = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Print in color")
+			.setName('Print in color')
 			.setDesc(
-				"Enable to print with heading colors" +
-					" and theme colors. Disable for" +
-					" black & white output.",
+				'Enable to print with heading colors' +
+					' and theme colors. Disable for' +
+					' black & white output.'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -146,33 +146,33 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.printInColor = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		// ═══════════════════════════════════════════
 		// Font & Typography
 		// ═══════════════════════════════════════════
 
-		containerEl.createEl("h3", { text: "Font & Typography" });
+		containerEl.createEl('h3', { text: 'Font & Typography' });
 
 		// Font family setting
 		createFontFamilyDropdownSetting(
 			containerEl,
-			"Font family",
-			"Choose the font family for the printed note.",
+			'Font family',
+			'Choose the font family for the printed note.',
 			FONT_OPTIONS,
 			this.plugin.settings.printFontFamily,
 			async (value) => {
 				this.plugin.settings.printFontFamily = value;
 				await this.plugin.saveSettings();
-			},
+			}
 		);
 
 		// Font size setting with auto-sync
 		createFontSizeSettingWithAutoSync(
 			containerEl,
-			"Font size",
-			"Set the font size for the printed note" + " (in pixels).",
+			'Font size',
+			'Set the font size for the printed note' + ' (in pixels).',
 			this.plugin.settings.fontSize,
 			this.plugin.settings.autoSyncHeadingSizes,
 			this.plugin,
@@ -188,104 +188,100 @@ export class PrintSettingTab extends PluginSettingTab {
 				await initializeFontSizes(this.plugin);
 				// Refresh to show updated values
 				this.display();
-			},
+			}
 		);
 
 		// Headers in ascending size order
 		const hSizes = [
-			"h6Size",
-			"h5Size",
-			"h4Size",
-			"h3Size",
-			"h2Size",
-			"h1Size",
+			'h6Size',
+			'h5Size',
+			'h4Size',
+			'h3Size',
+			'h2Size',
+			'h1Size'
 		] as const;
 		hSizes.forEach((hSize, index) => {
 			const level = 6 - index;
 			const defaultSize = `${12 + level * 2}px`;
 			new Setting(containerEl)
 				.setName(`Heading ${level} size`)
-				.setDesc(
-					`Set the size for <h${level}>` + ` elements (in pixels).`,
-				)
+				.setDesc(`Set the size for <h${level}>` + ` elements (in pixels).`)
 				.addText((text) =>
 					text
 						.setPlaceholder(`${12 + level * 2}`)
-						.setValue(this.plugin.settings[hSize].replace("px", ""))
+						.setValue(this.plugin.settings[hSize].replace('px', ''))
 						.onChange(async (value) => {
 							this.plugin.settings[hSize] = validateFontSize(
 								value,
-								defaultSize,
+								defaultSize
 							);
 							await this.plugin.saveSettings();
-						}),
+						})
 				);
 		});
 
 		new Setting(containerEl)
-			.setName("Inline title size")
-			.setDesc("Set the size for the inline title" + " (in pixels).")
+			.setName('Inline title size')
+			.setDesc('Set the size for the inline title' + ' (in pixels).')
 			.addText((text) =>
 				text
-					.setPlaceholder("26")
-					.setValue(
-						this.plugin.settings.inlineTitleSize.replace("px", ""),
-					)
+					.setPlaceholder('26')
+					.setValue(this.plugin.settings.inlineTitleSize.replace('px', ''))
 					.onChange(async (value) => {
 						this.plugin.settings.inlineTitleSize = validateFontSize(
 							value,
-							"26px",
+							'26px'
 						);
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		// ═══════════════════════════════════════════
 		// Colors
 		// ═══════════════════════════════════════════
 
-		containerEl.createEl("h3", { text: "Colors" });
+		containerEl.createEl('h3', { text: 'Colors' });
 
 		const hColors = [
-			"h1Color",
-			"h2Color",
-			"h3Color",
-			"h4Color",
-			"h5Color",
-			"h6Color",
+			'h1Color',
+			'h2Color',
+			'h3Color',
+			'h4Color',
+			'h5Color',
+			'h6Color'
 		] as const;
 
 		new Setting(containerEl)
-			.setName("Import theme colors")
+			.setName('Import theme colors')
 			.setDesc(
-				"Import all heading colors and inline title color from your current theme (using light mode values).",
+				'Import all heading colors and inline title color from your current theme (using light mode values).'
 			)
 			.addButton((button) =>
 				button
-					.setButtonText("get theme colors")
+					.setButtonText('get theme colors')
 					.setTooltip(
-						"Import heading colors from" +
-							" your current theme." +
-							" This will update all" +
-							" heading colors and" +
-							" inline title color.",
+						'Import heading colors from' +
+							' your current theme.' +
+							' This will update all' +
+							' heading colors and' +
+							' inline title color.'
 					)
 					.onClick(async () => {
 						await initializeThemeColors(this.app, this.plugin);
 						this.display();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Inline title color")
-			.setDesc("Set the color for the inline title.")
+			.setName('Inline title color')
+			.setDesc('Set the color for the inline title.')
 			.addColorPicker((color) =>
 				color
 					.setValue(this.plugin.settings.inlineTitleColor)
 					.onChange(async (value) => {
 						this.plugin.settings.inlineTitleColor = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		hColors.forEach((hColor, index) => {
@@ -298,7 +294,7 @@ export class PrintSettingTab extends PluginSettingTab {
 						.onChange(async (value) => {
 							this.plugin.settings[hColor] = value;
 							await this.plugin.saveSettings();
-						}),
+						})
 				);
 		});
 
@@ -306,14 +302,14 @@ export class PrintSettingTab extends PluginSettingTab {
 		// UI & UX
 		// ═══════════════════════════════════════════
 
-		containerEl.createEl("h3", { text: "UI & UX" });
+		containerEl.createEl('h3', { text: 'UI & UX' });
 
 		new Setting(containerEl)
-			.setName("Skip preview")
+			.setName('Skip preview')
 			.setDesc(
-				"Print immediately without showing" +
-					" the preview window. The print" +
-					" dialog will open directly.",
+				'Print immediately without showing' +
+					' the preview window. The print' +
+					' dialog will open directly.'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -321,12 +317,12 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.skipPreview = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Show ribbon icon")
-			.setDesc("Show the printer icon in the left" + " sidebar ribbon.")
+			.setName('Show ribbon icon')
+			.setDesc('Show the printer icon in the left' + ' sidebar ribbon.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.showRibbonIcon)
@@ -334,15 +330,15 @@ export class PrintSettingTab extends PluginSettingTab {
 						this.plugin.settings.showRibbonIcon = value;
 						this.plugin.updateRibbonIcon();
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Show context menu items")
+			.setName('Show context menu items')
 			.setDesc(
-				"Show print options in right-click" +
-					" context menus (file explorer" +
-					" and editor).",
+				'Show print options in right-click' +
+					' context menus (file explorer' +
+					' and editor).'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -350,15 +346,15 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.showContextMenu = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
-			.setName("Group in submenu")
+			.setName('Group in submenu')
 			.setDesc(
-				"Group context menu items under a" +
+				'Group context menu items under a' +
 					' "Smart Print" submenu to keep' +
-					" menus clean.",
+					' menus clean.'
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -366,7 +362,7 @@ export class PrintSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.useSubmenu = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		// ═══════════════════════════════════════════
@@ -374,38 +370,36 @@ export class PrintSettingTab extends PluginSettingTab {
 		// ═══════════════════════════════════════════
 
 		if (!mobile) {
-			containerEl.createEl("h3", { text: "Desktop-Only Settings" });
+			containerEl.createEl('h3', { text: 'Desktop-Only Settings' });
 
 			// Custom CSS snippet
 			const customCSSSetting = new Setting(containerEl)
-				.setName("Custom CSS")
+				.setName('Custom CSS')
 				.setDesc(
-					"Click the folder icon to create" +
+					'Click the folder icon to create' +
 						' a "print.css" file in' +
-						" snippets. A toggle will" +
-						" appear here once the file" +
-						" exists to enable/disable" +
-						" your custom styles. Use" +
+						' snippets. A toggle will' +
+						' appear here once the file' +
+						' exists to enable/disable' +
+						' your custom styles. Use' +
 						' ".obsidian-print" as prefix' +
-						" for your selectors. e.g:" +
-						' ".obsidian-print a {...}".',
+						' for your selectors. e.g:' +
+						' ".obsidian-print a {...}".'
 				)
 				.addButton((button) =>
 					button
-						.setIcon("folder")
-						.setTooltip("Open snippets folder")
+						.setIcon('folder')
+						.setTooltip('Open snippets folder')
 						.onClick(async () => {
-							await this.app.openWithDefaultApp(
-								".obsidian/snippets",
-							);
+							await this.app.openWithDefaultApp('.obsidian/snippets');
 							window.addEventListener(
-								"focus",
+								'focus',
 								() => {
 									this.display();
 								},
-								{ once: true },
+								{ once: true }
 							);
-						}),
+						})
 				);
 
 			if (getPrintSnippet(this.app)) {
@@ -413,21 +407,18 @@ export class PrintSettingTab extends PluginSettingTab {
 					toggle
 						.setValue(isPrintSnippetEnabled(this.app))
 						.onChange(async (value) => {
-							this.app.customCss.setCssEnabledStatus(
-								"print",
-								value,
-							);
+							this.app.customCss.setCssEnabledStatus('print', value);
 							await this.plugin.saveSettings();
-						}),
+						})
 				);
 			}
 
 			new Setting(containerEl)
-				.setName("Show print mode selection")
+				.setName('Show print mode selection')
 				.setDesc(
-					"Show a modal to choose between" +
-						" basic, standard and advanced" +
-						" (when possible) print mode.",
+					'Show a modal to choose between' +
+						' basic, standard and advanced' +
+						' (when possible) print mode.'
 				)
 				.addToggle((toggle) =>
 					toggle
@@ -435,32 +426,30 @@ export class PrintSettingTab extends PluginSettingTab {
 						.onChange(async (value) => {
 							this.plugin.settings.useModal = value;
 							await this.plugin.saveSettings();
-						}),
+						})
 				);
 
 			new Setting(containerEl)
-				.setName("Show folder print options modal")
-				.setDesc(
-					"Show a modal with options when" + " printing folders.",
-				)
+				.setName('Show folder print options modal')
+				.setDesc('Show a modal with options when' + ' printing folders.')
 				.addToggle((toggle) =>
 					toggle
 						.setValue(this.plugin.settings.useFolderModal)
 						.onChange(async (value) => {
 							this.plugin.settings.useFolderModal = value;
 							await this.plugin.saveSettings();
-						}),
+						})
 				);
 
 			new Setting(containerEl)
-				.setName("Use browser print")
+				.setName('Use browser print')
 				.setDesc(
-					"Enable advanced printing through" +
-						" browser. This provides more" +
-						" printing options and better" +
-						" text formatting. When" +
+					'Enable advanced printing through' +
+						' browser. This provides more' +
+						' printing options and better' +
+						' text formatting. When' +
 						" disabled, use Obsidian's" +
-						" basic print only.",
+						' basic print only.'
 				)
 				.addToggle((toggle) =>
 					toggle
@@ -468,7 +457,7 @@ export class PrintSettingTab extends PluginSettingTab {
 						.onChange(async (value) => {
 							this.plugin.settings.useBrowserPrint = value;
 							await this.plugin.saveSettings();
-						}),
+						})
 				);
 		}
 
@@ -476,18 +465,18 @@ export class PrintSettingTab extends PluginSettingTab {
 		// Debug
 		// ═══════════════════════════════════════════
 
-		containerEl.createEl("h3", { text: "Debug" });
+		containerEl.createEl('h3', { text: 'Debug' });
 
 		new Setting(containerEl)
-			.setName("Debug mode")
-			.setDesc("Enable console logging for debugging purposes.")
+			.setName('Debug mode')
+			.setDesc('Enable console logging for debugging purposes.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.debugMode)
 					.onChange(async (value) => {
 						this.plugin.settings.debugMode = value;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 	}
 }
@@ -505,7 +494,7 @@ export class PrintSettingTab extends PluginSettingTab {
  */
 export async function initializeThemeColors(
 	app: App,
-	plugin: SmartPrintPlugin,
+	plugin: SmartPrintPlugin
 ): Promise<void> {
 	const colors = await getThemeColors(app);
 
@@ -540,9 +529,7 @@ export async function initializeThemeColors(
  *
  * @param plugin - SmartPrintPlugin instance
  */
-export async function initializeFontSizes(
-	plugin: SmartPrintPlugin,
-): Promise<void> {
+export async function initializeFontSizes(plugin: SmartPrintPlugin): Promise<void> {
 	const baseSize = parseInt(plugin.settings.fontSize);
 	if (isNaN(baseSize)) return;
 
@@ -581,7 +568,7 @@ export function validateFontSize(value: string, defaultSize: string): string {
 		return defaultSize;
 	}
 
-	const numValue = parseFloat(value.replace("px", ""));
+	const numValue = parseFloat(value.replace('px', ''));
 	if (numValue <= 0) {
 		new Notice(ERROR_MESSAGES.FONT_SIZE_POSITIVE);
 		return defaultSize;
@@ -600,7 +587,7 @@ function createFontFamilyDropdownSetting(
 	desc: string,
 	options: { value: string; label: string }[],
 	currentValue: string,
-	onChange: (value: string) => Promise<void>,
+	onChange: (value: string) => Promise<void>
 ): Setting {
 	return new Setting(containerEl)
 		.setName(name)
@@ -635,7 +622,7 @@ function createFontSizeSettingWithAutoSync(
 	plugin: SmartPrintPlugin,
 	onChange: (value: string) => Promise<void>,
 	onToggleAutoSync: (enabled: boolean) => Promise<void>,
-	onManualSync: () => Promise<void>,
+	onManualSync: () => Promise<void>
 ): Setting {
 	const setting = new Setting(containerEl).setName(name).setDesc(desc);
 
@@ -657,18 +644,18 @@ function addFontSizeInput(
 	currentValue: string,
 	plugin: SmartPrintPlugin,
 	onChange: (value: string) => Promise<void>,
-	onManualSync: () => Promise<void>,
+	onManualSync: () => Promise<void>
 ): void {
 	setting.addText((text) => {
-		text.setPlaceholder("12")
-			.setValue(currentValue.replace("px", ""))
+		text.setPlaceholder('12')
+			.setValue(currentValue.replace('px', ''))
 			.onChange(async (value) => {
-				const validatedValue = validateFontSize(value, "12px");
+				const validatedValue = validateFontSize(value, '12px');
 				await onChange(validatedValue);
 			});
 
 		// Trigger auto-sync when input loses focus
-		text.inputEl.addEventListener("blur", async () => {
+		text.inputEl.addEventListener('blur', async () => {
 			if (plugin.settings.autoSyncHeadingSizes) {
 				await onManualSync();
 			}
@@ -686,19 +673,19 @@ function addAutoSyncToggle(
 	setting: Setting,
 	autoSyncEnabled: boolean,
 	onToggleAutoSync: (enabled: boolean) => Promise<void>,
-	onManualSync: () => Promise<void>,
+	onManualSync: () => Promise<void>
 ): void {
 	// Add label before toggle
-	const label = document.createElement("span");
-	label.textContent = "Scale headings with font size";
-	label.style.marginLeft = "5px";
+	const label = document.createElement('span');
+	label.textContent = 'Scale headings with font size';
+	label.style.marginLeft = '5px';
 	setting.controlEl.appendChild(label);
 
 	// Add toggle
 	setting.addToggle((toggle) =>
 		toggle
 			.setTooltip(
-				"All heading sizes automatically adjust when you change the base font size.",
+				'All heading sizes automatically adjust when you change the base font size.'
 			)
 			.setValue(autoSyncEnabled)
 			.onChange(async (enabled) => {
@@ -706,6 +693,6 @@ function addAutoSyncToggle(
 				if (enabled) {
 					await onManualSync();
 				}
-			}),
+			})
 	);
 }
